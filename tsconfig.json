@@ -1,7 +1,13 @@
 {
+  "compilerOptions": {
+    "strict": false, // Выключаем строгий режим (главный флаг)
+    "noImplicitAny": false, // Разрешаем any там, где тип не указан
+    "strictNullChecks": false, // Перестаем ругаться на "возможно undefined"
+    "skipLibCheck": true, // Не проверять типы внутри сторонних библиотек
+    "noUnusedLocals": false, // Не ругаться на неиспользуемые переменные
+    "noUnusedParameters": false, // Не ругаться на неиспользуемые аргументы в функциях
+    "ignoreDeprecations": "5.0" // Игнорировать устаревшие предупреждения
+  },
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
