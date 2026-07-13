@@ -76,7 +76,6 @@ export const Dashboard: React.FC = () => {
           analyticsService.getUserProjects(userId),
         ]);
 
-        // Проверка на актуальность ID (защита от гонки запросов)
         if (targetId !== selectedProjectId && !isInitialLoad) return;
 
         setProjects(listRes || []);
@@ -84,7 +83,6 @@ export const Dashboard: React.FC = () => {
         if (detailsRes.tagsMatrix) {
           detailsRes.tagsMatrix.sort((a: any, b: any) => a.tag.localeCompare(b.tag));
 
-          // Обновляем видимые теги только при первом заходе или если их список в стейте пустой
           if (isInitialLoad || visibleTags.length === 0) {
             const activeFromDb = detailsRes.tagsMatrix.filter((t: any) => t.onChart).map((t: any) => t.tag);
             setVisibleTags(activeFromDb);
@@ -93,21 +91,14 @@ export const Dashboard: React.FC = () => {
 
         setData(detailsRes);
         setHistory(historyRes || {});
-
-        // Включаем или выключаем поллинг
-        if (detailsRes.status !== "IDLE") {
-          setIsPolling(true);
-        } else {
-          setIsPolling(false);
-        }
+        setIsPolling(detailsRes.status !== "IDLE");
       } catch (e) {
-        console.error("Refresh error");
+        console.error("Ошибка обновления данных");
       }
     },
     [selectedProjectId, userId, visibleTags.length],
   );
 
-  // Таймер поллинга
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPolling && selectedProjectId) {
@@ -116,14 +107,13 @@ export const Dashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, [isPolling, selectedProjectId, refreshData]);
 
-  // Смена проекта
   const handleProjectSelect = async (id: string) => {
     if (id === selectedProjectId) return;
     setSelectedProjectId(id);
     setDetailsLoading(true);
     setIsAddingNew(false);
     setFocusedTag(null);
-    setVisibleTags([]); // Сбрасываем теги графика, они подгрузятся из базы нового проекта
+    setVisibleTags([]);
     try {
       await refreshData(id, true);
     } finally {
@@ -136,10 +126,11 @@ export const Dashboard: React.FC = () => {
       const list = await analyticsService.getUserProjects(userId);
       const safeList = list || [];
       setProjects(safeList);
-      if (safeList.length === 0) setIsAddingNew(true);
-      else {
+      if (safeList.length === 0) {
+        setIsAddingNew(true);
+      } else {
         setSelectedProjectId(safeList[0].id);
-        if (safeList.some((p: any) => p.analysisStatus !== "IDLE")) setIsPolling(true);
+        await refreshData(safeList[0].id, true);
       }
       setLoading(false);
     };
@@ -151,36 +142,54 @@ export const Dashboard: React.FC = () => {
   const handleImport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim()) return;
+
     setActionLoading(true);
     setError("");
+
     try {
+      console.log("Начало импорта..."); // если есть логгер, или просто console.log
+      const res = await analyticsService.importCase(urlInput, userId);
+
+      // ДИАГНОСТИКА: Посмотри в консоль браузера, что именно пришло
+      console.log("Ответ сервера:", res);
+
+      // Проверяем ID. Пробуем разные варианты в зависимости от настроек твоего Axios
+      const newProject = res.data || res;
+      const newId = newProject.id;
+
+      if (!newId) {
+        console.error("ID не найден в ответе:", newProject);
+        throw new Error("Сервер не вернул ID проекта");
+      }
+
+      // 1. СРАЗУ переключаем UI, не дожидаясь анализа тегов
+      setSelectedProjectId(newId);
+      setIsAddingNew(false);
+      setUrlInput("");
+      setTagsInput("");
+
+      // 2. Если есть свои теги, запускаем их анализ "фоном"
       const customTags = tagsInput
         .split(",")
         .map((t) => t.trim())
         .filter((t) => t.length > 0);
-      const res = await analyticsService.importCase(urlInput, userId);
-      const newId = res.data.id || res.data.projectId;
 
-      // Сразу добавляем кастомные теги в анализ
       if (customTags.length > 0) {
-        await analyticsService.analyzeProject(newId, customTags);
+        // Мы НЕ пишем await здесь, чтобы ошибка в тегах не ломала переход к проекту
+        analyticsService.analyzeProject(newId, customTags).catch((err) => {
+          console.error("Ошибка при запуске анализа тегов:", err);
+        });
       }
 
-      await fetchProjectsList(); // Обновим список чтобы увидеть "Pending"
-      setSelectedProjectId(newId);
-      setIsPolling(true);
-      setUrlInput("");
-      setTagsInput("");
-    } catch (err) {
-      setError("Import failed");
+      // 3. Обновляем данные (проект будет в статусе PENDING или PROCESSING)
+      await refreshData(newId, true);
+    } catch (err: any) {
+      // Это поможет тебе увидеть в консоли, почему сработал блок catch
+      console.error("Детальная ошибка фронтенда:", err);
+      setError(err.response?.data?.message || "Ошибка при получении данных от сервера");
     } finally {
       setActionLoading(false);
     }
-  };
-
-  const fetchProjectsList = async () => {
-    const list = await analyticsService.getUserProjects(userId);
-    setProjects(list || []);
   };
 
   const handleRefreshRankings = async () => {
@@ -218,7 +227,7 @@ export const Dashboard: React.FC = () => {
     try {
       await analyticsService.toggleTagOnChart(selectedProjectId, tagName, isNowVisible);
     } catch (err) {
-      console.error("Sync error");
+      console.error("Ошибка синхронизации тега");
     }
   };
 
@@ -227,13 +236,13 @@ export const Dashboard: React.FC = () => {
   if (loading)
     return (
       <div className="h-screen flex items-center justify-center bg-[#f8f9fb] font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">
-        Initializing Matrix
+        Инициализация Матрицы
       </div>
     );
 
   return (
     <div className="flex h-screen bg-[#f8f9fb] font-sans text-[#1d1d1f] overflow-hidden">
-      {/* SIDEBAR */}
+      {/* САЙДБАР */}
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col shadow-[10px_0_30px_rgba(0,0,0,0.02)] z-10">
         <div className="p-10 border-b border-gray-50 text-center">
           <h1 className="text-3xl font-black tracking-tighter uppercase leading-none italic">Matrix</h1>
@@ -245,10 +254,10 @@ export const Dashboard: React.FC = () => {
               setIsAddingNew(true);
               setSelectedProjectId(null);
             }}
-            className={`p-6 rounded-[2rem] border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer ${isAddingNew ? "border-blue-600 bg-blue-50 text-blue-600 shadow-inner" : "border-gray-100 text-gray-300 hover:border-gray-300"}`}
+            className={`p-6 rounded-[2rem] border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer transition-all ${isAddingNew ? "border-blue-600 bg-blue-50 text-blue-600 shadow-inner" : "border-gray-100 text-gray-300 hover:border-gray-300 hover:bg-gray-50"}`}
           >
             <span className="text-lg">＋</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">New Track</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Новый проект</span>
           </div>
 
           {projects.map((p) => {
@@ -262,7 +271,7 @@ export const Dashboard: React.FC = () => {
                 className={`p-6 rounded-[2.2rem] cursor-pointer transition-all duration-300 relative border ${
                   selectedProjectId === p.id
                     ? "bg-black border-black text-white shadow-2xl scale-[1.03]"
-                    : "bg-white border border-gray-50 text-gray-500 hover:shadow-md"
+                    : "bg-white border border-gray-50 text-gray-500 hover:shadow-md hover:scale-[1.01]"
                 }`}
               >
                 {isWorking && (
@@ -270,11 +279,11 @@ export const Dashboard: React.FC = () => {
                     className={`absolute top-5 right-7 w-2.5 h-2.5 rounded-full shadow-sm ${isWait ? "bg-amber-400" : "bg-blue-500 animate-ping"}`}
                   />
                 )}
-                <div className="text-[11px] font-black truncate uppercase tracking-tight pr-6">{p.title || "Untitled Project"}</div>
+                <div className="text-[11px] font-black truncate uppercase tracking-tight pr-6">{p.title || "Загрузка..."}</div>
                 <div
                   className={`text-[8px] mt-2 font-bold uppercase tracking-widest ${isWorking ? (isWait ? "text-amber-500" : "text-blue-400") : "opacity-30"}`}
                 >
-                  {isWorking ? (isWait ? "In Queue" : "Robot Active") : "Inventory Case"}
+                  {isWorking ? (isWait ? "В очереди" : "Робот работает") : "В архиве"}
                 </div>
               </div>
             );
@@ -282,45 +291,46 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN VIEW */}
+      {/* ОСНОВНОЙ КОНТЕНТ */}
       <div className="flex-1 overflow-y-auto relative bg-[#f8f9fb]">
-        {/* TOP STATUS BAR */}
+        {/* ВЕРХНИЙ СТАТУС-БАР */}
         {isCurrentProjectBusy && (
           <div
-            className={`absolute top-8 right-12 z-50 px-7 py-3 rounded-full shadow-2xl flex items-center gap-4 animate-in slide-in-from-right-10 border transition-all ${
+            className={`fixed top-8 right-12 z-50 px-7 py-3 rounded-full shadow-2xl flex items-center gap-4 animate-in slide-in-from-right-10 border transition-all ${
               data?.status === "PENDING" ? "bg-amber-50 border-amber-100 text-amber-600" : "bg-black text-white border-black"
             }`}
           >
             <div className={`w-2 h-2 rounded-full ${data?.status === "PENDING" ? "bg-amber-500" : "bg-blue-500 animate-ping"}`}></div>
             <span className="text-[10px] font-black uppercase tracking-[0.15em]">
-              {data?.status === "PENDING" ? "Waiting in Queue" : "Robot Active"}
+              {data?.status === "PENDING" ? "Ожидание в очереди" : "Робот активен"}
             </span>
           </div>
         )}
 
         {isAddingNew ? (
           <div className="max-w-xl mx-auto mt-24 p-16 bg-white rounded-[3.5rem] shadow-2xl border border-gray-50 animate-in zoom-in-95 duration-500">
-            <h2 className="text-3xl font-black uppercase text-center mb-10 tracking-tighter italic">Initialize</h2>
+            <h2 className="text-3xl font-black uppercase text-center mb-10 tracking-tighter italic">Инициализация</h2>
             <form onSubmit={handleImport} className="space-y-5">
               <input
                 className="w-full bg-gray-50 border-none rounded-2xl px-8 py-5 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-600/10 transition-all"
-                placeholder="Gallery URL"
+                placeholder="Ссылка на проект Behance"
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 required
               />
               <textarea
                 className="w-full bg-gray-50 border-none rounded-2xl px-8 py-5 text-xs font-bold outline-none resize-none min-h-[120px]"
-                placeholder="Custom tags (optional)..."
+                placeholder="Свои теги (через запятую, необязательно)..."
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
               />
+              {error && <p className="text-red-500 text-[10px] font-bold uppercase text-center">{error}</p>}
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="w-full bg-blue-600 text-white py-6 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl"
+                className="w-full bg-blue-600 text-white py-6 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-blue-700 transition-all disabled:opacity-50"
               >
-                {actionLoading ? "Connecting..." : "Launch Project"}
+                {actionLoading ? "Подключение..." : "Запустить проект"}
               </button>
             </form>
           </div>
@@ -342,25 +352,25 @@ export const Dashboard: React.FC = () => {
                     rel="noreferrer"
                     className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-black transition-colors"
                   >
-                    Source Link ↗
+                    Открыть источник ↗
                   </a>
                 </div>
                 <button
                   onClick={handleRefreshRankings}
                   disabled={actionLoading || isCurrentProjectBusy}
-                  className="bg-black text-white px-10 py-5 rounded-2xl text-[9px] font-black uppercase shadow-xl disabled:opacity-30 transition-all"
+                  className="bg-black text-white px-10 py-5 rounded-2xl text-[9px] font-black uppercase shadow-xl disabled:opacity-30 transition-all hover:scale-105 active:scale-95"
                 >
-                  {actionLoading ? "Queuing..." : isCurrentProjectBusy ? "Robot Active" : "Refresh Rankings"}
+                  {actionLoading ? "В очереди..." : isCurrentProjectBusy ? "Робот активен" : "Обновить позиции"}
                 </button>
               </div>
 
-              {/* CHART */}
+              {/* ГРАФИК */}
               <div ref={chartRef} className="bg-white p-12 rounded-[3.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
                 <div className="h-[400px] w-full flex items-center justify-center">
                   {isChartEmpty ? (
                     <div className="text-center opacity-30">
                       <div className="text-4xl mb-3">📊</div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-center">Select tags below to visualize</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-center">Выберите теги ниже для визуализации</p>
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
@@ -378,7 +388,7 @@ export const Dashboard: React.FC = () => {
                             textTransform: "uppercase",
                           }}
                         />
-                        {Object.keys(history).map((tag, idx) => {
+                        {Object.keys(history).map((tag) => {
                           const isVis = visibleTags.includes(tag);
                           const isFoc = focusedTag === tag;
                           if (!isVis && !isFoc) return null;
@@ -402,14 +412,14 @@ export const Dashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* MATRIX */}
+              {/* МАТРИЦА ТЕГОВ */}
               <div className="bg-white rounded-[3.5rem] border border-gray-100 shadow-sm overflow-hidden">
                 <div className="px-12 py-8 border-b border-gray-50 bg-gray-50/20 flex justify-between items-center text-black">
-                  <h3 className="text-[11px] font-black uppercase tracking-widest">Intelligence Matrix</h3>
+                  <h3 className="text-[11px] font-black uppercase tracking-widest">Матрица Интеллекта</h3>
                   <div className="flex gap-2">
                     <input
                       className="bg-white border border-gray-100 rounded-xl px-4 py-2 text-[10px] font-bold outline-none w-48 shadow-inner"
-                      placeholder="Add tag..."
+                      placeholder="Добавить тег..."
                       value={newTagsInput}
                       onChange={(e) => setNewTagsInput(e.target.value)}
                     />
@@ -418,7 +428,7 @@ export const Dashboard: React.FC = () => {
                       disabled={actionLoading || isCurrentProjectBusy}
                       className="bg-blue-600 text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-blue-700 transition-all shadow-md"
                     >
-                      Add
+                      Добавить
                     </button>
                   </div>
                 </div>
@@ -450,7 +460,7 @@ export const Dashboard: React.FC = () => {
                                     }}
                                     className="text-[8px] font-black text-blue-600 uppercase mt-1 text-left"
                                   >
-                                    ↑ View on Chart
+                                    ↑ На график
                                   </button>
                                 )}
                               </div>
@@ -461,12 +471,10 @@ export const Dashboard: React.FC = () => {
                               <span
                                 className={`text-[11px] font-black uppercase ${item.currentRank > 0 ? (item.currentRank <= 10 ? "text-green-500" : "text-blue-600") : "text-gray-300"}`}
                               >
-                                {item.currentRank > 0 ? `Rank #${item.currentRank}` : "Out of Top"}
+                                {item.currentRank > 0 ? `Место #${item.currentRank}` : "Вне Топа"}
                               </span>
                             ) : (
-                              <span className="text-blue-500 animate-pulse text-[9px] font-black uppercase italic font-black">
-                                🤖 Checking...
-                              </span>
+                              <span className="text-blue-500 animate-pulse text-[9px] font-black uppercase italic">🤖 Проверка...</span>
                             )}
 
                             <button
