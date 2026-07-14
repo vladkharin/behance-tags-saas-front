@@ -16,13 +16,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Вспомогательная функция для обработки ответа (логин/регистрация)
   const handleAuthResponse = (res: any) => {
-    // Твой бэкенд присылает ID в поле "user"
-    const fetchedUserId = res.user;
-    const token = res.access_token;
+    // 1. Пытаемся достать данные. Если res.data существует — берем его, если нет — берем сам res.
+    const data = res.data || res;
+
+    console.log("DEBUG: Полный ответ сервера:", res);
+    console.log("DEBUG: Извлеченные данные:", data);
+
+    // 2. Проверяем все возможные варианты ключей (user, userId, id)
+    const fetchedUserId = data.user || data.userId || data.id;
+    const token = data.access_token || data.token;
+
+    console.log("DEBUG: Попытка найти userId:", fetchedUserId);
 
     if (fetchedUserId) {
       localStorage.setItem("userId", fetchedUserId);
       setUser(fetchedUserId);
+      console.log("DEBUG: Успешно записано в localStorage");
+    } else {
+      console.error("DEBUG: ОШИБКА! userId не найден. Проверьте структуру JSON в Network.");
     }
 
     if (token) {
