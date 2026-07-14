@@ -42,6 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (data: AuthCredentials) => {
+    console.log("ВЕРСИЯ КОДА: 2.0 (ПОСЛЕ ФИКСА ID)");
     setIsLoading(true);
     try {
       const res = await authService.register(data);
