@@ -9,6 +9,9 @@ export const AuthForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  // Состояние для согласия с документами (актуально только при регистрации)
+  const [isAgreed, setIsAgreed] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -16,6 +19,12 @@ export const AuthForm: React.FC = () => {
     // Валидация перед отправкой
     if (!email.trim() || !password.trim()) {
       setError("Пожалуйста, заполните все поля");
+      return;
+    }
+
+    // Если это регистрация, дополнительно проверяем согласие с документами
+    if (!isLoginMode && !isAgreed) {
+      setError("Необходимо согласиться с условиями использования сервиса");
       return;
     }
 
@@ -78,10 +87,41 @@ export const AuthForm: React.FC = () => {
             />
           </div>
 
+          {/* Блок согласия с документами: показывается только при регистрации */}
+          {!isLoginMode && (
+            <div className="flex items-start gap-3 mt-4 text-left">
+              <input
+                id="agreement"
+                type="checkbox"
+                checked={isAgreed}
+                onChange={(e) => setIsAgreed(e.target.checked)}
+                disabled={isLoading}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-behance-blue focus:ring-behance-blue transition-colors cursor-pointer"
+                required
+              />
+              <label htmlFor="agreement" className="text-[11px] leading-relaxed text-behance-muted select-none">
+                Регистрируясь, я принимаю условия{" "}
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-behance-blue hover:underline font-medium">
+                  Публичной оферты
+                </a>
+                , выражаю согласие на обработку персональных данных в соответствии с{" "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-behance-blue hover:underline font-medium">
+                  Политикой конфиденциальности
+                </a>{" "}
+                и подтверждаю ознакомление с{" "}
+                <a href="/refund" target="_blank" rel="noopener noreferrer" className="text-behance-blue hover:underline font-medium">
+                  Политикой возврата средств
+                </a>
+                .
+              </label>
+            </div>
+          )}
+
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full py-3 bg-behance-blue hover:bg-behance-darkBlue text-white font-medium text-sm rounded-full transition-colors duration-200 mt-2 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+            // Кнопка заблокирована, если идет загрузка ИЛИ если мы в режиме регистрации и галочка не стоит
+            disabled={isLoading || (!isLoginMode && !isAgreed)}
+            className="w-full py-3 bg-behance-blue hover:bg-behance-darkBlue text-white font-medium text-sm rounded-full transition-colors duration-200 mt-2 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
@@ -111,6 +151,7 @@ export const AuthForm: React.FC = () => {
             onClick={() => {
               setIsLoginMode(!isLoginMode);
               setError(null); // Сбрасываем ошибку при переключении режима
+              setIsAgreed(false); // Сбрасываем согласие при переходе между режимами
             }}
             className="text-sm text-behance-blue hover:underline font-medium disabled:opacity-50"
           >
