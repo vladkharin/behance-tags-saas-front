@@ -82,4 +82,9 @@ export const analyticsService = {
   toggleTagOnChart: async (projectId: string, tagName: string, state: boolean) => {
     await api.patch(`/scraper/${projectId}/tags/chart`, { tagName, state });
   },
+
+  toggleAutoUpdate: async (projectId: string, state: boolean) => {
+    const response = await api.patch(`/scraper/projects/${projectId}/schedule`, { isScheduled: state });
+    return response.data;
+  },
 };
