@@ -87,4 +87,8 @@ export const analyticsService = {
     const response = await api.patch(`/scraper/projects/${projectId}/schedule`, { isScheduled: state });
     return response.data;
   },
+
+  toggleAllTagsOnChart: async (projectId: string, state: boolean) => {
+    await api.patch(`/scraper/projects/${projectId}/tags/chart/bulk`, { state });
+  },
 };
