@@ -16,15 +16,12 @@ const PLAN_HOURS = {
 // --- КОМПОНЕНТ УМНОГО ТУЛТИПА ---
 const CustomTooltip = ({ active, payload, label, isDark }: any) => {
   if (active && payload && payload.length) {
-    // Сортируем: теги с лучшими позициями (1, 2, 3...) вверху
     const sortedPayload = [...payload].sort((a, b) => (a.value || 999) - (b.value || 999));
     const isMultiColumn = sortedPayload.length > 10;
 
     return (
       <div
-        className={`p-6 rounded-[2.5rem] border backdrop-blur-xl shadow-2xl transition-all duration-300 ${
-          isDark ? "bg-black/80 border-white/10" : "bg-white/90 border-gray-100"
-        }`}
+        className={`p-6 rounded-[2.5rem] border backdrop-blur-xl shadow-2xl transition-all duration-300 ${isDark ? "bg-black/80 border-white/10" : "bg-white/90 border-gray-100"}`}
       >
         <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-40">{label}</p>
         <div className={`grid ${isMultiColumn ? "grid-cols-2 gap-x-10" : "grid-cols-1"} gap-y-3`}>
@@ -46,7 +43,12 @@ const CustomTooltip = ({ active, payload, label, isDark }: any) => {
   return null;
 };
 
-export const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onNavigatePricing: () => void;
+  logout: () => void;
+}
+
+export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout }) => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
   const chartRef = useRef<HTMLDivElement>(null);
@@ -107,6 +109,12 @@ export const Dashboard: React.FC = () => {
 
   const isSelectedProjectBusy = useMemo(() => data?.status && data.status !== "IDLE", [data?.status]);
 
+  // ПРОВЕРКА ПУСТОТЫ ГРАФИКА
+  const isChartEmpty = useMemo(
+    () => (visibleTags.length === 0 && !focusedTag) || chartData.length === 0,
+    [visibleTags, focusedTag, chartData],
+  );
+
   const nextUpdateInfo = useMemo(() => {
     if (!data?.lastAnalyzedAt || !data?.plan) return null;
     const interval = (PLAN_HOURS as any)[data.plan];
@@ -137,7 +145,7 @@ export const Dashboard: React.FC = () => {
         setHistory(historyRes || {});
         setIsPolling(detailsRes.status !== "IDLE" || listRes.some((p: any) => p.analysisStatus !== "IDLE"));
       } catch (e) {
-        console.error("Ошибка обновления");
+        console.error(e);
       }
     },
     [selectedProjectId, userId],
@@ -178,8 +186,6 @@ export const Dashboard: React.FC = () => {
     };
     init();
   }, [userId]);
-
-  // --- ОБРАБОТЧИКИ ---
 
   const toggleAllTags = async () => {
     if (!selectedProjectId || !data?.tagsMatrix) return;
@@ -234,12 +240,12 @@ export const Dashboard: React.FC = () => {
   };
 
   const handleRefreshRankings = async () => {
-    if (!selectedProjectId || actionLoading || isSelectedProjectBusy) return;
+    if (!selectedProjectId || actionLoading || isSelectedProjectBusy || !data?.tagsMatrix) return;
     setActionLoading(true);
-    // Оптимистично
     setData({ ...data, status: "PENDING", tagsMatrix: data.tagsMatrix.map((t: any) => ({ ...t, currentRank: null })) });
     try {
-      await analyticsService.analyzeProject(selectedProjectId);
+      const currentTags = data.tagsMatrix.map((item: any) => item.tag);
+      await analyticsService.analyzeProject(selectedProjectId, { tags: currentTags });
       setIsPolling(true);
     } catch (e) {
       console.error(e);
@@ -305,7 +311,7 @@ export const Dashboard: React.FC = () => {
               setIsAddingNew(true);
               setSelectedProjectId(null);
             }}
-            className={`p-6 rounded-[2.5rem] border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer transition-all ${isAddingNew ? "border-behance-blue bg-behance-blue/5 text-behance-blue" : "border-behance-border text-behance-muted hover:border-behance-blue dark:border-white/10"}`}
+            className={`p-6 rounded-[2.2rem] border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer transition-all ${isAddingNew ? "border-behance-blue bg-behance-blue/5 text-behance-blue" : "border-behance-border text-behance-muted hover:border-behance-blue dark:border-white/10"}`}
           >
             <span className="text-lg">＋</span>
             <span className="text-[10px] font-black uppercase tracking-widest">Новый проект</span>
@@ -319,14 +325,14 @@ export const Dashboard: React.FC = () => {
               <div
                 key={p.id}
                 onClick={() => handleProjectSelect(p.id)}
-                className={`p-6 rounded-[2.5rem] cursor-pointer transition-all duration-300 relative border ${selectedProjectId === p.id ? "bg-behance-blue border-behance-blue text-white shadow-xl scale-[1.03]" : isDark ? "bg-white/5 border-transparent text-gray-400 hover:bg-white/10" : "bg-white border-behance-border hover:shadow-md"}`}
+                className={`p-6 rounded-[2.2rem] cursor-pointer transition-all duration-300 relative border ${selectedProjectId === p.id ? "bg-behance-blue border-behance-blue text-white shadow-xl scale-[1.03]" : isDark ? "bg-white/5 border-transparent text-gray-400 hover:bg-white/10" : "bg-white border-behance-border hover:shadow-md"}`}
               >
                 {(isWorking || isPending) && (
                   <div
                     className={`absolute top-5 right-7 w-2.5 h-2.5 rounded-full ${isPending ? "bg-amber-400 shadow-[0_0_10px_#fbbf24]" : "bg-white animate-ping"}`}
                   />
                 )}
-                <div className="text-[11px] font-black truncate uppercase tracking-tight pr-6">{p.title || "Загрузка..."}</div>
+                <div className="text-[11px] font-black truncate uppercase pr-6">{p.title || "Загрузка..."}</div>
                 <div
                   className={`text-[8px] mt-2 font-bold uppercase tracking-widest ${selectedProjectId === p.id ? "text-white/50" : "opacity-40"}`}
                 >
@@ -336,6 +342,20 @@ export const Dashboard: React.FC = () => {
             );
           })}
         </div>
+        <div className="p-6 border-t border-behance-border dark:border-white/5 space-y-2">
+          <button
+            onClick={onNavigatePricing}
+            className="w-full py-4 rounded-2xl border border-behance-blue/20 bg-behance-blue/5 text-behance-blue text-[10px] font-black uppercase tracking-widest hover:bg-behance-blue/10 transition-all"
+          >
+            Управление тарифом
+          </button>
+          <button
+            onClick={logout}
+            className="w-full py-2 text-[10px] font-black uppercase tracking-widest opacity-20 hover:opacity-100 transition-opacity"
+          >
+            Выйти из системы
+          </button>
+        </div>
       </div>
 
       {/* ОСНОВНОЙ КОНТЕНТ */}
@@ -344,12 +364,12 @@ export const Dashboard: React.FC = () => {
           {!isAddingNew && data && (
             <div className="mb-10 flex gap-4 animate-in fade-in slide-in-from-top-4">
               <div
-                className={`px-6 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${isDark ? "bg-white/5 border-white/10 text-blue-400" : "bg-blue-50 border-blue-100 text-blue-600 shadow-sm"}`}
+                className={`px-6 py-2.5 rounded-full text-[9px] font-black uppercase border transition-all ${isDark ? "bg-white/5 border-white/10 text-blue-400" : "bg-blue-50 border-blue-100 text-blue-600 shadow-sm"}`}
               >
                 Plan: {data.plan}
               </div>
               <div
-                className={`px-6 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${isDark ? "bg-white/5 border-white/10 text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500 shadow-sm"}`}
+                className={`px-6 py-2.5 rounded-full text-[9px] font-black uppercase border transition-all ${isDark ? "bg-white/5 border-white/10 text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500 shadow-sm"}`}
               >
                 Авто-обновление: {nextUpdateInfo}
               </div>
@@ -378,9 +398,9 @@ export const Dashboard: React.FC = () => {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="w-full bg-behance-blue text-white py-7 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+                  className="w-full bg-behance-blue text-white py-7 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] transition-all"
                 >
-                  {actionLoading ? "Подключение к Behance..." : "Запустить проект"}
+                  {actionLoading ? "Подключение..." : "Запустить проект"}
                 </button>
               </form>
             </div>
@@ -414,92 +434,93 @@ export const Dashboard: React.FC = () => {
                       </button>
                     </div>
                   </div>
-
                   <div className="flex flex-col items-end gap-5">
                     <button
                       onClick={handleRefreshRankings}
                       disabled={actionLoading || isSelectedProjectBusy}
-                      className={`px-12 py-6 rounded-[2rem] text-[10px] font-black uppercase shadow-2xl transition-all hover:scale-105 active:scale-95 ${isSelectedProjectBusy ? "bg-blue-600 text-white animate-pulse" : isDark ? "bg-white text-black shadow-white/5" : "bg-black text-white shadow-black/20"}`}
+                      className={`px-12 py-6 rounded-[2rem] text-[10px] font-black uppercase shadow-2xl transition-all hover:scale-105 active:scale-95 ${isSelectedProjectBusy ? "bg-blue-600 text-white animate-pulse" : isDark ? "bg-white text-black" : "bg-black text-white"}`}
                     >
                       {isSelectedProjectBusy ? (data?.status === "PENDING" ? "⏳ В очереди" : "🤖 Анализ...") : "Обновить позиции"}
                     </button>
-                    {isSelectedProjectBusy && (
-                      <span className="text-[9px] font-black uppercase text-blue-500 tracking-[0.2em] animate-pulse italic">
-                        Глубокое сканирование Топ-100...
-                      </span>
-                    )}
                   </div>
                 </div>
 
                 {/* ГРАФИК */}
                 <div
-                  className={`p-14 rounded-[4rem] border relative overflow-hidden transition-all duration-500 ${isDark ? "bg-[#111111] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-2xl shadow-blue-900/5"}`}
+                  ref={chartRef}
+                  className={`p-14 rounded-[4rem] border relative overflow-hidden transition-all duration-500 flex items-center justify-center ${isDark ? "bg-[#111111] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-2xl shadow-blue-900/5"}`}
                 >
-                  <div className="h-[450px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="4 4" vertical={false} stroke={isDark ? "rgba(255,255,255,0.03)" : "#f0f0f0"} />
-                        <XAxis
-                          dataKey="date"
-                          tick={{ fontSize: 10, fontWeight: "900", fill: isDark ? "#444" : "#bbb" }}
-                          dy={20}
-                          axisLine={false}
-                          tickLine={false}
-                        />
-                        <YAxis
-                          reversed
-                          tick={{ fontSize: 10, fontWeight: "900", fill: isDark ? "#444" : "#bbb" }}
-                          axisLine={false}
-                          tickLine={false}
-                          domain={[1, "auto"]}
-                        />
-
-                        <Tooltip
-                          content={<CustomTooltip isDark={isDark} />}
-                          cursor={{ stroke: isDark ? "rgba(255,255,255,0.1)" : "#eee", strokeWidth: 2 }}
-                        />
-
-                        {Object.keys(history).map(
-                          (tag) =>
-                            visibleTags.includes(tag) && (
-                              <Line
-                                key={tag}
-                                type="monotone"
-                                dataKey={tag}
-                                name={tag}
-                                stroke={tagColors[tag]}
-                                strokeWidth={focusedTag === tag ? 5 : 2}
-                                strokeOpacity={focusedTag ? (focusedTag === tag ? 1 : 0.15) : 1}
-                                dot={focusedTag === tag ? { r: 5, fill: tagColors[tag], strokeWidth: 0 } : false}
-                                activeDot={{ r: 6, strokeWidth: 0 }}
-                                connectNulls
-                                animationDuration={600}
-                              />
-                            ),
-                        )}
-                      </LineChart>
-                    </ResponsiveContainer>
+                  <div className="h-[450px] w-full flex items-center justify-center">
+                    {isChartEmpty ? (
+                      <div className="text-center animate-in fade-in zoom-in-95 duration-700">
+                        <div className="text-5xl mb-6 opacity-20">📊</div>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] opacity-30 leading-loose">
+                          Выберите теги в матрице ниже <br /> для визуализации истории позиций
+                        </h3>
+                      </div>
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="4 4" vertical={false} stroke={isDark ? "rgba(255,255,255,0.03)" : "#f0f0f0"} />
+                          <XAxis
+                            dataKey="date"
+                            tick={{ fontSize: 10, fontWeight: "900", fill: isDark ? "#444" : "#bbb" }}
+                            dy={20}
+                            axisLine={false}
+                            tickLine={false}
+                          />
+                          <YAxis
+                            reversed
+                            tick={{ fontSize: 10, fontWeight: "900", fill: isDark ? "#444" : "#bbb" }}
+                            axisLine={false}
+                            tickLine={false}
+                            domain={[1, "auto"]}
+                          />
+                          <Tooltip
+                            content={<CustomTooltip isDark={isDark} />}
+                            cursor={{ stroke: isDark ? "rgba(255,255,255,0.1)" : "#eee", strokeWidth: 2 }}
+                          />
+                          {Object.keys(history).map(
+                            (tag) =>
+                              visibleTags.includes(tag) && (
+                                <Line
+                                  key={tag}
+                                  type="monotone"
+                                  dataKey={tag}
+                                  name={tag}
+                                  stroke={tagColors[tag]}
+                                  strokeWidth={focusedTag === tag ? 5 : 2}
+                                  strokeOpacity={focusedTag ? (focusedTag === tag ? 1 : 0.15) : 1}
+                                  dot={focusedTag === tag ? { r: 5, fill: tagColors[tag], strokeWidth: 0 } : false}
+                                  activeDot={{ r: 6, strokeWidth: 0 }}
+                                  connectNulls
+                                  animationDuration={600}
+                                />
+                              ),
+                          )}
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 </div>
 
-                {/* ТАБЛИЦА МАТРИЦЫ */}
+                {/* ТАБЛИЦА МАТРИЦЫ (Компактная) */}
                 <div
-                  className={`rounded-[4rem] border overflow-hidden transition-all ${isDark ? "bg-[#111111] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-lg"}`}
+                  className={`rounded-[3.5rem] border overflow-hidden transition-all ${isDark ? "bg-[#111111] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-lg"}`}
                 >
-                  <div className="px-14 py-10 border-b border-behance-border dark:border-white/5 flex justify-between items-center bg-gray-50/30 dark:bg-white/5">
-                    <div className="flex items-center gap-8">
-                      <h3 className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 italic">Матрица тегов</h3>
+                  <div className="px-10 py-6 border-b border-behance-border dark:border-white/5 flex justify-between items-center bg-gray-50/30 dark:bg-white/5">
+                    <div className="flex items-center gap-6">
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-40 italic">Матрица тегов</h3>
                       <button
                         onClick={toggleAllTags}
-                        className="text-[10px] font-black uppercase text-blue-500 hover:text-blue-600 border-b-2 border-blue-500/20 pb-1 transition-all"
+                        className="text-[9px] font-black uppercase text-blue-500 hover:text-blue-600 border-b border-blue-500/20 pb-0.5 transition-all"
                       >
-                        {visibleTags.length === data?.tagsMatrix?.length ? "Скрыть всё" : "Отобразить всё на графике"}
+                        {visibleTags.length === data?.tagsMatrix?.length ? "Скрыть всё" : "Отобразить всё"}
                       </button>
                     </div>
-
                     <div className="flex gap-4">
                       <input
-                        className={`rounded-2xl px-6 py-3 text-[11px] font-bold outline-none w-56 border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:bg-white/10" : "bg-white border-gray-100 shadow-sm focus:border-blue-200"}`}
+                        className={`rounded-xl px-4 py-2 text-[10px] font-bold outline-none w-48 border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:bg-white/10" : "bg-white border-gray-100 shadow-sm focus:border-blue-200"}`}
                         placeholder="Добавить тег..."
                         value={newTagsInput}
                         onChange={(e) => setNewTagsInput(e.target.value)}
@@ -507,7 +528,7 @@ export const Dashboard: React.FC = () => {
                       <button
                         onClick={handleAddCustomTags}
                         disabled={actionLoading || isSelectedProjectBusy}
-                        className="bg-behance-blue text-white px-7 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all"
+                        className="bg-behance-blue text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg shadow-blue-500/20 transition-all"
                       >
                         Добавить
                       </button>
@@ -524,33 +545,33 @@ export const Dashboard: React.FC = () => {
                             onMouseLeave={() => setFocusedTag(null)}
                             className={`transition-colors duration-200 ${isDark ? "hover:bg-white/5" : "hover:bg-behance-grayBg"}`}
                           >
-                            <td className="px-14 py-9 flex items-center gap-5">
-                              <div className="w-3.5 h-3.5 rounded-full shadow-inner" style={{ backgroundColor: tagColors[item.tag] }}></div>
+                            <td className="px-10 py-4 flex items-center gap-4">
+                              <div className="w-2.5 h-2.5 rounded-full shadow-inner" style={{ backgroundColor: tagColors[item.tag] }}></div>
                               <span
-                                className={`text-base font-black uppercase tracking-tight transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-15"}`}
+                                className={`text-[13px] font-black uppercase tracking-tight transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-15"}`}
                               >
                                 #{item.tag}
                               </span>
                             </td>
-                            <td className="px-14 py-9 text-right">
-                              <div className="flex items-center justify-end gap-10">
+                            <td className="px-10 py-4 text-right">
+                              <div className="flex items-center justify-end gap-8">
                                 {item.currentRank === null ? (
-                                  <span className="text-blue-500 animate-pulse text-[10px] font-black uppercase italic tracking-widest">
+                                  <span className="text-blue-500 animate-pulse text-[9px] font-black uppercase italic tracking-widest">
                                     🤖 Проверка...
                                   </span>
                                 ) : (
                                   <span
-                                    className={`text-[12px] font-black uppercase tracking-tight ${item.currentRank > 0 ? (item.currentRank <= 10 ? "text-green-500" : "text-blue-500") : isDark ? "text-white/10" : "text-gray-300"}`}
+                                    className={`text-[11px] font-black uppercase tracking-tight ${item.currentRank > 0 ? (item.currentRank <= 10 ? "text-green-500" : "text-blue-500") : isDark ? "text-white/10" : "text-gray-300"}`}
                                   >
                                     {item.currentRank > 0 ? `Место #${item.currentRank}` : "Вне Топ-100"}
                                   </span>
                                 )}
                                 <button
                                   onClick={(e) => toggleTag(e, item.tag)}
-                                  className={`w-12 h-6 rounded-full relative transition-all duration-500 ${isVisible ? "bg-behance-blue shadow-lg shadow-blue-500/40" : isDark ? "bg-white/5" : "bg-gray-200"}`}
+                                  className={`w-10 h-5 rounded-full relative transition-all duration-500 ${isVisible ? "bg-behance-blue shadow-lg shadow-blue-500/40" : isDark ? "bg-white/5" : "bg-gray-200"}`}
                                 >
                                   <div
-                                    className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-300 ${isVisible ? "left-7" : "left-1"}`}
+                                    className={`absolute top-1 w-3 h-3 bg-white rounded-full shadow-sm transition-all ${isVisible ? "left-6" : "left-1"}`}
                                   />
                                 </button>
                               </div>
@@ -568,30 +589,45 @@ export const Dashboard: React.FC = () => {
 
         {/* ГЛОБАЛЬНЫЙ ФУТЕР */}
         <footer
-          className={`mt-auto py-16 px-16 border-t transition-colors flex flex-col md:flex-row justify-between items-center gap-10 ${isDark ? "bg-[#0d0d0d] border-white/5" : "bg-white border-behance-border shadow-[0_-10px_40px_rgba(0,0,0,0.02)]"}`}
+          className={`mt-auto py-20 px-16 border-t transition-colors flex flex-col xl:flex-row justify-between items-center gap-16 ${isDark ? "bg-[#0d0d0d] border-white/5" : "bg-white border-behance-border shadow-[0_-10px_40px_rgba(0,0,0,0.02)]"}`}
         >
-          <div className="flex flex-col items-center md:items-start gap-3">
-            <span className="text-[12px] font-black uppercase tracking-[0.3em] opacity-40">BeRanked © 2026</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider opacity-20 italic">Product by DomCraft Digital</span>
+          <div className="flex flex-col items-center xl:items-start gap-4 flex-1">
+            <span className="text-[18px] font-black uppercase tracking-[0.4em] text-behance-blue">BeRanked</span>
+            <div className="flex flex-col gap-1 opacity-40 items-center xl:items-start">
+              <span className="text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">© 2026 Product by DomCraft Digital</span>
+              <span className="text-[10px] font-medium uppercase tracking-tight">Харин Владислав • ИНН 563811937786</span>
+            </div>
           </div>
-
-          <div className="flex gap-10">
-            {["Оферта", "Приватность", "Возврат"].map((item, i) => (
+          <div className="flex flex-col items-center gap-5 flex-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30">Secure Payments</span>
+            <img
+              src="/payments.png"
+              alt="Visa, Mastercard, Mir"
+              className={`h-12 w-auto object-contain transition-all duration-500 ${isDark ? "brightness-200 grayscale opacity-60 hover:opacity-100 hover:grayscale-0" : "opacity-90 hover:opacity-100"}`}
+            />
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 flex-1">
+            {[
+              { label: "Оферта", link: "/terms.html" },
+              { label: "Приватность", link: "/privacy.html" },
+              { label: "Возврат", link: "/refund.html" },
+            ].map((doc, idx) => (
               <a
-                key={i}
-                href="#"
-                className="text-[10px] font-black uppercase tracking-widest text-behance-muted hover:text-behance-blue transition-colors border-b border-transparent hover:border-behance-blue/40 pb-1"
+                key={idx}
+                href={doc.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-black uppercase tracking-[0.2em] text-behance-muted hover:text-behance-blue transition-all border-b-2 border-transparent hover:border-behance-blue/20 pb-1"
               >
-                {item}
+                {doc.label}
               </a>
             ))}
           </div>
-
-          <div className="flex flex-col items-center md:items-end gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest opacity-20">Direct Support:</span>
+          <div className="flex flex-col items-center xl:items-end gap-3 flex-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 text-center xl:text-right">Direct Support</span>
             <a
               href="mailto:dom.craft.digital@gmail.com"
-              className="text-[11px] font-black uppercase tracking-widest text-behance-blue hover:text-blue-400 transition-colors"
+              className="text-[13px] font-black uppercase tracking-widest text-behance-blue hover:text-blue-400 transition-colors border-b-2 border-behance-blue/10 hover:border-behance-blue"
             >
               dom.craft.digital@gmail.com
             </a>
