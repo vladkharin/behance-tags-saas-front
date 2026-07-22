@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "../context/ThemeContextInstance";
+
+type Currency = "RUB" | "USD";
 
 const PLANS = [
   {
     name: "Free",
-    price: "$0",
+    price: { RUB: "0 ₽", USD: "$0" },
     description: "Для тех, кто только начинает путь на Behance",
     features: ["1 активный слот для проекта", "Обновление раз в 7 дней", "Месячный лимит: 90 тегов", "Базовая статистика"],
     buttonText: "Текущий план",
@@ -12,7 +14,7 @@ const PLANS = [
   },
   {
     name: "Daily Fresh",
-    price: "$9.99",
+    price: { RUB: "890 ₽", USD: "$9.99" },
     period: "/мес",
     description: "Оптимально для активных дизайнеров",
     features: [
@@ -27,7 +29,7 @@ const PLANS = [
   },
   {
     name: "Pro Stream",
-    price: "$24.99",
+    price: { RUB: "2 250 ₽", USD: "$24.99" },
     period: "/мес",
     description: "Для студий и топ-мейкеров",
     features: [
@@ -44,8 +46,8 @@ const PLANS = [
 ];
 
 const FUEL_PACKS = [
-  { name: "Pack 500", tags: "500 тегов", price: "$2.99", icon: "⛽" },
-  { name: "Pack 2000", tags: "2000 тегов", price: "$6.99", icon: "🔥" },
+  { name: "Pack 500", tags: "500 тегов", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
+  { name: "Pack 2000", tags: "2000 тегов", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
 ];
 
 interface PlansProps {
@@ -56,6 +58,9 @@ export const Plans: React.FC<PlansProps> = ({ onBack }) => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
 
+  // Состояние валюты (по умолчанию рубли)
+  const [currency, setCurrency] = useState<Currency>("RUB");
+
   return (
     <div
       className={`min-h-screen transition-colors duration-500 flex flex-col ${isDark ? "bg-[#0a0a0a] text-white" : "bg-behance-grayBg text-behance-black"}`}
@@ -63,7 +68,9 @@ export const Plans: React.FC<PlansProps> = ({ onBack }) => {
       {/* HEADER */}
       <header className="py-10 px-16 flex justify-between items-center max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-4 cursor-pointer" onClick={onBack}>
-          <span className="text-[20px] font-black uppercase tracking-[0.4em] text-behance-blue">BeRanked</span>
+          <span className="text-[20px] font-black uppercase tracking-[0.4em] text-behance-blue transition-all hover:opacity-70">
+            BeRanked
+          </span>
         </div>
         <button
           onClick={toggleTheme}
@@ -74,15 +81,32 @@ export const Plans: React.FC<PlansProps> = ({ onBack }) => {
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-16 py-12">
-        <div className="text-center mb-24">
-          <h1 className="text-6xl font-black tracking-tighter uppercase mb-6 leading-none">
+        <div className="text-center mb-16">
+          <h1 className="text-6xl font-black tracking-tighter uppercase mb-8 leading-none">
             Выберите уровень <br /> продвижения
           </h1>
-          <p className="text-lg opacity-40 font-medium uppercase tracking-widest">Прозрачные тарифы для любого масштаба</p>
+
+          {/* CURRENCY SWITCHER */}
+          <div className="inline-flex p-1.5 rounded-2xl bg-gray-200/50 dark:bg-white/5 backdrop-blur-md mb-12 shadow-inner">
+            <button
+              onClick={() => setCurrency("RUB")}
+              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "RUB" ? "bg-white dark:bg-behance-blue text-black dark:text-white shadow-md" : "opacity-40"}`}
+            >
+              RUB
+            </button>
+            <button
+              onClick={() => setCurrency("USD")}
+              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "USD" ? "bg-white dark:bg-behance-blue text-black dark:text-white shadow-md" : "opacity-40"}`}
+            >
+              USD
+            </button>
+          </div>
+
+          <p className="text-[11px] opacity-30 font-bold uppercase tracking-[0.3em]">Прозрачные тарифы для любого масштаба</p>
         </div>
 
         {/* ТАРИФЫ */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32 items-stretch">
           {PLANS.map((plan, i) => (
             <div
               key={i}
@@ -91,7 +115,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack }) => {
               <div className="mb-10">
                 <h3 className="text-[12px] font-black uppercase tracking-[0.2em] mb-4 opacity-40">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-black tracking-tighter">{plan.price}</span>
+                  <span className="text-5xl font-black tracking-tighter animate-in fade-in duration-300">{plan.price[currency]}</span>
                   {plan.period && <span className="text-lg opacity-30 font-bold">{plan.period}</span>}
                 </div>
                 <p className="mt-4 text-[10px] font-bold leading-relaxed opacity-60 uppercase">{plan.description}</p>
@@ -119,7 +143,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack }) => {
         <div
           className={`p-16 rounded-[4rem] border transition-all ${isDark ? "bg-[#0d0d0d] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-2xl shadow-blue-900/5"}`}
         >
-          <div className="flex flex-col lg:row justify-between items-center gap-12">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-12">
             <div className="max-w-md text-center lg:text-left">
               <h2 className="text-4xl font-black uppercase tracking-tighter mb-4 italic">Закончились лимиты?</h2>
               <p className="text-[11px] font-bold uppercase opacity-30 tracking-widest leading-loose">
@@ -137,7 +161,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack }) => {
                   <h4 className="text-[11px] font-black uppercase tracking-widest opacity-40 mb-2">{pack.name}</h4>
                   <p className="text-2xl font-black mb-6">{pack.tags}</p>
                   <button className="bg-behance-blue text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all">
-                    Купить {pack.price}
+                    Купить {pack.price[currency]}
                   </button>
                 </div>
               ))}
