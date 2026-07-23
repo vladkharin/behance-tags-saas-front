@@ -1,30 +1,43 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { useTheme } from "../context/ThemeContextInstance"; // Импорт из правильного файла
+import { useTheme } from "../context/ThemeContextInstance";
+import { useTranslation } from "react-i18next";
 import type { AuthCredentials } from "../types/auth.types";
 
-export const AuthForm: React.FC = () => {
+interface AuthFormProps {
+  onNavigatePrivacy: () => void;
+  onNavigateTerms: () => void;
+}
+
+export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigateTerms }) => {
   const { login, register, isLoading } = useAuth();
-  const { theme, toggleTheme } = useTheme(); // Достаем тему и функцию переключения
+  const { theme, toggleTheme } = useTheme();
+  const { t, i18n } = useTranslation();
 
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-
   const [isAgreed, setIsAgreed] = useState(false);
+
+  const isDark = theme === "dark";
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === "ru" ? "en" : "ru";
+    i18n.changeLanguage(newLang);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (!email.trim() || !password.trim()) {
-      setError("Пожалуйста, заполните все поля");
+      setError(t("auth.errorEmpty"));
       return;
     }
 
     if (!isLoginMode && !isAgreed) {
-      setError("Необходимо согласиться с условиями использования сервиса");
+      setError(t("auth.errorAgreement"));
       return;
     }
 
@@ -42,42 +55,50 @@ export const AuthForm: React.FC = () => {
       } else if (typeof err === "object" && err !== null && "message" in err) {
         setError(String((err as { message: unknown }).message));
       } else {
-        setError("Произошла непредвиденная ошибка при аутентификации");
+        setError("Error");
       }
     }
   };
 
   return (
     <div className="min-h-screen relative flex items-center justify-center bg-behance-grayBg dark:bg-behance-darkBg px-4 transition-colors duration-500">
-      {/* КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ */}
+      {/* ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА */}
+      <button
+        onClick={toggleLanguage}
+        type="button"
+        className="absolute top-6 left-6 w-10 h-10 rounded-full bg-white dark:bg-behance-darkCard border border-behance-border dark:border-white/10 shadow-sm transition-all hover:scale-110 active:scale-95 z-50 text-[10px] font-black uppercase text-behance-muted dark:text-blue-400"
+      >
+        {i18n.language.toUpperCase().substring(0, 2)}
+      </button>
+
+      {/* ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ */}
       <button
         onClick={toggleTheme}
         type="button"
-        className="absolute top-6 right-6 p-3 rounded-full bg-white dark:bg-behance-darkCard border border-behance-border dark:border-white/10 shadow-sm transition-all hover:scale-110 active:scale-95 z-50"
+        className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white dark:bg-behance-darkCard border border-behance-border dark:border-white/10 shadow-sm transition-all hover:scale-110 active:scale-95 z-50"
       >
-        <span className="text-lg leading-none">{theme === "light" ? "🌙" : "☀️"}</span>
+        <span className="text-lg leading-none">{isDark ? "☀️" : "🌙"}</span>
       </button>
 
-      {/* КАРТОЧКА ФОРМЫ */}
       <div className="w-full max-w-[400px] bg-white dark:bg-behance-darkCard border border-behance-border dark:border-white/5 rounded-xl p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] dark:shadow-2xl transition-colors duration-500">
-        {/* Заголовок */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold tracking-tight text-behance-black dark:text-white transition-colors">
-            {isLoginMode ? "Войти в BeRanked" : "Создать аккаунт"}
+            {isLoginMode ? t("auth.loginTitle") : t("auth.registerTitle")}
           </h2>
-          <p className="text-sm text-behance-muted dark:text-gray-400 mt-2 transition-colors">Аналитика тегов для создателей</p>
+          <p className="text-sm text-behance-muted dark:text-gray-400 mt-2 transition-colors">{t("auth.subtitle")}</p>
         </div>
 
-        {/* Ошибки */}
         {error && (
-          <div className="mb-5 p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg text-center animate-shake">
+          <div className="mb-5 p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-lg text-center animate-pulse">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-behance-muted dark:text-gray-500 mb-2">Email</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-behance-muted dark:text-gray-500 mb-2">
+              {t("auth.emailLabel")}
+            </label>
             <input
               type="email"
               value={email}
@@ -91,7 +112,7 @@ export const AuthForm: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-behance-muted dark:text-gray-500 mb-2">
-              Пароль
+              {t("auth.passwordLabel")}
             </label>
             <input
               type="password"
@@ -104,7 +125,7 @@ export const AuthForm: React.FC = () => {
             />
           </div>
 
-          {/* Согласие с документами (только при регистрации) */}
+          {/* Согласие с документами: Кнопки теперь выглядят как синие ссылки */}
           {!isLoginMode && (
             <div className="flex items-start gap-3 mt-4 text-left">
               <input
@@ -117,14 +138,14 @@ export const AuthForm: React.FC = () => {
                 required
               />
               <label htmlFor="agreement" className="text-[11px] leading-relaxed text-behance-muted dark:text-gray-400 select-none">
-                Регистрируясь в BeRanked, я принимаю условия{" "}
-                <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="text-behance-blue hover:underline font-medium">
-                  Публичной оферты
-                </a>
-                , даю согласие на обработку данных согласно{" "}
-                <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="text-behance-blue hover:underline font-medium">
-                  Политике конфиденциальности
-                </a>
+                {t("auth.agreementPrefix")}{" "}
+                <button type="button" onClick={onNavigateTerms} className="text-behance-blue hover:underline font-medium transition-all">
+                  {t("auth.agreementOffer")}
+                </button>
+                {t("auth.agreementAnd")} {t("auth.agreementConsent")}{" "}
+                <button type="button" onClick={onNavigatePrivacy} className="text-behance-blue hover:underline font-medium transition-all">
+                  {t("auth.agreementPrivacy")}
+                </button>
               </label>
             </div>
           )}
@@ -144,12 +165,12 @@ export const AuthForm: React.FC = () => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                Загрузка...
+                {t("auth.loading")}
               </span>
             ) : isLoginMode ? (
-              "Войти"
+              t("auth.loginBtn")
             ) : (
-              "Зарегистрироваться"
+              t("auth.registerBtn")
             )}
           </button>
         </form>
@@ -165,7 +186,7 @@ export const AuthForm: React.FC = () => {
             }}
             className="text-sm text-behance-blue hover:underline font-medium disabled:opacity-50 transition-colors"
           >
-            {isLoginMode ? "Еще нет аккаунта? Создать" : "Уже есть аккаунт? Войти"}
+            {isLoginMode ? t("auth.noAccount") : t("auth.hasAccount")}
           </button>
         </div>
       </div>

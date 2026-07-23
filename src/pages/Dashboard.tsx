@@ -3,14 +3,42 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { analyticsService, type BehanceProject, type HistoryPoint } from "../services/analyticsService";
 import { useTheme } from "../context/ThemeContextInstance";
 import { formatDistanceToNow, addHours } from "date-fns";
-import { ru } from "date-fns/locale";
+import { ru, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
+import { Footer } from "../components/Footer";
 
 const COLORS = ["#0057ff", "#00c853", "#ff0057", "#ffab00", "#7e57c2", "#26c6da", "#ec407a", "#ff5722", "#00bcd4", "#8bc34a"];
+const PLAN_HOURS = { FREE: 168, DAILY_FRESH: 72, PRO_STREAM: 24 };
 
-const PLAN_HOURS = {
-  FREE: 168,
-  DAILY_FRESH: 72,
-  PRO_STREAM: 24,
+// --- КОМПОНЕНТ ОНБОРДИНГА ---
+const WelcomeModal: React.FC<{ onClose: () => void; isDark: boolean }> = ({ onClose, isDark }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+      <div
+        className={`max-w-2xl w-full p-12 rounded-[3.5rem] border shadow-2xl transition-all ${isDark ? "bg-[#111111] border-white/5 shadow-black" : "bg-white border-behance-border"}`}
+      >
+        <h2 className="text-4xl font-black uppercase tracking-tighter mb-10 italic text-behance-blue">{t("onboarding.title")}</h2>
+        <div className="grid gap-8 mb-12">
+          {[1, 2, 3].map((num) => (
+            <div key={num} className="flex gap-6">
+              <span className="text-4xl font-black opacity-10 italic">{num}</span>
+              <div className="space-y-1">
+                <h4 className="font-black uppercase text-sm tracking-widest">{t(`onboarding.step${num}.h`)}</h4>
+                <p className="text-sm opacity-50 leading-relaxed">{t(`onboarding.step${num}.p`)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full py-6 rounded-2xl bg-behance-blue text-white font-black uppercase text-[10px] tracking-[0.3em] shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+        >
+          {t("onboarding.button")}
+        </button>
+      </div>
+    </div>
+  );
 };
 
 // --- КОМПОНЕНТ УМНОГО ТУЛТИПА ---
@@ -18,7 +46,6 @@ const CustomTooltip = ({ active, payload, label, isDark }: any) => {
   if (active && payload && payload.length) {
     const sortedPayload = [...payload].sort((a, b) => (a.value || 999) - (b.value || 999));
     const isMultiColumn = sortedPayload.length > 10;
-
     return (
       <div
         className={`p-6 rounded-[2.5rem] border backdrop-blur-xl shadow-2xl transition-all duration-300 ${isDark ? "bg-black/80 border-white/10" : "bg-white/90 border-gray-100"}`}
@@ -45,32 +72,30 @@ const CustomTooltip = ({ active, payload, label, isDark }: any) => {
 
 interface DashboardProps {
   onNavigatePricing: () => void;
+  onNavigateLegal: (view: any) => void; // Добавили поддержку "help"
   logout: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavigateLegal, logout }) => {
   const { theme, toggleTheme } = useTheme();
+  const { t, i18n } = useTranslation();
   const isDark = theme === "dark";
   const chartRef = useRef<HTMLDivElement>(null);
+  const dateLocale = i18n.language === "ru" ? ru : enUS;
 
-  // --- ДАННЫЕ ---
+  // --- СОСТОЯНИЯ ---
+  const [showWelcome, setShowWelcome] = useState(!localStorage.getItem("onboarding_complete"));
   const [projects, setProjects] = useState<BehanceProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
   const [history, setHistory] = useState<Record<string, HistoryPoint[]>>({});
-
-  // --- ИНТЕРАКТИВ ---
   const [visibleTags, setVisibleTags] = useState<string[]>([]);
   const [focusedTag, setFocusedTag] = useState<string | null>(null);
-
-  // --- СОСТОЯНИЯ UI ---
   const [loading, setLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
-
-  // --- ВВОД ---
   const [urlInput, setUrlInput] = useState("");
   const [tagsInput, setTagsInput] = useState("");
   const [newTagsInput, setNewTagsInput] = useState("");
@@ -78,8 +103,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
 
   const userId = localStorage.getItem("userId") || "";
 
+  // --- ВЫЧИСЛЕНИЯ ---
   const selectedProjectInSidebar = useMemo(() => projects.find((p) => p.id === selectedProjectId) || null, [projects, selectedProjectId]);
-
   const tagColors = useMemo(() => {
     const map: Record<string, string> = {};
     if (data?.tagsMatrix) {
@@ -108,8 +133,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
   }, [history]);
 
   const isSelectedProjectBusy = useMemo(() => data?.status && data.status !== "IDLE", [data?.status]);
-
-  // ПРОВЕРКА ПУСТОТЫ ГРАФИКА
   const isChartEmpty = useMemo(
     () => (visibleTags.length === 0 && !focusedTag) || chartData.length === 0,
     [visibleTags, focusedTag, chartData],
@@ -119,8 +142,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
     if (!data?.lastAnalyzedAt || !data?.plan) return null;
     const interval = (PLAN_HOURS as any)[data.plan];
     const nextDate = addHours(new Date(data.lastAnalyzedAt), interval);
-    return formatDistanceToNow(nextDate, { addSuffix: true, locale: ru });
-  }, [data]);
+    return formatDistanceToNow(nextDate, { addSuffix: true, locale: dateLocale });
+  }, [data, dateLocale]);
+
+  // --- ЛОГИКА ---
+  const handleCloseWelcome = () => {
+    setShowWelcome(false);
+    localStorage.setItem("onboarding_complete", "true");
+  };
 
   const refreshData = useCallback(
     async (targetId: string, isInitialLoad = false) => {
@@ -130,9 +159,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
           analyticsService.getProjectHistory(targetId),
           analyticsService.getUserProjects(userId),
         ]);
-
         if (targetId !== selectedProjectId && !isInitialLoad) return;
-
         setProjects(listRes || []);
         if (detailsRes.tagsMatrix) {
           detailsRes.tagsMatrix.sort((a: any, b: any) => a.tag.localeCompare(b.tag));
@@ -143,7 +170,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
         }
         setData(detailsRes);
         setHistory(historyRes || {});
-        setIsPolling(detailsRes.status !== "IDLE" || listRes.some((p: any) => p.analysisStatus !== "IDLE"));
+        const anyProjectWorking = listRes.some((p: any) => p.analysisStatus !== "IDLE");
+        setIsPolling(anyProjectWorking || detailsRes.status !== "IDLE");
       } catch (e) {
         console.error(e);
       }
@@ -186,6 +214,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
     };
     init();
   }, [userId]);
+
+  const toggleLanguage = () => i18n.changeLanguage(i18n.language === "ru" ? "en" : "ru");
 
   const toggleAllTags = async () => {
     if (!selectedProjectId || !data?.tagsMatrix) return;
@@ -282,7 +312,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
       <div
         className={`h-screen flex items-center justify-center font-black uppercase text-[10px] tracking-[0.5em] animate-pulse ${isDark ? "bg-[#0a0a0a] text-white" : "bg-behance-grayBg text-behance-black"}`}
       >
-        Инициализация BeRanked
+        {t("common.loading")}
       </div>
     );
 
@@ -290,16 +320,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
     <div
       className={`flex h-screen overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-behance-grayBg text-behance-black"}`}
     >
+      {showWelcome && <WelcomeModal onClose={handleCloseWelcome} isDark={isDark} />}
+
       {/* САЙДБАР */}
       <div
         className={`w-80 border-r flex flex-col z-10 transition-colors ${isDark ? "bg-[#111111] border-white/5 shadow-2xl" : "bg-white border-behance-border shadow-sm"}`}
       >
         <div className="p-10 border-b border-behance-border dark:border-white/5 text-center relative">
+          <button
+            onClick={toggleLanguage}
+            className={`absolute top-4 left-4 text-[9px] font-black w-8 h-8 rounded-full transition-all hover:scale-110 shadow-sm ${isDark ? "bg-white/5 text-blue-400" : "bg-gray-100 text-gray-500"}`}
+          >
+            {i18n.language.toUpperCase().substring(0, 2)}
+          </button>
           <h1 className="text-3xl font-black tracking-tighter uppercase leading-none italic">BeRanked</h1>
           <div className="h-1 w-8 bg-behance-blue mx-auto mt-3 rounded-full shadow-[0_0_15px_rgba(0,87,255,0.4)]"></div>
           <button
             onClick={toggleTheme}
-            className={`absolute top-4 right-4 text-xs p-2 rounded-full transition-all hover:scale-110 ${isDark ? "bg-white/5 text-yellow-400" : "bg-gray-100 text-gray-400"}`}
+            className={`absolute top-4 right-4 text-xs w-8 h-8 rounded-full transition-all hover:scale-110 shadow-sm ${isDark ? "bg-white/5 text-yellow-400" : "bg-gray-100 text-gray-400"}`}
           >
             {isDark ? "☀️" : "🌙"}
           </button>
@@ -311,49 +349,60 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
               setIsAddingNew(true);
               setSelectedProjectId(null);
             }}
-            className={`p-6 rounded-[2.2rem] border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer transition-all ${isAddingNew ? "border-behance-blue bg-behance-blue/5 text-behance-blue" : "border-behance-border text-behance-muted hover:border-behance-blue dark:border-white/10"}`}
+            className={`p-6 rounded-[2.2rem] border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer transition-all ${isAddingNew ? "border-behance-blue bg-behance-blue/5 text-behance-blue shadow-inner" : "border-behance-border text-behance-muted hover:border-behance-blue dark:border-white/10"}`}
           >
             <span className="text-lg">＋</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">Новый проект</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">{t("sidebar.newProject")}</span>
           </div>
-
           {projects.map((p) => {
             const status = (p as any).analysisStatus;
-            const isWorking = status === "PROCESSING";
-            const isPending = status === "PENDING";
             return (
               <div
                 key={p.id}
                 onClick={() => handleProjectSelect(p.id)}
-                className={`p-6 rounded-[2.2rem] cursor-pointer transition-all duration-300 relative border ${selectedProjectId === p.id ? "bg-behance-blue border-behance-blue text-white shadow-xl scale-[1.03]" : isDark ? "bg-white/5 border-transparent text-gray-400 hover:bg-white/10" : "bg-white border-behance-border hover:shadow-md"}`}
+                className={`p-6 rounded-[2.2rem] cursor-pointer transition-all duration-300 relative border ${selectedProjectId === p.id ? "bg-behance-blue border-behance-blue text-white shadow-xl scale-[1.03]" : isDark ? "bg-white/5 border-transparent text-gray-400 hover:bg-white/10" : "bg-white border-behance-border hover:shadow-md transition-all"}`}
               >
-                {(isWorking || isPending) && (
+                {status !== "IDLE" && (
                   <div
-                    className={`absolute top-5 right-7 w-2.5 h-2.5 rounded-full ${isPending ? "bg-amber-400 shadow-[0_0_10px_#fbbf24]" : "bg-white animate-ping"}`}
+                    className={`absolute top-5 right-7 w-2.5 h-2.5 rounded-full ${status === "PENDING" ? "bg-amber-400 shadow-[0_0_10px_#fbbf24]" : "bg-white animate-ping"}`}
                   />
                 )}
-                <div className="text-[11px] font-black truncate uppercase pr-6">{p.title || "Загрузка..."}</div>
+                <div className="text-[11px] font-black truncate uppercase pr-6">{p.title || "..."}</div>
                 <div
                   className={`text-[8px] mt-2 font-bold uppercase tracking-widest ${selectedProjectId === p.id ? "text-white/50" : "opacity-40"}`}
                 >
-                  {isPending ? "В очереди" : isWorking ? "Анализ..." : "Активен"}
+                  {status === "PENDING"
+                    ? t("sidebar.status.pending")
+                    : status === "PROCESSING"
+                      ? t("sidebar.status.processing")
+                      : t("sidebar.status.active")}
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* НАВИГАЦИЯ САЙДБАРА */}
         <div className="p-6 border-t border-behance-border dark:border-white/5 space-y-2">
+          {/* Кнопка Manual (База знаний) */}
+          <button
+            onClick={() => onNavigateLegal("help")}
+            className="w-full py-3 mb-2 rounded-xl bg-behance-blue/5 text-behance-blue text-[10px] font-black uppercase tracking-widest hover:bg-behance-blue/10 transition-all flex items-center justify-center gap-2"
+          >
+            <span className="text-base leading-none">❓</span> {t("help.title")}
+          </button>
+
           <button
             onClick={onNavigatePricing}
             className="w-full py-4 rounded-2xl border border-behance-blue/20 bg-behance-blue/5 text-behance-blue text-[10px] font-black uppercase tracking-widest hover:bg-behance-blue/10 transition-all"
           >
-            Управление тарифом
+            {t("sidebar.managePlan")}
           </button>
           <button
             onClick={logout}
             className="w-full py-2 text-[10px] font-black uppercase tracking-widest opacity-20 hover:opacity-100 transition-opacity"
           >
-            Выйти из системы
+            {t("sidebar.logout")}
           </button>
         </div>
       </div>
@@ -366,12 +415,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
               <div
                 className={`px-6 py-2.5 rounded-full text-[9px] font-black uppercase border transition-all ${isDark ? "bg-white/5 border-white/10 text-blue-400" : "bg-blue-50 border-blue-100 text-blue-600 shadow-sm"}`}
               >
-                Plan: {data.plan}
+                {t("dashboard.meta.plan")}: {data.plan}
               </div>
               <div
                 className={`px-6 py-2.5 rounded-full text-[9px] font-black uppercase border transition-all ${isDark ? "bg-white/5 border-white/10 text-gray-400" : "bg-gray-100 border-gray-200 text-gray-500 shadow-sm"}`}
               >
-                Авто-обновление: {nextUpdateInfo}
+                {t("dashboard.meta.update")}: {nextUpdateInfo}
               </div>
             </div>
           )}
@@ -380,27 +429,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
             <div
               className={`max-w-xl mx-auto mt-24 p-16 rounded-[4rem] shadow-2xl border transition-all ${isDark ? "bg-[#111111] border-white/5" : "bg-white border-behance-border"}`}
             >
-              <h2 className="text-3xl font-black uppercase text-center mb-10 tracking-tighter italic">Инициализация</h2>
+              <h2 className="text-3xl font-black uppercase text-center mb-10 tracking-tighter italic">{t("dashboard.init.title")}</h2>
               <form onSubmit={handleImport} className="space-y-6">
                 <input
                   className={`w-full rounded-[1.5rem] px-8 py-6 text-xs font-bold outline-none border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:border-blue-500" : "bg-behance-grayBg border-transparent focus:border-behance-blue shadow-inner"}`}
-                  placeholder="Ссылка на проект Behance"
+                  placeholder={t("dashboard.init.urlPlaceholder")}
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   required
                 />
                 <textarea
                   className={`w-full rounded-[1.5rem] px-8 py-6 text-xs font-bold outline-none min-h-[150px] border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:border-blue-500" : "bg-behance-grayBg border-transparent focus:border-behance-blue shadow-inner"}`}
-                  placeholder="Свои теги (через запятую)..."
+                  placeholder={t("dashboard.init.tagsPlaceholder")}
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                 />
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="w-full bg-behance-blue text-white py-7 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] transition-all"
+                  className="w-full bg-behance-blue text-white py-7 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
                 >
-                  {actionLoading ? "Подключение..." : "Запустить проект"}
+                  {actionLoading ? t("dashboard.init.loading") : t("dashboard.init.button")}
                 </button>
               </form>
             </div>
@@ -419,7 +468,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
                         rel="noreferrer"
                         className="text-[11px] font-black text-behance-blue uppercase tracking-widest hover:text-black dark:hover:text-white border-b-2 border-behance-blue/20 transition-all"
                       >
-                        Источник ↗
+                        {t("common.source")}
                       </a>
                       <button
                         onClick={toggleAutoUpdate}
@@ -429,7 +478,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
                           className={`w-2 h-2 rounded-full ${data?.activeProject?.isScheduled ? "bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]" : "bg-gray-500"}`}
                         />
                         <span className="text-[10px] font-black uppercase tracking-widest">
-                          Робот: {data?.activeProject?.isScheduled ? "Активен" : "Выключен"}
+                          {t("dashboard.header.robot")}:{" "}
+                          {data?.activeProject?.isScheduled ? t("dashboard.header.robotActive") : t("dashboard.header.robotOff")}
                         </span>
                       </button>
                     </div>
@@ -438,14 +488,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
                     <button
                       onClick={handleRefreshRankings}
                       disabled={actionLoading || isSelectedProjectBusy}
-                      className={`px-12 py-6 rounded-[2rem] text-[10px] font-black uppercase shadow-2xl transition-all hover:scale-105 active:scale-95 ${isSelectedProjectBusy ? "bg-blue-600 text-white animate-pulse" : isDark ? "bg-white text-black" : "bg-black text-white"}`}
+                      className={`px-12 py-6 rounded-[2rem] text-[10px] font-black uppercase shadow-2xl transition-all hover:scale-105 active:scale-95 ${isSelectedProjectBusy ? "bg-blue-600 text-white animate-pulse" : isDark ? "bg-white text-black shadow-white/5" : "bg-black text-white shadow-black/20"}`}
                     >
-                      {isSelectedProjectBusy ? (data?.status === "PENDING" ? "⏳ В очереди" : "🤖 Анализ...") : "Обновить позиции"}
+                      {isSelectedProjectBusy
+                        ? data?.status === "PENDING"
+                          ? t("dashboard.header.updateBtnPending")
+                          : t("dashboard.header.updateBtnProcessing")
+                        : t("dashboard.header.updateBtn")}
                     </button>
                   </div>
                 </div>
 
-                {/* ГРАФИК */}
                 <div
                   ref={chartRef}
                   className={`p-14 rounded-[4rem] border relative overflow-hidden transition-all duration-500 flex items-center justify-center ${isDark ? "bg-[#111111] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-2xl shadow-blue-900/5"}`}
@@ -454,8 +507,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
                     {isChartEmpty ? (
                       <div className="text-center animate-in fade-in zoom-in-95 duration-700">
                         <div className="text-5xl mb-6 opacity-20">📊</div>
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] opacity-30 leading-loose">
-                          Выберите теги в матрице ниже <br /> для визуализации истории позиций
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] opacity-30 leading-loose whitespace-pre-line">
+                          {t("dashboard.chart.empty")}
                         </h3>
                       </div>
                     ) : (
@@ -504,24 +557,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
                   </div>
                 </div>
 
-                {/* ТАБЛИЦА МАТРИЦЫ (Компактная) */}
                 <div
                   className={`rounded-[3.5rem] border overflow-hidden transition-all ${isDark ? "bg-[#111111] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-lg"}`}
                 >
                   <div className="px-10 py-6 border-b border-behance-border dark:border-white/5 flex justify-between items-center bg-gray-50/30 dark:bg-white/5">
                     <div className="flex items-center gap-6">
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-40 italic">Матрица тегов</h3>
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-40 italic">{t("dashboard.matrix.title")}</h3>
                       <button
                         onClick={toggleAllTags}
                         className="text-[9px] font-black uppercase text-blue-500 hover:text-blue-600 border-b border-blue-500/20 pb-0.5 transition-all"
                       >
-                        {visibleTags.length === data?.tagsMatrix?.length ? "Скрыть всё" : "Отобразить всё"}
+                        {visibleTags.length === data?.tagsMatrix?.length ? t("dashboard.matrix.hideAll") : t("dashboard.matrix.showAll")}
                       </button>
                     </div>
                     <div className="flex gap-4">
                       <input
                         className={`rounded-xl px-4 py-2 text-[10px] font-bold outline-none w-48 border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:bg-white/10" : "bg-white border-gray-100 shadow-sm focus:border-blue-200"}`}
-                        placeholder="Добавить тег..."
+                        placeholder={t("dashboard.matrix.inputPlaceholder")}
                         value={newTagsInput}
                         onChange={(e) => setNewTagsInput(e.target.value)}
                       />
@@ -530,7 +582,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
                         disabled={actionLoading || isSelectedProjectBusy}
                         className="bg-behance-blue text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg shadow-blue-500/20 transition-all"
                       >
-                        Добавить
+                        {t("dashboard.matrix.addBtn")}
                       </button>
                     </div>
                   </div>
@@ -557,13 +609,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
                               <div className="flex items-center justify-end gap-8">
                                 {item.currentRank === null ? (
                                   <span className="text-blue-500 animate-pulse text-[9px] font-black uppercase italic tracking-widest">
-                                    🤖 Проверка...
+                                    {t("dashboard.matrix.rankChecking")}
                                   </span>
                                 ) : (
                                   <span
                                     className={`text-[11px] font-black uppercase tracking-tight ${item.currentRank > 0 ? (item.currentRank <= 10 ? "text-green-500" : "text-blue-500") : isDark ? "text-white/10" : "text-gray-300"}`}
                                   >
-                                    {item.currentRank > 0 ? `Место #${item.currentRank}` : "Вне Топ-100"}
+                                    {item.currentRank > 0
+                                      ? t("dashboard.matrix.rankPlace", { rank: item.currentRank })
+                                      : t("dashboard.matrix.rankOutOfTop")}
                                   </span>
                                 )}
                                 <button
@@ -588,51 +642,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, logout 
         </div>
 
         {/* ГЛОБАЛЬНЫЙ ФУТЕР */}
-        <footer
-          className={`mt-auto py-20 px-16 border-t transition-colors flex flex-col xl:flex-row justify-between items-center gap-16 ${isDark ? "bg-[#0d0d0d] border-white/5" : "bg-white border-behance-border shadow-[0_-10px_40px_rgba(0,0,0,0.02)]"}`}
-        >
-          <div className="flex flex-col items-center xl:items-start gap-4 flex-1">
-            <span className="text-[18px] font-black uppercase tracking-[0.4em] text-behance-blue">BeRanked</span>
-            <div className="flex flex-col gap-1 opacity-40 items-center xl:items-start">
-              <span className="text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">© 2026 Product by DomCraft Digital</span>
-              <span className="text-[10px] font-medium uppercase tracking-tight">Харин Владислав • ИНН 563811937786</span>
-            </div>
-          </div>
-          <div className="flex flex-col items-center gap-5 flex-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30">Secure Payments</span>
-            <img
-              src="/payments.png"
-              alt="Visa, Mastercard, Mir"
-              className={`h-12 w-auto object-contain transition-all duration-500 ${isDark ? "brightness-200 grayscale opacity-60 hover:opacity-100 hover:grayscale-0" : "opacity-90 hover:opacity-100"}`}
-            />
-          </div>
-          <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 flex-1">
-            {[
-              { label: "Оферта", link: "/terms.html" },
-              { label: "Приватность", link: "/privacy.html" },
-              { label: "Возврат", link: "/refund.html" },
-            ].map((doc, idx) => (
-              <a
-                key={idx}
-                href={doc.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] font-black uppercase tracking-[0.2em] text-behance-muted hover:text-behance-blue transition-all border-b-2 border-transparent hover:border-behance-blue/20 pb-1"
-              >
-                {doc.label}
-              </a>
-            ))}
-          </div>
-          <div className="flex flex-col items-center xl:items-end gap-3 flex-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 text-center xl:text-right">Direct Support</span>
-            <a
-              href="mailto:dom.craft.digital@gmail.com"
-              className="text-[13px] font-black uppercase tracking-widest text-behance-blue hover:text-blue-400 transition-colors border-b-2 border-behance-blue/10 hover:border-behance-blue"
-            >
-              dom.craft.digital@gmail.com
-            </a>
-          </div>
-        </footer>
+        <Footer onNavigate={onNavigateLegal} />
       </div>
     </div>
   );

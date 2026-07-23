@@ -4,10 +4,22 @@ import { AuthForm } from "./components/AuthForm";
 import { useAuth } from "./hooks/useAuth";
 import { Dashboard } from "./pages/Dashboard";
 import { Plans } from "./pages/Plans";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { OfferPage } from "./pages/OfferPage";
+import { RefundPage } from "./pages/RefundPage";
+import { HelpPage } from "./pages/HelpPage"; // Наша новая страница
+
+// Все возможные экраны приложения
+type View = "dashboard" | "plans" | "terms" | "privacy" | "refund" | "help";
 
 const MainApp: React.FC = () => {
   const { isAuthenticated, isLoading, logout } = useAuth();
-  const [currentView, setCurrentView] = useState<"dashboard" | "plans">("dashboard");
+  const [currentView, setCurrentView] = useState<View>("dashboard");
+
+  const handleNavigate = (view: View) => {
+    setCurrentView(view);
+    window.scrollTo(0, 0);
+  };
 
   if (isLoading) {
     return (
@@ -17,19 +29,32 @@ const MainApp: React.FC = () => {
     );
   }
 
-  // Если не авторизован — показываем форму входа
+  // --- ПУБЛИЧНЫЕ СТРАНИЦЫ (Доступны без логина) ---
   if (!isAuthenticated) {
-    return <AuthForm />;
+    if (currentView === "privacy") return <PrivacyPage onBack={() => handleNavigate("dashboard")} />;
+    if (currentView === "terms") return <OfferPage onBack={() => handleNavigate("dashboard")} />;
+    if (currentView === "refund") return <RefundPage onBack={() => handleNavigate("dashboard")} />;
+    if (currentView === "help") return <HelpPage onBack={() => handleNavigate("dashboard")} />;
+
+    return <AuthForm onNavigatePrivacy={() => handleNavigate("privacy")} onNavigateTerms={() => handleNavigate("terms")} />;
   }
 
-  // Если авторизован — рендерим контент в зависимости от состояния
+  // --- СТРАНИЦЫ ДЛЯ АВТОРИЗОВАННЫХ ---
   return (
-    <div className="min-h-screen">
-      {currentView === "dashboard" ? (
-        <Dashboard onNavigatePricing={() => setCurrentView("plans")} logout={logout} />
-      ) : (
-        <Plans onBack={() => setCurrentView("dashboard")} />
+    <div className="min-h-screen bg-behance-grayBg dark:bg-behance-darkBg">
+      {currentView === "dashboard" && (
+        <Dashboard
+          onNavigatePricing={() => handleNavigate("plans")}
+          onNavigateLegal={handleNavigate} // Теперь handleNavigate принимает все View
+          logout={logout}
+        />
       )}
+
+      {currentView === "plans" && <Plans onBack={() => handleNavigate("dashboard")} onNavigateLegal={handleNavigate} />}
+      {currentView === "privacy" && <PrivacyPage onBack={() => handleNavigate("dashboard")} />}
+      {currentView === "terms" && <OfferPage onBack={() => handleNavigate("dashboard")} />}
+      {currentView === "refund" && <RefundPage onBack={() => handleNavigate("dashboard")} />}
+      {currentView === "help" && <HelpPage onBack={() => handleNavigate("dashboard")} />}
     </div>
   );
 };
