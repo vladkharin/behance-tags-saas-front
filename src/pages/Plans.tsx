@@ -2,15 +2,49 @@ import React, { useState } from "react";
 import { useTheme } from "../context/ThemeContextInstance";
 import { useTranslation } from "react-i18next";
 import { Footer } from "../components/Footer";
+import { analyticsService } from "../services/analyticsService"; // Убедись, что метод createPayment добавлен в сервис
 
 type Currency = "RUB" | "USD";
 
-export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }> = ({ onBack, onNavigateLegal }) => {
+interface PlansProps {
+  onBack: () => void;
+  onNavigateLegal: (view: "terms" | "privacy" | "refund") => void;
+}
+
+export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
   const { theme, toggleTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const isDark = theme === "dark";
 
   const [currency, setCurrency] = useState<Currency>("RUB");
+  const [loadingTarget, setLoadingTarget] = useState<string | null>(null);
+
+  const userId = localStorage.getItem("userId") || "";
+
+  // --- ЛОГИКА ОПЛАТЫ ---
+  const handlePurchase = async (target: string, type: "PLAN" | "FUEL") => {
+    if (target === "FREE" || loadingTarget) return;
+
+    setLoadingTarget(target);
+    try {
+      // Вызываем бэкенд для получения ссылки
+      const res = await analyticsService.createPayment({
+        userId,
+        target,
+        type,
+      });
+
+      // Редирект на платежную систему (Робокасса)
+      if (res.url) {
+        window.location.href = res.url;
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert(t("auth.error") || "Ошибка при создании счета");
+    } finally {
+      setLoadingTarget(null);
+    }
+  };
 
   const toggleLanguage = () => {
     const newLang = i18n.language === "ru" ? "en" : "ru";
@@ -19,6 +53,7 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
 
   const PLANS = [
     {
+      id: "FREE",
       name: t("plans.names.free"),
       price: { RUB: "0 ₽", USD: "$0" },
       description: t("plans.descriptions.free"),
@@ -27,6 +62,7 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
       highlight: false,
     },
     {
+      id: "DAILY_FRESH",
       name: t("plans.names.daily"),
       price: { RUB: "890 ₽", USD: "$9.99" },
       period: t("common.monthShort") || "/мес",
@@ -42,6 +78,7 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
       highlight: true,
     },
     {
+      id: "PRO_STREAM",
       name: t("plans.names.pro"),
       price: { RUB: "2 250 ₽", USD: "$24.99" },
       period: t("common.monthShort") || "/мес",
@@ -60,8 +97,8 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
   ];
 
   const FUEL_PACKS = [
-    { amount: "500", count: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
-    { amount: "2000", count: "2000", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
+    { id: "500", amount: "500", count: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
+    { id: "2000", amount: "2000", count: "2000", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
   ];
 
   return (
@@ -98,16 +135,16 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
           />
 
           {/* CURRENCY SWITCHER */}
-          <div className="inline-flex p-1.5 rounded-2xl bg-gray-200/50 dark:bg-white/5 backdrop-blur-md mb-12 shadow-inner">
+          <div className="inline-flex p-1.5 rounded-2xl bg-gray-200/50 dark:bg-white/5 backdrop-blur-md mb-12 shadow-inner text-black dark:text-white">
             <button
               onClick={() => setCurrency("RUB")}
-              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "RUB" ? "bg-white dark:bg-behance-blue text-black dark:text-white shadow-md" : "opacity-40"}`}
+              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "RUB" ? "bg-white dark:bg-behance-blue shadow-md" : "opacity-40"}`}
             >
               RUB
             </button>
             <button
               onClick={() => setCurrency("USD")}
-              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "USD" ? "bg-white dark:bg-behance-blue text-black dark:text-white shadow-md" : "opacity-40"}`}
+              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "USD" ? "bg-white dark:bg-behance-blue shadow-md" : "opacity-40"}`}
             >
               USD
             </button>
@@ -140,9 +177,13 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
                 ))}
               </ul>
               <button
-                className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${plan.premium ? "bg-white text-black hover:bg-behance-blue hover:text-white" : plan.highlight ? "bg-behance-blue text-white shadow-xl shadow-blue-500/20" : isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-black text-white hover:bg-behance-blue"}`}
+                onClick={() => handlePurchase(plan.id, "PLAN")}
+                disabled={plan.id === "FREE" || !!loadingTarget}
+                className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  loadingTarget === plan.id ? "opacity-50 animate-pulse" : ""
+                } ${plan.premium ? "bg-white text-black hover:bg-behance-blue hover:text-white" : plan.highlight ? "bg-behance-blue text-white shadow-xl shadow-blue-500/20" : isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-black text-white hover:bg-behance-blue"}`}
               >
-                {plan.buttonText}
+                {loadingTarget === plan.id ? t("auth.loading") : plan.buttonText}
               </button>
             </div>
           ))}
@@ -168,8 +209,12 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
                     {t("plans.fuel.pack", { amount: pack.amount })}
                   </h4>
                   <p className="text-2xl font-black mb-6">{t("plans.fuel.tags", { count: pack.count })}</p>
-                  <button className="bg-behance-blue text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all">
-                    {t("plans.fuel.buy", { price: pack.price[currency] })}
+                  <button
+                    onClick={() => handlePurchase(pack.id, "FUEL")}
+                    disabled={!!loadingTarget}
+                    className={`bg-behance-blue text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all ${loadingTarget === pack.id ? "opacity-50 animate-pulse" : ""}`}
+                  >
+                    {loadingTarget === pack.id ? t("auth.loading") : t("plans.fuel.buy", { price: pack.price[currency] })}
                   </button>
                 </div>
               ))}
@@ -179,7 +224,7 @@ export const Plans: React.FC<{ onBack: () => void; onNavigateLegal: () => void }
       </main>
 
       {/* FOOTER */}
-      <Footer onNavigate={(view) => onNavigateLegal(view)} />
+      <Footer onNavigate={onNavigateLegal} />
     </div>
   );
 };

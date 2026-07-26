@@ -91,4 +91,8 @@ export const analyticsService = {
   toggleAllTagsOnChart: async (projectId: string, state: boolean) => {
     await api.patch(`/scraper/projects/${projectId}/tags/chart/bulk`, { state });
   },
+  createPayment: async (data: { userId: string; target: string; type: "PLAN" | "FUEL" }): Promise<{ url: string }> => {
+    const response = await api.post("/billing/create-payment", data);
+    return response.data;
+  },
 };
