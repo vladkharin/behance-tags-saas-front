@@ -2,9 +2,18 @@ import React, { useState } from "react";
 import { useTheme } from "../context/ThemeContextInstance";
 import { useTranslation } from "react-i18next";
 import { Footer } from "../components/Footer";
-import { analyticsService } from "../services/analyticsService"; // Убедись, что метод createPayment добавлен в сервис
+import { analyticsService } from "../services/analyticsService";
 
 type Currency = "RUB" | "USD";
+
+// --- ТВОИ ССЫЛКИ НА LAVA.TOP ---
+// Вставь сюда ссылки на свои одобренные продукты и подписки из кабинета Лавы
+const LAVA_LINKS: Record<string, string> = {
+  DAILY_FRESH: "https://app.lava.top/products/240d87c1-27c2-4aed-9d81-b31f577d36b3/4b424463-2ccd-4774-825a-ecffc4596694", // Ссылка на подписку Daily
+  PRO_STREAM: "https://app.lava.top/products/240d87c1-27c2-4aed-9d81-b31f577d36b3/65ae8554-ac36-42ba-977e-430a2df7ccbc", // Ссылка на подписку Pro
+  "500": "https://app.lava.top/products/36e980bf-8bfc-45ea-a161-2b4f105f50fb", // Ссылка на пакет 500
+  "2000": "https://app.lava.top/products/d854e14e-de79-46f1-a246-7f400d1993a9", // Ссылка на пакет 2000
+};
 
 interface PlansProps {
   onBack: () => void;
@@ -25,24 +34,31 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
   const handlePurchase = async (target: string, type: "PLAN" | "FUEL") => {
     if (target === "FREE" || loadingTarget) return;
 
-    setLoadingTarget(target);
-    try {
-      // Вызываем бэкенд для получения ссылки
-      const res = await analyticsService.createPayment({
-        userId,
-        target,
-        type,
-      });
-
-      // Редирект на платежную систему (Робокасса)
-      if (res.url) {
-        window.location.href = res.url;
+    if (currency === "RUB") {
+      // 1. ОПЛАТА ЧЕРЕЗ РОБОКАССУ (Через твой бэкенд)
+      setLoadingTarget(target);
+      try {
+        const res = await analyticsService.createPayment({
+          userId,
+          target,
+          type,
+        });
+        if (res.url) window.location.href = res.url;
+      } catch (err) {
+        console.error("Payment error:", err);
+        alert(t("auth.error") || "Ошибка при создании счета");
+      } finally {
+        setLoadingTarget(null);
       }
-    } catch (err) {
-      console.error("Payment error:", err);
-      alert(t("auth.error") || "Ошибка при создании счета");
-    } finally {
-      setLoadingTarget(null);
+    } else {
+      // 2. ОПЛАТА ЧЕРЕЗ LAVA.TOP (Напрямую на товар)
+      const baseUrl = LAVA_LINKS[target];
+      if (baseUrl) {
+        // Мы добавляем userId в ссылку, чтобы Лава вернула его в вебхуке
+        window.location.href = `${baseUrl}?userId=${userId}`;
+      } else {
+        alert("Lava link not configured yet");
+      }
     }
   };
 
@@ -135,7 +151,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
           />
 
           {/* CURRENCY SWITCHER */}
-          <div className="inline-flex p-1.5 rounded-2xl bg-gray-200/50 dark:bg-white/5 backdrop-blur-md mb-12 shadow-inner text-black dark:text-white">
+          <div className="inline-flex p-1.5 rounded-2xl bg-gray-200/50 dark:bg-white/5 backdrop-blur-md mb-12 shadow-inner text-black dark:text-white font-black">
             <button
               onClick={() => setCurrency("RUB")}
               className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "RUB" ? "bg-white dark:bg-behance-blue shadow-md" : "opacity-40"}`}
@@ -223,7 +239,6 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
         </div>
       </main>
 
-      {/* FOOTER */}
       <Footer onNavigate={onNavigateLegal} />
     </div>
   );
