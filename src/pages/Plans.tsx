@@ -6,15 +6,6 @@ import { analyticsService } from "../services/analyticsService";
 
 type Currency = "RUB" | "USD";
 
-// --- ТВОИ ССЫЛКИ НА LAVA.TOP ---
-// Вставь сюда ссылки на свои одобренные продукты и подписки из кабинета Лавы
-const LAVA_LINKS: Record<string, string> = {
-  DAILY_FRESH: "https://app.lava.top/products/240d87c1-27c2-4aed-9d81-b31f577d36b3/4b424463-2ccd-4774-825a-ecffc4596694", // Ссылка на подписку Daily
-  PRO_STREAM: "https://app.lava.top/products/240d87c1-27c2-4aed-9d81-b31f577d36b3/65ae8554-ac36-42ba-977e-430a2df7ccbc", // Ссылка на подписку Pro
-  "500": "https://app.lava.top/products/d854e14e-de79-46f1-a246-7f400d1993a9", // Ссылка на пакет 500
-  "2000": "https://app.lava.top/products/36e980bf-8bfc-45ea-a161-2b4f105f50fb", // Ссылка на пакет 2000
-};
-
 interface PlansProps {
   onBack: () => void;
   onNavigateLegal: (view: "terms" | "privacy" | "refund") => void;
@@ -30,36 +21,30 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
 
   const userId = localStorage.getItem("userId") || "";
 
-  // --- ЛОГИКА ОПЛАТЫ ---
+  // --- ЛОГИКА ОПЛАТЫ (ТЕПЕРЬ ЕДИНАЯ) ---
   const handlePurchase = async (target: string, type: "PLAN" | "FUEL") => {
     if (target === "FREE" || loadingTarget) return;
 
-    if (currency === "RUB") {
-      // 1. ОПЛАТА ЧЕРЕЗ РОБОКАССУ (Через твой бэкенд)
-      setLoadingTarget(target);
-      try {
-        const res = await analyticsService.createPayment({
-          userId,
-          target,
-          type,
-          currency,
-        });
-        if (res.url) window.location.href = res.url;
-      } catch (err) {
-        console.error("Payment error:", err);
-        alert(t("auth.error") || "Ошибка при создании счета");
-      } finally {
-        setLoadingTarget(null);
+    setLoadingTarget(target);
+    try {
+      // Мы ВСЕГДА идем на бэкенд, независимо от валюты
+      // Бэкенд сам выберет: Робокасса (для RUB) или Lava API v3 (для USD)
+      const res = await analyticsService.createPayment({
+        userId,
+        target,
+        type,
+        currency, // Передаем RUB или USD
+      });
+
+      if (res.url) {
+        // Переходим по ссылке, которую сгенерировал бэкенд
+        window.location.href = res.url;
       }
-    } else {
-      // 2. ОПЛАТА ЧЕРЕЗ LAVA.TOP (Напрямую на товар)
-      const baseUrl = LAVA_LINKS[target];
-      if (baseUrl) {
-        // Мы добавляем userId в ссылку, чтобы Лава вернула его в вебхуке
-        window.location.href = `${baseUrl}?userId=${userId}`;
-      } else {
-        alert("Lava link not configured yet");
-      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert(t("auth.error") || "Ошибка при создании счета");
+    } finally {
+      setLoadingTarget(null);
     }
   };
 
@@ -70,7 +55,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
 
   const PLANS = [
     {
-      id: "FREE",
+      id: "DAILY_FRESH", // ID должен совпадать с ключом в PLANS_CONFIG на бэкенде
       name: t("plans.names.free"),
       price: { RUB: "0 ₽", USD: "$0" },
       description: t("plans.descriptions.free"),
@@ -114,7 +99,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
   ];
 
   const FUEL_PACKS = [
-    // { id: "500", amount: "500", count: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
+    { id: "500", amount: "500", count: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
     { id: "2000", amount: "2000", count: "2000", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
   ];
 
@@ -151,7 +136,6 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
             dangerouslySetInnerHTML={{ __html: t("plans.header.title") }}
           />
 
-          {/* CURRENCY SWITCHER */}
           <div className="inline-flex p-1.5 rounded-2xl bg-gray-200/50 dark:bg-white/5 backdrop-blur-md mb-12 shadow-inner text-black dark:text-white font-black">
             <button
               onClick={() => setCurrency("RUB")}
@@ -195,7 +179,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
               </ul>
               <button
                 onClick={() => handlePurchase(plan.id, "PLAN")}
-                disabled={plan.id === "FREE" || !!loadingTarget}
+                disabled={plan.price.RUB === "0 ₽" || !!loadingTarget}
                 className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   loadingTarget === plan.id ? "opacity-50 animate-pulse" : ""
                 } ${plan.premium ? "bg-white text-black hover:bg-behance-blue hover:text-white" : plan.highlight ? "bg-behance-blue text-white shadow-xl shadow-blue-500/20" : isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-black text-white hover:bg-behance-blue"}`}
