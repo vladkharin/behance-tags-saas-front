@@ -11,8 +11,8 @@ type Currency = "RUB" | "USD";
 const LAVA_LINKS: Record<string, string> = {
   DAILY_FRESH: "https://app.lava.top/products/240d87c1-27c2-4aed-9d81-b31f577d36b3/4b424463-2ccd-4774-825a-ecffc4596694", // Ссылка на подписку Daily
   PRO_STREAM: "https://app.lava.top/products/240d87c1-27c2-4aed-9d81-b31f577d36b3/65ae8554-ac36-42ba-977e-430a2df7ccbc", // Ссылка на подписку Pro
-  "500": "https://app.lava.top/products/36e980bf-8bfc-45ea-a161-2b4f105f50fb", // Ссылка на пакет 500
-  "2000": "https://app.lava.top/products/d854e14e-de79-46f1-a246-7f400d1993a9", // Ссылка на пакет 2000
+  "500": "https://app.lava.top/products/d854e14e-de79-46f1-a246-7f400d1993a9", // Ссылка на пакет 500
+  "2000": "https://app.lava.top/products/36e980bf-8bfc-45ea-a161-2b4f105f50fb", // Ссылка на пакет 2000
 };
 
 interface PlansProps {
@@ -42,6 +42,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
           userId,
           target,
           type,
+          currency,
         });
         if (res.url) window.location.href = res.url;
       } catch (err) {
@@ -113,7 +114,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
   ];
 
   const FUEL_PACKS = [
-    { id: "500", amount: "500", count: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
+    // { id: "500", amount: "500", count: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
     { id: "2000", amount: "2000", count: "2000", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
   ];
 
