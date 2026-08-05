@@ -8,58 +8,42 @@ type Currency = "RUB" | "USD";
 
 interface PlansProps {
   onBack: () => void;
-  onNavigateLegal: (view: "terms" | "privacy" | "refund") => void;
+  onNavigateLegal: (view: any) => void;
 }
 
 export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
   const { theme, toggleTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const isDark = theme === "dark";
-
   const [currency, setCurrency] = useState<Currency>("RUB");
   const [loadingTarget, setLoadingTarget] = useState<string | null>(null);
-
   const userId = localStorage.getItem("userId") || "";
 
-  // --- ЛОГИКА ОПЛАТЫ (ТЕПЕРЬ ЕДИНАЯ) ---
   const handlePurchase = async (target: string, type: "PLAN" | "FUEL") => {
     if (target === "FREE" || loadingTarget) return;
-
     setLoadingTarget(target);
     try {
-      // Мы ВСЕГДА идем на бэкенд, независимо от валюты
-      // Бэкенд сам выберет: Робокасса (для RUB) или Lava API v3 (для USD)
-      const res = await analyticsService.createPayment({
-        userId,
-        target,
-        type,
-        currency, // Передаем RUB или USD
-      });
-
-      if (res.url) {
-        // Переходим по ссылке, которую сгенерировал бэкенд
-        window.location.href = res.url;
-      }
+      const res = await analyticsService.createPayment({ userId, target, type, currency });
+      if (res.url) window.location.href = res.url;
     } catch (err) {
-      console.error("Payment error:", err);
-      alert(t("auth.error") || "Ошибка при создании счета");
+      alert("Error");
     } finally {
       setLoadingTarget(null);
     }
   };
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === "ru" ? "en" : "ru";
-    i18n.changeLanguage(newLang);
-  };
-
   const PLANS = [
     {
-      id: "DAILY_FRESH", // ID должен совпадать с ключом в PLANS_CONFIG на бэкенде
+      id: "FREE",
       name: t("plans.names.free"),
       price: { RUB: "0 ₽", USD: "$0" },
       description: t("plans.descriptions.free"),
-      features: [t("plans.features.slot1"), t("plans.features.update7"), t("plans.features.limit90"), t("plans.features.stats")],
+      features: [
+        { label: t("plans.features.slot1"), status: true },
+        { label: t("plans.features.update7"), status: true },
+        { label: t("plans.features.limit90"), status: true },
+        { label: t("plans.features.customTags"), status: false }, // КРЕСТИК
+      ],
       buttonText: t("plans.buttons.current"),
       highlight: false,
     },
@@ -67,14 +51,14 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
       id: "DAILY_FRESH",
       name: t("plans.names.daily"),
       price: { RUB: "890 ₽", USD: "$9.99" },
-      period: t("common.monthShort") || "/мес",
+      period: t("common.monthShort"),
       description: t("plans.descriptions.daily"),
       features: [
-        t("plans.features.slot3"),
-        t("plans.features.update3"),
-        t("plans.features.limit1500"),
-        t("plans.features.input"),
-        t("plans.features.charts"),
+        { label: t("plans.features.slot3"), status: true },
+        { label: t("plans.features.update3"), status: true },
+        { label: t("plans.features.limit1500"), status: true },
+        { label: t("plans.features.customTags"), status: true },
+        { label: t("plans.features.charts"), status: true },
       ],
       buttonText: t("plans.buttons.selectDaily"),
       highlight: true,
@@ -83,14 +67,14 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
       id: "PRO_STREAM",
       name: t("plans.names.pro"),
       price: { RUB: "2 250 ₽", USD: "$24.99" },
-      period: t("common.monthShort") || "/мес",
+      period: t("common.monthShort"),
       description: t("plans.descriptions.pro"),
       features: [
-        t("plans.features.slot10"),
-        t("plans.features.update24"),
-        t("plans.features.limit6000"),
-        t("plans.features.export"),
-        t("plans.features.priority"),
+        { label: t("plans.features.slot10"), status: true },
+        { label: t("plans.features.updateDaily"), status: true },
+        { label: t("plans.features.limit6000"), status: true },
+        { label: t("plans.features.customTags"), status: true },
+        { label: t("plans.features.trends"), status: true },
       ],
       buttonText: t("plans.buttons.getPro"),
       highlight: false,
@@ -99,31 +83,26 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
   ];
 
   const FUEL_PACKS = [
-    { id: "500", amount: "500", count: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
-    { id: "2000", amount: "2000", count: "2000", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
+    { id: "500", amount: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
+    { id: "2000", amount: "2000", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
   ];
 
   return (
     <div
       className={`min-h-screen transition-colors duration-500 flex flex-col ${isDark ? "bg-[#0a0a0a] text-white" : "bg-behance-grayBg text-behance-black"}`}
     >
-      {/* HEADER */}
       <header className="py-10 px-16 flex justify-between items-center max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-4 cursor-pointer transition-all hover:opacity-70" onClick={onBack}>
           <span className="text-[20px] font-black uppercase tracking-[0.4em] text-behance-blue">BeRanked</span>
         </div>
-
         <div className="flex items-center gap-4">
           <button
-            onClick={toggleLanguage}
-            className={`text-[10px] font-black w-10 h-10 rounded-full transition-all hover:scale-110 shadow-sm ${isDark ? "bg-white/5 text-blue-400" : "bg-white text-gray-500"}`}
+            onClick={() => i18n.changeLanguage(i18n.language === "ru" ? "en" : "ru")}
+            className={`text-[10px] font-black w-10 h-10 rounded-full shadow-sm ${isDark ? "bg-white/5 text-blue-400" : "bg-white"}`}
           >
-            {i18n.language.toUpperCase().substring(0, 2)}
+            {i18n.language.toUpperCase()}
           </button>
-          <button
-            onClick={toggleTheme}
-            className={`p-3 rounded-full transition-all hover:scale-110 ${isDark ? "bg-white/5 text-yellow-400" : "bg-white shadow-sm text-gray-400"}`}
-          >
+          <button onClick={toggleTheme} className={`p-3 rounded-full shadow-sm ${isDark ? "bg-white/5 text-yellow-400" : "bg-white"}`}>
             {isDark ? "☀️" : "🌙"}
           </button>
         </div>
@@ -135,31 +114,28 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
             className="text-6xl font-black tracking-tighter uppercase mb-8 leading-none"
             dangerouslySetInnerHTML={{ __html: t("plans.header.title") }}
           />
-
           <div className="inline-flex p-1.5 rounded-2xl bg-gray-200/50 dark:bg-white/5 backdrop-blur-md mb-12 shadow-inner text-black dark:text-white font-black">
             <button
               onClick={() => setCurrency("RUB")}
-              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "RUB" ? "bg-white dark:bg-behance-blue shadow-md" : "opacity-40"}`}
+              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${currency === "RUB" ? "bg-white dark:bg-behance-blue shadow-md" : "opacity-40"}`}
             >
               RUB
             </button>
             <button
               onClick={() => setCurrency("USD")}
-              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currency === "USD" ? "bg-white dark:bg-behance-blue shadow-md" : "opacity-40"}`}
+              className={`px-8 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${currency === "USD" ? "bg-white dark:bg-behance-blue shadow-md" : "opacity-40"}`}
             >
               USD
             </button>
           </div>
-
           <p className="text-[11px] opacity-30 font-bold uppercase tracking-[0.3em]">{t("plans.header.subtitle")}</p>
         </div>
 
-        {/* ТАРИФЫ */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32 items-stretch">
           {PLANS.map((plan, i) => (
             <div
               key={i}
-              className={`p-12 rounded-[3.5rem] border transition-all duration-500 flex flex-col ${plan.highlight ? "border-behance-blue bg-behance-blue/5 shadow-2xl scale-105 z-10" : isDark ? "bg-[#111111] border-white/5" : "bg-white border-behance-border shadow-sm"}`}
+              className={`p-12 rounded-[3.5rem] border transition-all duration-500 flex flex-col ${plan.highlight ? "border-behance-blue bg-behance-blue/5 shadow-2xl scale-105 z-10" : isDark ? "bg-[#111111] border-white/5" : "bg-white border-behance-border"}`}
             >
               <div className="mb-10">
                 <h3 className="text-[12px] font-black uppercase tracking-[0.2em] mb-4 opacity-40">{plan.name}</h3>
@@ -172,30 +148,27 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
               <ul className="space-y-5 mb-12 flex-1">
                 {plan.features.map((feat, j) => (
                   <li key={j} className="flex items-start gap-3 text-[11px] font-black uppercase tracking-tight">
-                    <span className="text-behance-blue">✓</span>
-                    <span className="opacity-80">{feat}</span>
+                    {feat.status ? <span className="text-green-500">✓</span> : <span className="text-red-500">✕</span>}
+                    <span className={feat.status ? "opacity-100" : "opacity-30"}>{feat.label}</span>
                   </li>
                 ))}
               </ul>
               <button
                 onClick={() => handlePurchase(plan.id, "PLAN")}
-                disabled={plan.price.RUB === "0 ₽" || !!loadingTarget}
-                className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  loadingTarget === plan.id ? "opacity-50 animate-pulse" : ""
-                } ${plan.premium ? "bg-white text-black hover:bg-behance-blue hover:text-white" : plan.highlight ? "bg-behance-blue text-white shadow-xl shadow-blue-500/20" : isDark ? "bg-white/5 text-white hover:bg-white/10" : "bg-black text-white hover:bg-behance-blue"}`}
+                disabled={plan.id === "FREE" || !!loadingTarget}
+                className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${loadingTarget === plan.id ? "animate-pulse" : ""} ${plan.premium ? "bg-white text-black hover:bg-behance-blue hover:text-white" : plan.highlight ? "bg-behance-blue text-white shadow-xl" : "bg-black text-white hover:bg-behance-blue"}`}
               >
-                {loadingTarget === plan.id ? t("auth.loading") : plan.buttonText}
+                {plan.buttonText}
               </button>
             </div>
           ))}
         </div>
 
-        {/* FUEL PACKS */}
         <div
-          className={`p-16 rounded-[4rem] border transition-all ${isDark ? "bg-[#0d0d0d] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-2xl shadow-blue-900/5"}`}
+          className={`p-16 rounded-[4rem] border transition-all ${isDark ? "bg-[#0d0d0d] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-2xl"}`}
         >
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-12">
-            <div className="max-w-md text-center lg:text-left">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-12 text-center lg:text-left">
+            <div className="max-w-md">
               <h2 className="text-4xl font-black uppercase tracking-tighter mb-4 italic">{t("plans.fuel.title")}</h2>
               <p className="text-[11px] font-bold uppercase opacity-30 tracking-widest leading-loose">{t("plans.fuel.desc")}</p>
             </div>
@@ -203,19 +176,21 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
               {FUEL_PACKS.map((pack, i) => (
                 <div
                   key={i}
-                  className={`p-10 rounded-[3rem] border text-center transition-all ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-behance-grayBg border-transparent hover:border-behance-blue/20"}`}
+                  className={`p-10 rounded-[3rem] border transition-all ${isDark ? "bg-white/5 border-white/5" : "bg-behance-grayBg border-transparent"}`}
                 >
                   <span className="text-4xl mb-6 block">{pack.icon}</span>
                   <h4 className="text-[11px] font-black uppercase tracking-widest opacity-40 mb-2">
                     {t("plans.fuel.pack", { amount: pack.amount })}
                   </h4>
-                  <p className="text-2xl font-black mb-6">{t("plans.fuel.tags", { count: pack.count })}</p>
+                  <p className="text-2xl font-black mb-6">
+                    {pack.amount} {t("dashboard.metrics.tags")}
+                  </p>
                   <button
                     onClick={() => handlePurchase(pack.id, "FUEL")}
                     disabled={!!loadingTarget}
-                    className={`bg-behance-blue text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all ${loadingTarget === pack.id ? "opacity-50 animate-pulse" : ""}`}
+                    className="bg-behance-blue text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 hover:scale-105 transition-all"
                   >
-                    {loadingTarget === pack.id ? t("auth.loading") : t("plans.fuel.buy", { price: pack.price[currency] })}
+                    {t("plans.fuel.buy", { price: pack.price[currency] })}
                   </button>
                 </div>
               ))}
@@ -223,7 +198,6 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
           </div>
         </div>
       </main>
-
       <Footer onNavigate={onNavigateLegal} />
     </div>
   );

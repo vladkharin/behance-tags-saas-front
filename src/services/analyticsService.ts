@@ -100,4 +100,9 @@ export const analyticsService = {
     const response = await api.post("/billing/create-payment", data);
     return response.data;
   },
+
+  getDemoProject: async (): Promise<{ id: string }> => {
+    const response = await api.get("/scraper/demo");
+    return response.data;
+  },
 };

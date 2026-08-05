@@ -8,7 +8,9 @@ export const HelpPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { t, i18n } = useTranslation();
   const isDark = theme === "dark";
 
-  const categories = t("help.categories", { returnObjects: true }) as any[];
+  // Берем данные и проверяем, что это массив
+  const categoriesData = t("help.categories", { returnObjects: true });
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
 
   return (
     <div
@@ -17,7 +19,7 @@ export const HelpPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       {/* HEADER */}
       <header className="py-8 px-16 flex justify-between items-center max-w-7xl mx-auto w-full border-b border-behance-border dark:border-white/5">
         <div className="flex items-center gap-4 cursor-pointer" onClick={onBack}>
-          <span className="text-xl font-black uppercase tracking-[0.3em] text-behance-blue">BeRanked</span>
+          <span className="text-xl font-black uppercase tracking-[0.3em] text-behance-blue transition-all hover:opacity-70">BeRanked</span>
           <span className="hidden md:inline text-[10px] font-bold opacity-20 uppercase tracking-widest italic">/ Manual</span>
         </div>
 
@@ -44,26 +46,31 @@ export const HelpPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
 
         <div className="space-y-16 mb-20">
-          {categories.map((cat, i) => (
-            <section key={i} className="space-y-6">
-              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-behance-blue opacity-80">{cat.title}</h2>
-              <div className="grid gap-4">
-                {cat.items.map((item: any, j: number) => (
-                  <div
-                    key={j}
-                    className={`p-8 rounded-[2.5rem] border transition-all ${isDark ? "bg-[#111111] border-white/5" : "bg-white border-behance-border"}`}
-                  >
-                    <h4 className="text-[15px] font-black mb-3 uppercase tracking-tight leading-tight">{item.q}</h4>
-                    <p className="text-sm opacity-60 leading-relaxed font-medium">{item.a}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
+          {categories.length > 0 ? (
+            categories.map((cat: any, i: number) => (
+              <section key={i} className="space-y-6">
+                <h2 className="text-sm font-black uppercase tracking-[0.2em] text-behance-blue opacity-80">{cat.title}</h2>
+                <div className="grid gap-4">
+                  {Array.isArray(cat.items) &&
+                    cat.items.map((item: any, j: number) => (
+                      <div
+                        key={j}
+                        className={`p-8 rounded-[2.5rem] border transition-all ${isDark ? "bg-[#111111] border-white/5 shadow-inner" : "bg-white border-behance-border shadow-sm"}`}
+                      >
+                        <h4 className="text-[15px] font-black mb-3 uppercase tracking-tight leading-tight">{item.q}</h4>
+                        <p className="text-sm opacity-60 leading-relaxed font-medium">{item.a}</p>
+                      </div>
+                    ))}
+                </div>
+              </section>
+            ))
+          ) : (
+            <p className="opacity-30 uppercase font-black text-xs tracking-widest">Loading manual...</p>
+          )}
         </div>
       </main>
 
-      <Footer onNavigate={(view) => onBack()} />
+      <Footer onNavigate={() => onBack()} />
     </div>
   );
 };

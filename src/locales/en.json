@@ -17,16 +17,46 @@
     "logout": "Sign Out"
   },
   "dashboard": {
+    "demo": {
+      "badge": "DEMO MODE",
+      "restricted": "Analysis functions are restricted in demo mode. Add your own project for full access."
+    },
+    "stats": {
+      "views": "Views",
+      "likes": "Likes",
+      "comments": "Comments"
+    },
+    "emptyState": {
+      "title": "Start Monitoring",
+      "subtitle": "Paste your case link and discover your Behance search rankings in seconds",
+      "demoBtn": "Try with Demo Project"
+    },
+    "metrics": {
+      "visibility": "Visibility Index",
+      "top10": "In TOP-10",
+      "potential": "Growth Potential",
+      "total": "Total Tags",
+      "tags": "tags",
+      "top1Gap": "Distance to TOP-1",
+      "likes": "likes",
+      "views": "views"
+    },
     "init": {
       "title": "Initialization",
       "urlPlaceholder": "Behance project link",
+      "addCustomTags": "+ Add custom tags (optional)",
       "tagsPlaceholder": "Your tags (comma separated)...",
       "button": "Launch Project",
       "loading": "Connecting..."
     },
     "meta": {
       "plan": "Plan",
-      "update": "Auto-update"
+      "update": "Auto-update",
+      "balance": "Tag Balance"
+    },
+    "errors": {
+      "lowBalance": "Insufficient balance",
+      "lowBalanceAction": "Top up now"
     },
     "header": {
       "robot": "Robot",
@@ -47,222 +77,43 @@
       "addBtn": "Add",
       "rankChecking": "🤖 Checking...",
       "rankOutOfTop": "Out of Top 100",
-      "rankPlace": "Rank #{{rank}}"
-    }
-  },
-  "footer": {
-    "developed": "Product by DomCraft Digital",
-    "legal": {
-      "offer": "Offer",
-      "privacy": "Privacy",
-      "refund": "Refund"
-    }
-  },
-  "plans": {
-    "header": {
-      "title": "Choose your <br /> promotion level",
-      "subtitle": "Transparent pricing for any scale"
-    },
-    "names": {
-      "free": "Free",
-      "daily": "Daily Fresh",
-      "pro": "Pro Stream"
-    },
-    "descriptions": {
-      "free": "For those just starting their Behance journey",
-      "daily": "Optimal for active designers",
-      "pro": "For studios and top makers"
-    },
-    "features": {
-      "slot1": "1 active project slot",
-      "slot3": "3 active project slots",
-      "slot10": "Up to 10 active slots",
-      "update7": "Updates every 7 days",
-      "update3": "Updates every 3 days",
-      "update24": "24-hour auto-updates",
-      "limit90": "Monthly limit: 90 tags",
-      "limit1500": "Monthly limit: 1,500 tags",
-      "limit6000": "Monthly limit: 6,000 tags",
-      "stats": "Base statistics",
-      "input": "Custom tags via input",
-      "charts": "Ranking history on charts",
-      "priority": "Priority support",
-      "export": "Full analytics and export"
-    },
-    "buttons": {
-      "current": "Current Plan",
-      "selectDaily": "Select Daily",
-      "getPro": "Get PRO"
-    },
-    "fuel": {
-      "title": "Out of credits?",
-      "desc": "Top up with \"Fuel\" packs to instantly continue monitoring without waiting for the next month.",
-      "pack": "Pack {{amount}}",
-      "tags": "{{count}} tags",
-      "buy": "Buy {{price}}"
-    }
-  },
-  "auth": {
-    "loginTitle": "Login to BeRanked",
-    "registerTitle": "Create Account",
-    "subtitle": "Tag analytics for creators",
-    "emailLabel": "Email",
-    "passwordLabel": "Password",
-    "agreementPrefix": "By registering with BeRanked, I accept the",
-    "agreementOffer": "Public Offer",
-    "agreementAnd": ",",
-    "agreementConsent": "give consent to data processing according to the",
-    "agreementPrivacy": "Privacy Policy",
-    "loginBtn": "Login",
-    "registerBtn": "Register",
-    "loading": "Loading...",
-    "noAccount": "No account yet? Create",
-    "hasAccount": "Already have an account? Login",
-    "errorEmpty": "Please fill in all fields",
-    "errorAgreement": "You must agree to the terms of use"
-  },
-  "legal": {
-    "back": "← Back",
-    "updated": "Last updated: July 15, 2026",
-    "requisitesTitle": "Contractor Details"
-  },
-  "privacy": {
-    "title": "Privacy Policy",
-    "updated": "Effective from July 15, 2026",
-    "back": "← Back to Home",
-    "sections": [
-      {
-        "h": "1. General Provisions",
-        "p": "1.1. This Privacy Policy (hereinafter — the «Policy») defines the procedure for processing and protecting personal data of individuals (hereinafter — «Users») using the «BeRanked» web service located at https://beranked.domcraft.digital/."
+      "rankPlace": "Rank #{{rank}}",
+      "copyAll": "Copy List",
+      "copied": "List copied to clipboard!",
+      "searchLink": "View on Behance",
+      "filters": {
+        "all": "All",
+        "top10": "TOP 10",
+        "potential": "Potential",
+        "lost": "Lost"
       },
-      {
-        "p": "1.2. The operator of personal data is the self-employed Vladislav Kharin (citizen of Kazakhstan, operating in the Russian Federation on the basis of a residence permit, ITN 563811937786)."
+      "cols": {
+        "tag": "Tag",
+        "rank": "Rank",
+        "trend": "24h Trend",
+        "status": "Status"
       },
-      {
-        "p": "1.3. The purpose of this Policy is to ensure proper protection of User information from unauthorized access and disclosure."
-      },
-      {
-        "h": "2. Composition and collection of data",
-        "p": "The Operator may process the following data:",
-        "list": [
-          "Email address — provided voluntarily for account creation and support.",
-          "Telegram ID — processed in case of using the notification bot.",
-          "Technical data — IP address, cookies, browser type, and access time."
-        ],
-        "important": "Important note: The Operator never collects or stores credit card data. All payments are processed via Robokassa or Lava.top secure gateways."
-      },
-      {
-        "h": "3. Purposes of processing",
-        "list": [
-          "User identification and providing access to the Dashboard.",
-          "Communication with the User and support requests.",
-          "Activity analysis to improve Service quality."
-        ]
-      },
-      {
-        "h": "4. Terms and principles",
-        "highlight": "Personal data is stored exclusively on electronic media on servers located within the Russian Federation.",
-        "p": "Data is processed until account deletion or a written request from the User."
+      "statuses": {
+        "top": "In Top",
+        "growth": "Rising",
+        "falling": "Falling",
+        "stable": "Stable"
       }
-    ],
-    "requisites": {
-      "title": "Operator Details",
-      "name": "Vladislav Kharin",
-      "inn": "563811937786",
-      "support": "dom.craft.digital@gmail.com"
-    }
-  },
-  "refund": {
-    "title": "Refund Policy",
-    "updated": "Effective from July 15, 2026",
-    "back": "← Back",
-    "intro": "You can cancel your paid subscription or credit package at any time.",
-    "sections": [
-      {
-        "h": "1. Cancellation Terms",
-        "p": "The User has the right to cancel services until the actual provision of access (crediting limits to the balance). Since BeRanked provides access to digital content instantly, refunds for already used limits are not provided."
-      }
-    ],
-    "stepsTitle": "2. Refund Procedure",
-    "stepsDesc": "If you made an accidental payment or encountered a technical issue, please follow these steps:",
-    "steps": [
-      {
-        "id": "Step 1",
-        "text": "Send a request to dom.craft.digital@gmail.com. Include your account email and payment date."
-      },
-      {
-        "id": "Step 2",
-        "text": "Your request will be processed by the administration within 24 hours."
-      },
-      {
-        "id": "Step 3",
-        "text": "After confirmation, the funds will be sent back to the same card used for the payment."
-      }
-    ],
-    "footer": {
-      "timeline": "Refund Timeframe: Funds are returned within 5-10 business days (depending on your bank).",
-      "warning": "Note: Refunds are issued in the full amount of the paid sum. We do not withhold any payment system or bank commissions."
-    }
-  },
-  "offer": {
-    "title": "Public Offer",
-    "updated": "Effective from July 15, 2026",
-    "back": "← Back",
-    "warning": "Please read this agreement carefully. Registration on the Site or payment for services constitutes your full and unconditional acceptance of all terms of this offer.",
-    "sections": [
-      {
-        "h": "1. Service Description & Consumer Properties",
-        "p": "1.1. The Contractor provides access to the BeRanked SaaS service for analyzing public Behance data.",
-        "italic": "Consumer properties of the service: The User gains access to tools for automated monitoring of project (case) positions in Behance search results by specified tags, visualization of position history on charts, and the ability to manage check limits in the personal account.",
-        "list": ["Slot — a technical space for monitoring one project.", "Limits — units deducted for checking a single tag."]
-      },
-      {
-        "h": "2. Subject of Agreement & Ordering",
-        "p": "2.1. The Contractor grants a license to use the Service, and the User pays for access in accordance with the selected Tariff.",
-        "p2": "2.2. The service is ordered by the User independently through registration in the Personal Account and payment via integrated payment systems."
-      },
-      {
-        "h": "3. Price & Payment Procedure",
-        "p": "3.1. The cost of Services (Tariffs) is indicated on the Site in the 'Plans' section.",
-        "p2": "3.2. Payment is made by non-cash transfer through the Robokassa service. Payment methods: bank cards (MIR, Visa, Mastercard), SBP.",
-        "p3": "3.3. The service is considered fully provided upon the actual crediting of limits or activation of the tariff in the User's account."
-      },
-      {
-        "h": "4. Terms & Refund Procedure",
-        "p": "The User has the right to cancel services at any time. Procedure:",
-        "steps": [
-          "Submit a request: Send a free-form request to dom.craft.digital@gmail.com. State your login and payment date.",
-          "Processing time: The Contractor reviews the request within 24 hours.",
-          "Execution: After confirmation, funds are returned to the same card used for payment.",
-          "Crediting time: Funds arrive within 5-10 business days."
-        ],
-        "note": "* Note: Refunds are issued in full without withholding payment system commissions."
-      },
-      {
-        "h": "5. Limitation of Liability",
-        "p": "5.1. BeRanked is not affiliated with Adobe Inc. or Behance. The Contractor is not responsible for the actions of third-party platforms."
-      }
-    ],
-    "requisites": {
-      "title": "Contractor Details",
-      "name": "Self-employed Vladislav Kharin",
-      "inn": "563811937786",
-      "support": "dom.craft.digital@gmail.com"
     }
   },
   "onboarding": {
     "title": "Welcome to BeRanked! 🚀",
     "step1": {
       "h": "Step 1. Add Project",
-      "p": "Copy your Behance case link and paste it into the field."
+      "p": "Simply copy your Behance case link and paste it into the field."
     },
     "step2": {
       "h": "Step 2. Choose Tags",
-      "p": "We'll pull original tags, but you can add custom ones to find new niches."
+      "p": "We'll pull the original tags, but you can add custom ones to find new niches."
     },
     "step3": {
       "h": "Step 3. Track Growth",
-      "p": "The bot checks rankings daily. You'll see real dynamics on charts."
+      "p": "The bot checks rankings daily. You'll see real dynamics on the charts."
     },
     "button": "Got it, let's go!"
   },
@@ -291,38 +142,127 @@
             "q": "How to read the chart?",
             "a": "The axis is inverted: the higher the dot, the better your rank (#1 is top). Upward line means your project is growing."
           },
-          {
-            "q": "How to see exact numbers?",
-            "a": "Hover over any point to see the smart Tooltip with exact rankings for that date."
-          }
+          { "q": "How to see exact numbers?", "a": "Hover over any point to see the smart Tooltip with exact rankings for that date." }
         ]
       },
       {
         "title": "🔢 Tag Matrix",
         "items": [
           {
-            "q": "What are the toggles for?",
-            "a": "Each tag has a switch to show/hide it on the chart. Useful for comparing specific keywords."
+            "q": "Why use filters?",
+            "a": "TOP-10 and Potential buttons allow you to instantly filter your best performing tags without searching through the entire list."
           },
           {
-            "q": "How to add new tags to existing projects?",
-            "a": "Use the input above the matrix. Type a tag and click 'Add'. The robot will immediately check its position."
+            "q": "How to copy tags?",
+            "a": "Click 'Copy List' to grab all currently visible tags separated by commas. Perfect for pasting into new Behance cases."
           }
         ]
       },
       {
-        "title": "🤖 Automation & Robot",
+        "title": "🤖 Automation",
         "items": [
           {
-            "q": "What does the 'Robot' toggle do?",
-            "a": "When ON, the system auto-updates rankings based on your plan. When OFF, updates only happen when you click 'Update Now'."
-          },
-          {
-            "q": "How do credits work?",
-            "a": "1 credit = 1 tag check. Credits reset monthly based on your plan. Extra Fuel packs stay until fully used."
+            "q": "What does the Robot toggle do?",
+            "a": "When Robot is ON, the system automatically updates your project rankings based on your plan schedule. If OFF — only manual updates."
           }
         ]
       }
     ]
+  },
+  "footer": {
+    "developed": "Product by DomCraft Digital",
+    "legal": {
+      "offer": "Offer",
+      "privacy": "Privacy",
+      "refund": "Refund"
+    }
+  },
+  "plans": {
+    "header": { "title": "Upgrade Your <br /> Visibility", "subtitle": "Transparent pricing for any scale" },
+    "names": { "free": "Free", "daily": "Daily Fresh", "pro": "Pro Stream" },
+    "descriptions": {
+      "free": "For those just starting their Behance journey",
+      "daily": "Optimal for active designers",
+      "pro": "For studios and top-makers"
+    },
+    "features": {
+      "slot1": "1 project slot",
+      "slot3": "3 project slots",
+      "slot10": "10 project slots",
+      "update7": "Updates: 1 per 7 days",
+      "update3": "Updates: 1 per 3 days",
+      "updateDaily": "Updates: Every day",
+      "limit90": "Limit: 90 tags/mo",
+      "limit1500": "Limit: 1,500 tags/mo",
+      "limit6000": "Limit: 6,000 tags/mo",
+      "customTags": "Custom tags via input",
+      "charts": "Ranking history charts",
+      "trends": "Trend analysis"
+    },
+    "buttons": { "current": "Current Plan", "selectDaily": "Select Daily", "getPro": "Get PRO" },
+    "fuel": {
+      "title": "Out of credits?",
+      "desc": "Top up with Fuel packs to instantly continue monitoring.",
+      "pack": "Pack {{amount}}",
+      "tags": "{{count}} tags",
+      "buy": "Buy {{price}}"
+    }
+  },
+  "auth": {
+    "loginTitle": "Login to BeRanked",
+    "registerTitle": "Create Account",
+    "subtitle": "Tag analytics for creators",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "agreementPrefix": "By registering, I accept the",
+    "agreementOffer": "Public Offer",
+    "agreementAnd": ",",
+    "agreementConsent": "consent to data processing via",
+    "agreementPrivacy": "Privacy Policy",
+    "loginBtn": "Login",
+    "registerBtn": "Sign Up",
+    "loading": "Loading...",
+    "noAccount": "No account? Create",
+    "hasAccount": "Have an account? Login",
+    "errorEmpty": "Fill all fields",
+    "errorAgreement": "Agreement required"
+  },
+  "legal": { "back": "← Back", "updated": "Updated July 15, 2026", "requisitesTitle": "Contractor Details" },
+  "privacy": {
+    "title": "Privacy Policy",
+    "updated": "Effective from July 15, 2026",
+    "back": "← Back",
+    "sections": [
+      {
+        "h": "1. General Provisions",
+        "p": "1.1. This Privacy Policy defines the procedure for processing and protecting personal data of individuals..."
+      },
+      {
+        "p": "1.2. The operator of personal data is the self-employed Vladislav Kharin (citizen of RK, residency in RF, ITN 563811937786)."
+      }
+    ],
+    "requisites": { "title": "Details", "name": "Vladislav Kharin", "inn": "563811937786", "support": "dom.craft.digital@gmail.com" }
+  },
+  "refund": {
+    "title": "Refund Policy",
+    "updated": "Effective from July 15, 2026",
+    "back": "← Back",
+    "intro": "You can cancel your paid subscription or credit package at any time.",
+    "sections": [{ "h": "1. Cancellation Terms", "p": "Refunds for already used limits are not provided as access is granted instantly." }],
+    "stepsTitle": "2. Refund Procedure",
+    "steps": [
+      { "id": "Step 1", "text": "Send a request to dom.craft.digital@gmail.com with your login." },
+      { "id": "Step 2", "text": "Request processed within 24 hours." },
+      { "id": "Step 3", "text": "Funds return within 5-10 business days." }
+    ],
+    "footer": { "timeline": "Timeline: 5-10 business days.", "warning": "Note: Full amount returned without system fees." }
+  },
+  "offer": {
+    "title": "Public Offer",
+    "updated": "Effective from July 15, 2026",
+    "back": "← Back",
+    "warning": "Please read this agreement carefully.",
+    "sections": [{ "h": "1. Description", "p": "BeRanked is a SaaS platform for analyzing and monitoring public Behance data." }],
+    "requisites": { "title": "Details", "name": "Vladislav Kharin", "inn": "563811937786", "support": "dom.craft.digital@gmail.com" }
   }
 }
