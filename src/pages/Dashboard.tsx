@@ -2,13 +2,14 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { analyticsService, type BehanceProject, type HistoryPoint } from "../services/analyticsService";
 import { useTheme } from "../context/ThemeContextInstance";
-import { formatDistanceToNow, addHours } from "date-fns";
+import { formatDistanceToNow, addHours, isAfter } from "date-fns";
 import { ru, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { Footer } from "../components/Footer";
 
 const COLORS = ["#0057ff", "#00c853", "#ff0057", "#ffab00", "#7e57c2", "#26c6da", "#ec407a", "#ff5722", "#00bcd4", "#8bc34a"];
 const PLAN_HOURS = { FREE: 168, DAILY_FRESH: 72, PRO_STREAM: 24 };
+const PLAN_PROJECT_LIMITS = { FREE: 1, DAILY_FRESH: 3, PRO_STREAM: 10 };
 
 interface TagMatrixItem {
   tag: string;
@@ -24,26 +25,50 @@ interface ProjectData {
   activeProject: { id: string; isScheduled: boolean; views: number; appreciations: number; comments: number; url: string; title: string };
 }
 
+// --- УТИЛИТА НОРМАЛИЗАЦИИ ТАРИФНЫХ ПЛАНОВ ---
+const normalizePlan = (rawPlan: string | undefined | null): "FREE" | "DAILY_FRESH" | "PRO_STREAM" => {
+  if (!rawPlan) return "FREE";
+  const formatted = rawPlan.toString().toUpperCase().trim().replace(/[-\s]/g, "_");
+  if (formatted.includes("FREE")) return "FREE";
+  if (formatted.includes("DAILY") || formatted.includes("FRESH")) return "DAILY_FRESH";
+  if (formatted.includes("PRO") || formatted.includes("STREAM")) return "PRO_STREAM";
+  return "FREE";
+};
+
+// --- КОМПОНЕНТ УМНОГО ТУЛТИПА ---
 const CustomTooltip = ({ active, payload, label, isDark }: any) => {
   if (active && payload && payload.length) {
     const sortedPayload = [...payload].sort((a, b) => (Number(a.value) || 999) - (Number(b.value) || 999));
+    const itemsCount = sortedPayload.length;
+
+    let gridColsClass = "grid-cols-1";
+    let maxWidthClass = "max-w-xs";
+
+    if (itemsCount > 12) {
+      gridColsClass = "grid-cols-3";
+      maxWidthClass = "max-w-4xl";
+    } else if (itemsCount > 6) {
+      gridColsClass = "grid-cols-2";
+      maxWidthClass = "max-w-2xl";
+    }
+
     return (
       <div
-        className={`p-6 rounded-[2.5rem] border backdrop-blur-xl shadow-2xl ${isDark ? "bg-black/80 border-white/10" : "bg-white/90 border-gray-100"}`}
+        className={`p-6 rounded-[2rem] border backdrop-blur-xl shadow-2xl transition-all ${maxWidthClass} ${
+          isDark ? "bg-black/85 border-white/10 text-white" : "bg-white/95 border-gray-100 text-behance-black"
+        }`}
       >
         <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-40">{label}</p>
-        <div className="space-y-3">
+        <div className={`grid ${gridColsClass} gap-x-8 gap-y-3`}>
           {sortedPayload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.stroke }}></div>
-                <span className="text-[11px] font-bold uppercase tracking-tight opacity-80">{entry.name}:</span>
+            <div key={index} className="flex items-center justify-between gap-4 min-w-[180px] sm:min-w-[220px]">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <div className="w-1.5 h-1.5 rounded-full shadow-sm shrink-0" style={{ backgroundColor: entry.stroke }}></div>
+                <span className="text-[11px] font-bold uppercase tracking-tight opacity-80 truncate" title={entry.name}>
+                  {entry.name}:
+                </span>
               </div>
-              <span
-                className={`text-[11px] font-black ${Number(entry.value) <= 10 ? "text-green-500" : isDark ? "text-white" : "text-black"}`}
-              >
-                #{entry.value}
-              </span>
+              <span className={`text-[11px] font-black shrink-0 ${Number(entry.value) <= 10 ? "text-green-500" : ""}`}>#{entry.value}</span>
             </div>
           ))}
         </div>
@@ -53,6 +78,7 @@ const CustomTooltip = ({ active, payload, label, isDark }: any) => {
   return null;
 };
 
+// --- КОМПОНЕНТ ОНБОРДИНГА ---
 const WelcomeModal: React.FC<{ onClose: () => void; isDark: boolean }> = ({ onClose, isDark }) => {
   const { t } = useTranslation();
   return (
@@ -74,7 +100,7 @@ const WelcomeModal: React.FC<{ onClose: () => void; isDark: boolean }> = ({ onCl
         </div>
         <button
           onClick={onClose}
-          className="w-full py-6 rounded-2xl bg-behance-blue text-white font-black uppercase text-[10px] tracking-[0.3em] shadow-xl shadow-blue-500/20 hover:scale-105 transition-all"
+          className="w-full py-6 rounded-2xl bg-behance-blue text-white font-black uppercase text-[10px] tracking-[0.3em] shadow-xl hover:scale-105 transition-all"
         >
           {t("onboarding.button")}
         </button>
@@ -96,6 +122,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
   const chartRef = useRef<HTMLDivElement>(null);
   const dateLocale = i18n.language === "ru" ? ru : enUS;
 
+  // --- СОСТОЯНИЯ ---
   const [showWelcome, setShowWelcome] = useState(!localStorage.getItem("onboarding_complete"));
   const [projects, setProjects] = useState<BehanceProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -118,6 +145,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
 
   const userId = localStorage.getItem("userId") || "";
 
+  // --- ВЫЧИСЛЕНИЕ ТАРИФА С УЧЕТОМ СТАБИЛИЗАЦИИ ФОРМАТА ---
+  const userPlan = useMemo(() => {
+    if (isDemoMode) return "PRO_STREAM";
+    return normalizePlan(data?.plan);
+  }, [data, isDemoMode]);
+
+  const planLimits = useMemo(() => {
+    return {
+      maxProjects: PLAN_PROJECT_LIMITS[userPlan] || 1,
+      hasCustomTags: userPlan !== "FREE",
+      hasHistory: userPlan !== "FREE",
+      hasTrends: userPlan === "PRO_STREAM",
+    };
+  }, [userPlan]);
+
+  // --- ВЫЧИСЛЕНИЯ (МЕТРИКИ И ТАЙМЕРЫ) ---
   const stats = useMemo(() => {
     const tags = data?.tagsMatrix || [];
     const inSearch = tags.filter((t) => typeof t.currentRank === "number" && t.currentRank > 0);
@@ -129,9 +172,42 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
     };
   }, [data]);
 
+  const chartData = useMemo(() => {
+    const dates = new Set<string>();
+    Object.values(history).forEach((th) => th.forEach((p) => dates.add(p.date)));
+    return Array.from(dates)
+      .sort()
+      .map((date) => {
+        const entry: any = { date };
+        Object.keys(history).forEach((tagName) => {
+          const point = history[tagName].find((pt) => pt.date === date);
+          if (point) entry[tagName] = point.rank;
+        });
+        return entry;
+      });
+  }, [history]);
+
+  const nextUpdateTime = useMemo(() => {
+    if (!data?.lastAnalyzedAt) return null;
+    const planKey = normalizePlan(data.plan);
+    const interval = PLAN_HOURS[planKey] || 168;
+    return addHours(new Date(data.lastAnalyzedAt), interval);
+  }, [data]);
+
+  const canUpdateByTime = useMemo(() => {
+    if (isDemoMode) return false;
+    if (!data?.lastAnalyzedAt) return true;
+    return isAfter(new Date(), nextUpdateTime!);
+  }, [data, isDemoMode, nextUpdateTime]);
+
   const selectedProjectInSidebar = useMemo(() => projects.find((p) => p.id === selectedProjectId) || null, [projects, selectedProjectId]);
   const currentCost = useMemo(() => data?.tagsMatrix?.length || 0, [data]);
   const hasEnoughBalance = useMemo(() => (data?.tagBalance || 0) >= currentCost, [data, currentCost]);
+  const isSelectedProjectBusy = useMemo(() => data?.status === "PENDING" || data?.status === "PROCESSING", [data]);
+  const isChartEmpty = useMemo(
+    () => (visibleTags.length === 0 && !focusedTag) || chartData.length === 0,
+    [visibleTags, focusedTag, chartData],
+  );
 
   const getTrend = useCallback(
     (tagName: string, currentRank: number | null) => {
@@ -167,34 +243,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
     return map;
   }, [data]);
 
-  const chartData = useMemo(() => {
-    const dates = new Set<string>();
-    Object.values(history).forEach((th) => th.forEach((p) => dates.add(p.date)));
-    return Array.from(dates)
-      .sort()
-      .map((date) => {
-        const entry: any = { date };
-        Object.keys(history).forEach((tagName) => {
-          const point = history[tagName].find((pt) => pt.date === date);
-          if (point) entry[tagName] = point.rank;
-        });
-        return entry;
-      });
-  }, [history]);
-
-  const isSelectedProjectBusy = useMemo(() => data?.status && data.status !== "IDLE", [data]);
-  const isChartEmpty = useMemo(
-    () => (visibleTags.length === 0 && !focusedTag) || chartData.length === 0,
-    [visibleTags, focusedTag, chartData],
-  );
-
-  const nextUpdateInfo = useMemo(() => {
-    if (!data?.lastAnalyzedAt || !data?.plan) return null;
-    const interval = (PLAN_HOURS as any)[data.plan];
-    const nextDate = addHours(new Date(data.lastAnalyzedAt), interval);
-    return formatDistanceToNow(nextDate, { addSuffix: true, locale: dateLocale });
-  }, [data, dateLocale]);
-
+  // --- ЛОГИКА API ---
   const refreshData = useCallback(
     async (targetId: string, isInitialLoad = false) => {
       try {
@@ -203,6 +252,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
           analyticsService.getProjectHistory(targetId),
           analyticsService.getUserProjects(userId),
         ]);
+
         const prevStatus = data?.status;
         if (prevStatus === "PROCESSING" && detailsRes.status === "IDLE" && visibleTags.length === 0) {
           const allTags = detailsRes.tagsMatrix.map((t: any) => t.tag);
@@ -240,7 +290,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
       setLoading(false);
     };
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   useEffect(() => {
@@ -250,6 +299,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
     }
     return () => clearInterval(interval);
   }, [isPolling, selectedProjectId, refreshData]);
+
+  const handleProjectSelect = async (id: string) => {
+    if (id === selectedProjectId) return;
+    setSelectedProjectId(id);
+    setIsDemoMode(false);
+    setDetailsLoading(true);
+    setIsAddingNew(false);
+    setFocusedTag(null);
+    setVisibleTags([]);
+    try {
+      await refreshData(id, true);
+    } catch (e) {}
+    setDetailsLoading(false);
+  };
 
   const handleTryDemo = async () => {
     setDetailsLoading(true);
@@ -268,81 +331,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
     }
   };
 
-  const handleCopyTag = (tag: string) => {
-    navigator.clipboard.writeText(tag).then(() => {
-      setCopiedTag(tag);
-      setTimeout(() => setCopiedTag(null), 1500);
-    });
-  };
-
-  const handleCopyAll = () => {
-    const text = sortedAndFilteredTags.map((t) => t.tag).join(", ");
-    navigator.clipboard.writeText(text).then(() => alert(t("dashboard.matrix.copied")));
-  };
-
-  const handleProjectSelect = async (id: string) => {
-    if (id === selectedProjectId) return;
-    setSelectedProjectId(id);
-    setIsDemoMode(false);
-    setDetailsLoading(true);
-    setIsAddingNew(false);
-    setFocusedTag(null);
-    setVisibleTags([]);
-    try {
-      await refreshData(id, true);
-    } catch (e) {}
-    setDetailsLoading(false);
-  };
-
-  const toggleLanguage = () => i18n.changeLanguage(i18n.language === "ru" ? "en" : "ru");
-
-  const toggleAutoUpdate = async () => {
-    if (isDemoMode) return alert(t("dashboard.demo.restricted"));
-    if (!selectedProjectId || !data) return;
-    const newState = !data.activeProject.isScheduled;
-    setData({ ...data, activeProject: { ...data.activeProject, isScheduled: newState } });
-    try {
-      await analyticsService.toggleAutoUpdate(selectedProjectId, newState);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const toggleAllTags = async () => {
-    if (!selectedProjectId || !data?.tagsMatrix) return;
-    const allTagNames = data.tagsMatrix.map((t) => t.tag);
-    const newState = visibleTags.length !== allTagNames.length;
-    setVisibleTags(newState ? allTagNames : []);
-    if (!isDemoMode) {
-      try {
-        await analyticsService.toggleAllTagsOnChart(selectedProjectId, newState);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
-  const handleAddCustomTags = async () => {
-    if (isDemoMode) return alert(t("dashboard.demo.restricted"));
-    if (!selectedProjectId || !newTagsInput.trim() || !hasEnoughBalance) return;
-    setActionLoading(true);
-    try {
-      const tags = newTagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter((t) => t.length > 0);
-      await analyticsService.analyzeProject(selectedProjectId, tags);
-      setNewTagsInput("");
-      setIsPolling(true);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   const handleRefreshRankings = async () => {
     if (isDemoMode) return alert(t("dashboard.demo.restricted"));
+    if (!canUpdateByTime) {
+      return alert(`Update available ${formatDistanceToNow(nextUpdateTime!, { addSuffix: true, locale: dateLocale })}`);
+    }
     if (!selectedProjectId || actionLoading || isSelectedProjectBusy || !data?.tagsMatrix) return;
     if (!hasEnoughBalance) {
       if (confirm(`${t("dashboard.errors.lowBalance")}. ${t("dashboard.errors.lowBalanceAction")}?`)) onNavigatePricing();
@@ -385,6 +378,54 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
     }
   };
 
+  const handleAddCustomTags = async () => {
+    if (isDemoMode) return alert(t("dashboard.demo.restricted"));
+    if (!planLimits.hasCustomTags) return alert("Adding custom tags is only available on paid plans!");
+    if (!selectedProjectId || !newTagsInput.trim() || !hasEnoughBalance) return;
+    setActionLoading(true);
+    try {
+      const tags = newTagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+      await analyticsService.analyzeProject(selectedProjectId, tags);
+      setNewTagsInput("");
+      setIsPolling(true);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCopyTag = (tag: string) => {
+    navigator.clipboard.writeText(tag).then(() => {
+      setCopiedTag(tag);
+      setTimeout(() => setCopiedTag(null), 1500);
+    });
+  };
+
+  const handleCopyAll = () => {
+    const text = sortedAndFilteredTags.map((t) => t.tag).join(", ");
+    navigator.clipboard.writeText(text).then(() => alert(t("dashboard.matrix.copied")));
+  };
+
+  const toggleLanguage = () => i18n.changeLanguage(i18n.language === "ru" ? "en" : "ru");
+
+  const toggleAllTags = async () => {
+    if (!selectedProjectId || !data?.tagsMatrix) return;
+    const allTagNames = data.tagsMatrix.map((t) => t.tag);
+    const newState = visibleTags.length !== allTagNames.length;
+    setVisibleTags(newState ? allTagNames : []);
+    if (!isDemoMode) {
+      try {
+        await analyticsService.toggleAllTagsOnChart(selectedProjectId, newState);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
   const toggleTag = async (e: React.MouseEvent, tagName: string) => {
     e.stopPropagation();
     if (!selectedProjectId) return;
@@ -396,6 +437,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
       } catch (err) {
         console.error(err);
       }
+    }
+  };
+
+  const toggleAutoUpdate = async () => {
+    if (isDemoMode) return alert(t("dashboard.demo.restricted"));
+    if (!selectedProjectId || !data) return;
+    const newState = !data.activeProject.isScheduled;
+    setData({ ...data, activeProject: { ...data.activeProject, isScheduled: newState } });
+    try {
+      await analyticsService.toggleAutoUpdate(selectedProjectId, newState);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -420,21 +473,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
         />
       )}
 
+      {/* SIDEBAR */}
       <div
         className={`w-80 border-r flex flex-col z-10 transition-colors ${isDark ? "bg-behance-darkCard border-white/5 shadow-2xl" : "bg-white border-behance-border shadow-sm"}`}
       >
         <div className="p-10 border-b border-behance-border dark:border-white/5 text-center relative">
           <button
             onClick={toggleLanguage}
-            className={`absolute top-4 left-4 text-[9px] font-black w-8 h-8 rounded-full shadow-sm ${isDark ? "bg-white/5 text-blue-400" : "bg-gray-100 text-gray-500"}`}
+            className={`absolute top-4 left-4 text-[9px] font-black w-8 h-8 rounded-full transition-all shadow-sm ${isDark ? "bg-white/5 text-blue-400" : "bg-gray-100 text-gray-500"}`}
           >
             {i18n.language.toUpperCase().substring(0, 2)}
           </button>
-          <h1 className="text-3xl font-black tracking-tighter uppercase italic leading-none">BeRanked</h1>
+          <h1 className="text-3xl font-black tracking-tighter uppercase leading-none italic">BeRanked</h1>
           <div className="h-1 w-8 bg-behance-blue mx-auto mt-3 rounded-full shadow-[0_0_15px_rgba(0,87,255,0.4)]"></div>
           <button
             onClick={toggleTheme}
-            className={`absolute top-4 right-4 text-xs w-8 h-8 rounded-full shadow-sm ${isDark ? "bg-white/5 text-yellow-400" : "bg-gray-100 text-gray-400"}`}
+            className={`absolute top-4 right-4 text-xs w-8 h-8 rounded-full transition-all shadow-sm ${isDark ? "bg-white/5 text-yellow-400" : "bg-gray-100 text-gray-400"}`}
           >
             {isDark ? "☀️" : "🌙"}
           </button>
@@ -443,12 +497,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
           <div
             onClick={() => {
+              if (projects.length >= planLimits.maxProjects) {
+                alert(
+                  t(
+                    "dashboard.errors.projectLimit",
+                    `Ваш текущий тариф (${userPlan}) позволяет отслеживать до ${planLimits.maxProjects} проектов. Пожалуйста, обновите тариф.`,
+                  ),
+                );
+                return;
+              }
               setIsAddingNew(true);
               setSelectedProjectId(null);
               setShowTagsInput(false);
               setIsDemoMode(false);
             }}
-            className={`p-6 rounded-4xl border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer transition-all ${isAddingNew ? "border-behance-blue bg-behance-blue/5 text-behance-blue" : "border-behance-border text-behance-muted hover:border-behance-blue dark:border-white/10"}`}
+            className={`p-6 rounded-4xl border-2 border-dashed flex items-center justify-center gap-3 cursor-pointer transition-all ${isAddingNew ? "border-behance-blue bg-behance-blue/5 text-behance-blue shadow-inner" : "border-behance-border text-behance-muted hover:border-behance-blue dark:border-white/10"}`}
           >
             <span className="text-lg">＋</span>
             <span className="text-[10px] font-black uppercase tracking-widest">{t("sidebar.newProject")}</span>
@@ -460,7 +523,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
               <div
                 key={p.id}
                 onClick={() => handleProjectSelect(p.id)}
-                className={`p-6 rounded-[2.2rem] cursor-pointer transition-all relative border ${isActive ? "bg-behance-blue border-behance-blue text-white shadow-xl scale-[1.03]" : isDark ? "bg-white/5 border-transparent text-gray-400 hover:bg-white/10" : "bg-white border-behance-border hover:shadow-md transition-all"}`}
+                className={`p-6 rounded-[2.2rem] cursor-pointer transition-all duration-300 relative border ${isActive ? "bg-behance-blue border-behance-blue text-white shadow-xl scale-[1.03]" : isDark ? "bg-white/5 border-transparent text-gray-400 hover:bg-white/10" : "bg-white border-behance-border hover:shadow-md transition-all"}`}
               >
                 {status !== "IDLE" && (
                   <div
@@ -488,13 +551,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
               <span
                 className={`text-xs font-black uppercase tracking-widest ${isDemoMode ? "text-amber-400 animate-pulse" : "text-behance-blue"}`}
               >
-                {isDemoMode ? "PRO STREAM (DEMO)" : data.plan}
+                {isDemoMode ? "PRO STREAM (DEMO)" : userPlan}
               </span>
             </div>
           )}
           <button
             onClick={() => onNavigateLegal("help")}
-            className="w-full py-3 mb-2 rounded-xl bg-behance-blue/5 text-behance-blue text-[10px] font-black uppercase tracking-widest hover:bg-behance-blue/10 flex items-center justify-center gap-2"
+            className="w-full py-3 mb-2 rounded-xl bg-behance-blue/5 text-behance-blue text-[10px] font-black uppercase tracking-widest hover:bg-behance-blue/10 flex items-center justify-center gap-2 transition-all"
           >
             <span className="text-base leading-none">❓</span> {t("help.title")}
           </button>
@@ -513,12 +576,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
         </div>
       </div>
 
+      {/* MAIN CONTENT */}
       <div className="flex-1 overflow-y-auto flex flex-col relative">
         {detailsLoading && (
           <div className="absolute inset-0 z-50 bg-white/50 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center animate-in fade-in">
             <div className="w-8 h-8 border-4 border-behance-blue border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
+
         <div className="flex-1 p-8 md:p-16 text-behance-black dark:text-white">
           {isAddingNew ? (
             <div className="max-w-2xl mx-auto mt-12 animate-in fade-in zoom-in-95 duration-500 text-center">
@@ -537,22 +602,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                     onChange={(e) => setUrlInput(e.target.value)}
                     required
                   />
-                  {!showTagsInput && (
-                    <button
-                      type="button"
-                      onClick={() => setShowTagsInput(true)}
-                      className="text-[10px] font-black uppercase text-behance-blue tracking-widest hover:opacity-70 transition-all"
-                    >
-                      {t("dashboard.init.addCustomTags")}
-                    </button>
-                  )}
-                  {showTagsInput && (
-                    <textarea
-                      className={`w-full rounded-3xl px-8 py-6 text-xs font-bold outline-none min-h-37.5 border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:border-blue-500 shadow-inner" : "bg-behance-grayBg border-transparent focus:border-behance-blue shadow-inner"}`}
-                      placeholder={t("dashboard.init.tagsPlaceholder")}
-                      value={tagsInput}
-                      onChange={(e) => setTagsInput(e.target.value)}
-                    />
+                  {planLimits.hasCustomTags ? (
+                    <>
+                      {!showTagsInput && (
+                        <button
+                          type="button"
+                          onClick={() => setShowTagsInput(true)}
+                          className="text-[10px] font-black uppercase text-behance-blue tracking-widest hover:opacity-70 transition-all"
+                        >
+                          {t("dashboard.init.addCustomTags")}
+                        </button>
+                      )}
+                      {showTagsInput && (
+                        <textarea
+                          className={`w-full rounded-3xl px-8 py-6 text-xs font-bold outline-none min-h-37.5 border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:border-blue-500 shadow-inner" : "bg-behance-grayBg border-transparent focus:border-behance-blue shadow-inner"}`}
+                          placeholder={t("dashboard.init.tagsPlaceholder")}
+                          value={tagsInput}
+                          onChange={(e) => setTagsInput(e.target.value)}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-[10px] uppercase tracking-widest opacity-30 italic text-center">
+                      {t("dashboard.init.customTagsLocked", "Кастомные теги доступны начиная с плана Daily Fresh 🔒")}
+                    </p>
                   )}
                   <button
                     type="submit"
@@ -574,6 +647,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
             selectedProjectId &&
             data && (
               <div className="max-w-7xl mx-auto space-y-16 animate-in fade-in duration-500">
+                {/* МЕТРИКИ */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   <div
                     onClick={() => setActiveFilter("top10")}
@@ -653,7 +727,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                       {!isDemoMode && (
                         <div
                           onClick={onNavigatePricing}
-                          className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase border transition-all cursor-pointer ${hasEnoughBalance ? (isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-200") : isDark ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-red-50 text-red-600 border-red-100"}`}
+                          className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase border transition-all cursor-pointer ${hasEnoughBalance ? (isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-200 shadow-sm") : isDark ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-red-50 text-red-600 border-red-100"}`}
                         >
                           {t("dashboard.meta.balance")}: {data.tagBalance} {!hasEnoughBalance && "⚠️"}
                         </div>
@@ -675,12 +749,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                   </button>
                 </div>
 
+                {/* GRAPH */}
                 <div
                   ref={chartRef}
                   className={`p-14 rounded-[4rem] border relative overflow-hidden transition-all duration-500 flex items-center justify-center ${isDark ? "bg-behance-darkCard border-white/5 shadow-inner" : "bg-white border-behance-border shadow-2xl shadow-blue-900/5"}`}
                 >
                   <div className="h-112.5 w-full flex items-center justify-center">
-                    {isChartEmpty ? (
+                    {!planLimits.hasHistory ? (
+                      <div className="text-center animate-in fade-in zoom-in-95 duration-700 p-8">
+                        <div className="text-5xl mb-6">🔒</div>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40 leading-loose max-w-md mx-auto mb-6">
+                          {t("dashboard.chart.locked", "История позиций на графиках доступна на тарифах Daily Fresh и Pro Stream")}
+                        </h3>
+                        <button
+                          onClick={onNavigatePricing}
+                          className="px-8 py-3 rounded-2xl bg-behance-blue text-white text-[9px] font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all"
+                        >
+                          {t("sidebar.managePlan")}
+                        </button>
+                      </div>
+                    ) : isChartEmpty ? (
                       <div className="text-center animate-in fade-in zoom-in-95 duration-700">
                         <div className="text-5xl mb-6 opacity-20">📊</div>
                         <h3 className="text-[11px] font-black uppercase tracking-[0.4em] opacity-30 leading-loose whitespace-pre-line">
@@ -708,6 +796,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                           <Tooltip
                             content={<CustomTooltip isDark={isDark} />}
                             cursor={{ stroke: isDark ? "rgba(255,255,255,0.1)" : "#eee", strokeWidth: 2 }}
+                            restrictDomPosition={true}
                           />
                           {Object.keys(history).map(
                             (tag) =>
@@ -733,6 +822,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                   </div>
                 </div>
 
+                {/* MATRIX */}
                 <div
                   className={`rounded-[3.5rem] border overflow-hidden transition-all ${isDark ? "bg-behance-darkCard border-white/5 shadow-inner" : "bg-white border-behance-border shadow-lg"}`}
                 >
@@ -758,29 +848,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                       </button>
                       <button
                         onClick={toggleAllTags}
-                        className="text-[10px] font-black uppercase text-gray-400 hover:text-behance-blue transition-all"
+                        className="text-[9px] font-black uppercase text-gray-400 hover:text-behance-blue transition-all"
                       >
                         {visibleTags.length === (data?.tagsMatrix?.length || 0)
                           ? t("dashboard.matrix.hideAll")
                           : t("dashboard.matrix.showAll")}
                       </button>
                     </div>
-                    <div className="flex gap-4">
-                      <input
-                        className={`rounded-xl px-4 py-2 text-[10px] font-bold outline-none w-48 border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:bg-white/10" : "bg-white border-gray-100 focus:border-blue-200"}`}
-                        placeholder={t("dashboard.matrix.inputPlaceholder")}
-                        value={newTagsInput}
-                        onChange={(e) => setNewTagsInput(e.target.value)}
-                        disabled={isDemoMode}
-                      />
-                      <button
-                        onClick={handleAddCustomTags}
-                        disabled={isDemoMode || actionLoading || isSelectedProjectBusy}
-                        className="bg-behance-blue text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg transition-all"
-                      >
-                        {t("dashboard.matrix.addBtn")}
-                      </button>
-                    </div>
+                    {planLimits.hasCustomTags && (
+                      <div className="flex gap-4">
+                        <input
+                          className={`rounded-xl px-4 py-2 text-[10px] font-bold outline-none w-48 border transition-all ${isDark ? "bg-white/5 border-transparent text-white focus:bg-white/10" : "bg-white border-gray-100 shadow-sm focus:border-blue-200"}`}
+                          placeholder={t("dashboard.matrix.inputPlaceholder")}
+                          value={newTagsInput}
+                          onChange={(e) => setNewTagsInput(e.target.value)}
+                          disabled={isDemoMode}
+                        />
+                        <button
+                          onClick={handleAddCustomTags}
+                          disabled={isDemoMode || actionLoading || isSelectedProjectBusy}
+                          className="bg-behance-blue text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg transition-all"
+                        >
+                          {t("dashboard.matrix.addBtn")}
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <table className="w-full text-left border-collapse">
                     <tbody className="divide-y divide-behance-border dark:divide-white/5">
@@ -856,17 +948,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                             </td>
                             <td className="px-10 py-5 text-center font-black">
                               {" "}
-                              {!isChecking && trend !== 0 && trend !== null && (
+                              {!planLimits.hasTrends ? (
+                                <span className="opacity-25 text-xs" title="Доступно на тарифе Pro Stream">
+                                  🔒
+                                </span>
+                              ) : isChecking ? (
+                                <span className="opacity-10">•</span>
+                              ) : trend !== 0 && trend !== null ? (
                                 <span className={`text-[10px] uppercase ${trend > 0 ? "text-green-500" : "text-red-500"}`}>
                                   {" "}
                                   {trend > 0 ? `▲ ${trend}` : `▼ ${Math.abs(trend)}`}{" "}
                                 </span>
+                              ) : (
+                                <span className="opacity-10 font-black">•</span>
                               )}{" "}
-                              {(isChecking || trend === 0 || trend === null) && <span className="opacity-10 font-black">•</span>}{" "}
                             </td>
                             <td className="px-10 py-5 text-right flex items-center justify-end gap-6">
                               {!isChecking &&
                                 (() => {
+                                  if (!planLimits.hasTrends) {
+                                    return (
+                                      <span className="px-3 py-1 rounded-full text-[8px] font-black bg-gray-500/5 text-gray-400 uppercase tracking-widest opacity-50">
+                                        {t("dashboard.matrix.statuses.locked", "АНАЛИТИКА ТРЕНДОВ 🔒")}
+                                      </span>
+                                    );
+                                  }
                                   if (isTop)
                                     return (
                                       <span className="px-3 py-1 rounded-full text-[8px] font-black bg-green-500 text-white uppercase tracking-widest shadow-lg shadow-green-500/20">
