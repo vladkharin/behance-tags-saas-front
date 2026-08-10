@@ -331,16 +331,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
     }
   };
 
+  // --- МЕТОД ОБНОВЛЕНИЯ ДАННЫХ ---
   const handleRefreshRankings = async () => {
     if (isDemoMode) return alert(t("dashboard.demo.restricted"));
-    if (!canUpdateByTime) {
-      return alert(`Update available ${formatDistanceToNow(nextUpdateTime!, { addSuffix: true, locale: dateLocale })}`);
-    }
     if (!selectedProjectId || actionLoading || isSelectedProjectBusy || !data?.tagsMatrix) return;
+
+    // Если у пользователя недостаточно тегов на балансе для проведения полного анализа,
+    // применяется строгое ограничение по времени на бесплатное плановое обновление.
     if (!hasEnoughBalance) {
-      if (confirm(`${t("dashboard.errors.lowBalance")}. ${t("dashboard.errors.lowBalanceAction")}?`)) onNavigatePricing();
+      if (!canUpdateByTime) {
+        return alert(`Update available ${formatDistanceToNow(nextUpdateTime!, { addSuffix: true, locale: dateLocale })}`);
+      }
+      if (confirm(`${t("dashboard.errors.lowBalance")}. ${t("dashboard.errors.lowBalanceAction")}?`)) {
+        onNavigatePricing();
+      }
       return;
     }
+
+    // Если у пользователя достаточно тегов на балансе, мы разрешаем платное обновление вне очереди в любой момент
     setActionLoading(true);
     setData({ ...data, status: "PROCESSING", tagsMatrix: data.tagsMatrix.map((t) => ({ ...t, currentRank: null })) });
     try {
@@ -737,15 +745,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigatePricing, onNavig
                   <button
                     onClick={handleRefreshRankings}
                     disabled={actionLoading || isSelectedProjectBusy}
-                    className={`px-12 py-6 rounded-[2rem] text-[10px] font-black uppercase shadow-2xl transition-all hover:scale-105 active:scale-95 ${isDemoMode ? "opacity-20 cursor-not-allowed" : !hasEnoughBalance && !isSelectedProjectBusy ? "bg-gray-400 text-white opacity-50" : isSelectedProjectBusy ? "bg-blue-600 text-white animate-pulse" : isDark ? "bg-white text-black shadow-white/5" : "bg-black text-white shadow-black/20"}`}
+                    className={`px-12 py-6 rounded-[2rem] text-[10px] font-black uppercase shadow-2xl transition-all hover:scale-105 active:scale-95 ${isDemoMode ? "opacity-20 cursor-not-allowed" : isSelectedProjectBusy ? "bg-blue-600 text-white animate-pulse" : isDark ? "bg-white text-black shadow-white/5" : "bg-black text-white shadow-black/20"}`}
                   >
                     {isSelectedProjectBusy
                       ? data?.status === "PENDING"
                         ? t("dashboard.header.updateBtnPending")
                         : t("dashboard.header.updateBtnProcessing")
-                      : !hasEnoughBalance
-                        ? t("dashboard.errors.lowBalance")
-                        : t("dashboard.header.updateBtn")}
+                      : t("dashboard.header.updateBtn")}
                   </button>
                 </div>
 
