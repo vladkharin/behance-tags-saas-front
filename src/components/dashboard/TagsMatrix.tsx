@@ -7,6 +7,7 @@ import type { TagMatrixItem } from "../../types/analytics.types";
 interface TagsMatrixProps {
   tags: TagMatrixItem[];
   visibleTags: string[];
+  suggestedTags?: string[];
   tagColors: Record<string, string>;
   activeFilter: "all" | "top10" | "potential" | "lost";
   hasCustomTags: boolean;
@@ -18,6 +19,8 @@ interface TagsMatrixProps {
   onToggleTag: (e: React.MouseEvent, tagName: string) => void;
   onToggleAllTags: () => void;
   onAddCustomTags: (tags: string) => Promise<void>;
+  onAddSuggestedTag?: (tagName: string) => Promise<void>;
+  onRemoveTag?: (tagName: string) => Promise<void>;
   onFocusTag: (tag: string | null) => void;
 }
 
@@ -37,6 +40,7 @@ const QUICK_TAG_SUGGESTIONS = [
 export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   tags,
   visibleTags,
+  suggestedTags,
   tagColors,
   activeFilter,
   hasCustomTags,
@@ -47,11 +51,13 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   onToggleTag,
   onToggleAllTags,
   onAddCustomTags,
+  onAddSuggestedTag,
+  onRemoveTag,
   onFocusTag,
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const { showToast } = useToast();
+  const { showToast, confirm } = useToast();
   const isDark = theme === "dark";
 
   const [newTagsInput, setNewTagsInput] = useState("");
@@ -109,6 +115,19 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
     } finally {
       setIsSubmittingTags(false);
     }
+  };
+
+  const handleDeleteTagClick = (tagName: string) => {
+    if (!onRemoveTag) return;
+    confirm({
+      title: `Удалить #${tagName}?`,
+      message: `Тег #${tagName} будет отключен от активного мониторинга этого кейса. История его позиций сохранится в общей базе.`,
+      confirmText: "Удалить из мониторинга",
+      cancelText: "Отмена",
+      onConfirm: async () => {
+        await onRemoveTag(tagName);
+      },
+    });
   };
 
   return (
@@ -195,6 +214,37 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
         </div>
       </div>
 
+      {/* KILLER FEATURE: SMART SUGGESTED CUSTOM TAGS BAR */}
+      {suggestedTags && suggestedTags.length > 0 && onAddSuggestedTag && (
+        <div className="px-6 md:px-10 py-4 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-transparent border-b border-behance-border dark:border-white/5 flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-300">
+          <div className="flex items-center gap-2">
+            <span className="text-base">💡</span>
+            <div>
+              <span className="text-xs font-black uppercase tracking-wider text-behance-blue block">
+                Рекомендованные теги (вне основных 10):
+              </span>
+              <span className="text-[9px] font-bold opacity-40 uppercase tracking-widest block">
+                Скрытые точки роста из категорий и инструментов этого кейса
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {suggestedTags.map((sugTag) => (
+              <button
+                key={sugTag}
+                onClick={() => onAddSuggestedTag(sugTag)}
+                type="button"
+                className="px-3 py-1 rounded-xl bg-white dark:bg-white/10 hover:bg-behance-blue hover:text-white dark:hover:bg-behance-blue text-behance-blue dark:text-blue-300 text-[10px] font-black uppercase tracking-tight border border-blue-500/20 shadow-xs transition-all cursor-pointer flex items-center gap-1.5 hover:scale-105 active:scale-95"
+              >
+                <span>＋</span>
+                <span>#{sugTag}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* EXPANDABLE ADD CUSTOM TAGS FORM */}
       {showAddForm && hasCustomTags && (
         <div className="p-6 md:p-8 border-b border-behance-border dark:border-white/5 bg-behance-blue/5 space-y-3 animate-in slide-in-from-top-4 duration-300">
@@ -246,7 +296,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
               <th className="px-6 md:px-10 py-4">{t("dashboard.matrix.cols.tag")}</th>
               <th className="px-6 md:px-10 py-4 text-center">{t("dashboard.matrix.cols.rank")}</th>
               <th className="px-6 md:px-10 py-4 text-center">{t("dashboard.matrix.cols.trend")}</th>
-              <th className="px-6 md:px-10 py-4 text-right">На графике</th>
+              <th className="px-6 md:px-10 py-4 text-right">Управление</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-behance-border dark:divide-white/5">
@@ -329,6 +379,25 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                               />
                             </svg>
                           </a>
+
+                          {/* DELETE TAG BUTTON */}
+                          {onRemoveTag && (
+                            <button
+                              onClick={() => handleDeleteTagClick(item.tag)}
+                              type="button"
+                              title="Удалить тег из мониторинга"
+                              className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                            >
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2.5}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </div>
                     </td>

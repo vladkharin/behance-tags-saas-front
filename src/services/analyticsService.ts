@@ -94,6 +94,17 @@ export const analyticsService = {
     return response.data;
   },
 
+  // 6.1 Удалить тег из активного мониторинга проекта (мягкое отключение)
+  removeTagFromProject: async (
+    projectId: string,
+    tagName: string,
+  ): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete<{ success: boolean; message: string }>(
+      `/scraper/projects/${projectId}/tags/${encodeURIComponent(tagName)}`,
+    );
+    return response.data;
+  },
+
   // 7. Получить детальную информацию по проекту (матрица, статус, баланс)
   getProjectDetails: async (
     projectId: string,

@@ -16,6 +16,7 @@ interface DashboardHeaderProps {
   onNavigatePricing: () => void;
   onOpenMobileMenu: () => void;
   onOpenVideoTutorial?: () => void;
+  onDeleteProject?: () => void;
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -31,6 +32,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onNavigatePricing,
   onOpenMobileMenu,
   onOpenVideoTutorial,
+  onDeleteProject,
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -38,7 +40,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-behance-border dark:border-white/5 pb-8 md:pb-10 gap-6">
-      {/* LEFT: TITLE, SOURCE, ROBOT, BALANCE */}
+      {/* LEFT: TITLE, SOURCE, ROBOT, BALANCE, DELETE */}
       <div className="space-y-3 max-w-2xl">
         <div className="flex items-center gap-3">
           {/* Mobile menu trigger */}
@@ -125,6 +127,19 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             >
               <span>▶️</span>
               <span>Видео-гид</span>
+            </button>
+          )}
+
+          {/* DELETE PROJECT TRIGGER */}
+          {!isDemoMode && onDeleteProject && (
+            <button
+              onClick={onDeleteProject}
+              type="button"
+              title="Удалить проект из мониторинга"
+              className="px-3 py-2 rounded-2xl bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>🗑️</span>
+              <span>Удалить кейс</span>
             </button>
           )}
         </div>

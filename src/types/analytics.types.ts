@@ -58,6 +58,7 @@ export interface ProjectDetailsResponse {
   tagBalance: number;
   lastAnalyzedAt: string;
   tagsMatrix: TagMatrixItem[];
+  suggestedTags?: string[];
   status: AnalysisStatus;
 }
 

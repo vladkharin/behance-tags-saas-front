@@ -413,6 +413,95 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
+  // ADD SMART SUGGESTED TAG (1-CLICK)
+  const handleAddSuggestedTag = async (tagName: string) => {
+    if (isDemoMode) {
+      showToast(t("dashboard.demo.restricted"), "warning");
+      return;
+    }
+
+    if (!selectedProjectId) return;
+
+    if (!hasEnoughBalance) {
+      showToast("Недостаточно баланса тегов для запуска проверки", "warning");
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await analyticsService.analyzeProject(selectedProjectId, [tagName]);
+      setIsPolling(true);
+      showToast(`Рекомендованный тег #${tagName} добавлен в мониторинг! 🚀`, "success");
+    } catch (e) {
+      showToast("Не удалось добавить рекомендованный тег", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // REMOVE TAG FROM PROJECT MONITORING
+  const handleRemoveTag = async (tagName: string) => {
+    if (!selectedProjectId) return;
+
+    try {
+      await analyticsService.removeTagFromProject(selectedProjectId, tagName);
+      showToast(`Тег #${tagName} удален из мониторинга кейса`, "info");
+      if (projectData) {
+        setProjectData({
+          ...projectData,
+          tagsMatrix: projectData.tagsMatrix.filter((t) => t.tag !== tagName),
+        });
+      }
+      setVisibleTags((prev) => prev.filter((t) => t !== tagName));
+    } catch (e) {
+      showToast("Ошибка при удалении тега", "error");
+    }
+  };
+
+  // DELETE PROJECT WITH 7-DAY POLICY
+  const handleDeleteProject = () => {
+    if (!selectedProjectId || !projectData) return;
+
+    const isFree = userPlan === "FREE";
+    const confirmMsg = isFree
+      ? `Вы уверены, что хотите удалить проект "${selectedProjectInSidebar?.title || "кейс"}"? На бесплатном тарифе замена кейса доступна раз в 7 дней.`
+      : `Вы уверены, что хотите удалить проект "${selectedProjectInSidebar?.title || "кейс"}"?`;
+
+    confirm({
+      title: "Удаление кейса",
+      message: confirmMsg,
+      confirmText: "Да, удалить кейс",
+      cancelText: "Отмена",
+      onConfirm: async () => {
+        setActionLoading(true);
+        try {
+          await analyticsService.deleteProject(selectedProjectId);
+          showToast("Проект успешно удален", "info");
+
+          const updatedList = await analyticsService.getUserProjects();
+          setProjects(updatedList);
+
+          if (updatedList.length > 0) {
+            const nextId = updatedList[0].id;
+            setSelectedProjectId(nextId);
+            await refreshData(nextId, true);
+          } else {
+            setSelectedProjectId(null);
+            setProjectData(null);
+            setIsAddingNew(true);
+          }
+        } catch (err: any) {
+          const errMsg =
+            err.response?.data?.message ||
+            "Не удалось удалить проект. На бесплатном тарифе удаление доступно раз в 7 дней.";
+          showToast(errMsg, "error");
+        } finally {
+          setActionLoading(false);
+        }
+      },
+    });
+  };
+
   const toggleAllTags = async () => {
     if (!selectedProjectId || !projectData?.tagsMatrix) return;
     const allTagNames = projectData.tagsMatrix.map((t) => t.tag);
@@ -557,6 +646,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   onNavigatePricing={onNavigatePricing}
                   onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
                   onOpenVideoTutorial={() => setIsVideoTutorialOpen(true)}
+                  onDeleteProject={handleDeleteProject}
                 />
 
                 {/* 3. RANKINGS CHART */}
@@ -573,6 +663,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <TagsMatrix
                   tags={sortedAndFilteredTags}
                   visibleTags={visibleTags}
+                  suggestedTags={projectData.suggestedTags}
                   tagColors={tagColors}
                   activeFilter={activeFilter}
                   hasCustomTags={planLimits.hasCustomTags}
@@ -584,6 +675,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   onToggleTag={toggleTag}
                   onToggleAllTags={toggleAllTags}
                   onAddCustomTags={handleAddCustomTags}
+                  onAddSuggestedTag={handleAddSuggestedTag}
+                  onRemoveTag={handleRemoveTag}
                   onFocusTag={setFocusedTag}
                 />
               </div>
