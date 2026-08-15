@@ -1,34 +1,54 @@
 @import "tailwindcss";
 
-/* 1. Регистрируем переменные */
+/* 1. Регистрация дизайн-токенов BeRanked Pro */
 @theme {
   --color-behance-blue: #0057ff;
-  --color-behance-darkBlue: #004be5;
-  --color-behance-black: #191919;
-  --color-behance-grayBg: #f9f9f9;
-  --color-behance-border: #e8e8e8;
-  --color-behance-muted: #7a7a7a;
+  --color-behance-darkBlue: #0046d1;
+  --color-behance-black: #09090b;
+  --color-behance-grayBg: #f4f4f5;
+  --color-behance-border: #e4e4e7;
+  --color-behance-muted: #71717a;
 
-  --color-behance-darkBg: #0a0a0a;
-  --color-behance-darkCard: #111111;
+  --color-behance-darkBg: #09090b;
+  --color-behance-darkCard: #121215;
+  --color-behance-darkBorder: rgba(255, 255, 255, 0.08);
 }
 
-/* ЭТА СТРОЧКА ВКЛЮЧАЕТ ПЕРЕКЛЮЧЕНИЕ ПО КЛАССУ .dark в v4 */
+/* Включение переключения по классу .dark в Tailwind v4 */
 @variant dark (&:where(.dark, .dark *));
 
-/* 2. Базовые стили через переменные (самый надежный способ) */
+/* 2. Базовые глобальные стили */
 @layer base {
   body {
     background-color: var(--color-behance-grayBg);
-    color: var(--color-behance-black);
-    transition:
-      background-color 0.5s ease,
-      color 0.5s ease;
+    color: #18181b;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Если у html есть класс dark, меняем значения переменных */
   .dark body {
     background-color: var(--color-behance-darkBg);
-    color: white;
+    color: #f4f4f5;
+  }
+
+  /* Аккуратные скроллбары */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(150, 150, 150, 0.2);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(150, 150, 150, 0.4);
   }
 }

@@ -608,7 +608,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         )}
 
-        <div className="flex-1 p-6 md:p-12 lg:p-16 text-behance-black dark:text-white">
+        <div className="flex-1 p-4 md:p-8 lg:p-10 text-zinc-900 dark:text-zinc-100">
           {isAddingNew ? (
             <AddProjectView
               hasCustomTags={planLimits.hasCustomTags}
@@ -621,18 +621,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
           ) : (
             selectedProjectId &&
             projectData && (
-              <div className="max-w-7xl mx-auto space-y-10 md:space-y-14 animate-in fade-in duration-500">
-                {/* 1. METRICS GRID */}
-                <MetricsGrid
-                  stats={stats}
-                  views={projectData.activeProject?.views || 0}
-                  appreciations={projectData.activeProject?.appreciations || 0}
-                  comments={projectData.activeProject?.comments || 0}
-                  activeFilter={activeFilter}
-                  onFilterChange={setActiveFilter}
-                />
-
-                {/* 2. PROJECT HEADER */}
+              <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-300">
+                {/* 1. PROJECT HEADER */}
                 <DashboardHeader
                   project={selectedProjectInSidebar}
                   tagBalance={projectData.tagBalance}
@@ -647,6 +637,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
                   onOpenVideoTutorial={() => setIsVideoTutorialOpen(true)}
                   onDeleteProject={handleDeleteProject}
+                />
+
+                {/* 2. METRICS GRID */}
+                <MetricsGrid
+                  stats={stats}
+                  views={projectData.activeProject?.views || 0}
+                  appreciations={projectData.activeProject?.appreciations || 0}
+                  comments={projectData.activeProject?.comments || 0}
+                  activeFilter={activeFilter}
+                  onFilterChange={setActiveFilter}
                 />
 
                 {/* 3. RANKINGS CHART */}
