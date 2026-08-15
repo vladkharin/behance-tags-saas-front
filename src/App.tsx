@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { AuthProvider } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
+import { ToastContainer } from "./components/ui/ToastContainer";
+import { ConfirmModal } from "./components/ui/ConfirmModal";
 import { AuthForm } from "./components/AuthForm";
 import { useAuth } from "./hooks/useAuth";
 import { Dashboard } from "./pages/Dashboard";
@@ -7,10 +10,10 @@ import { Plans } from "./pages/Plans";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { OfferPage } from "./pages/OfferPage";
 import { RefundPage } from "./pages/RefundPage";
-import { HelpPage } from "./pages/HelpPage"; // Наша новая страница
+import { HelpPage } from "./pages/HelpPage";
+import { AdminDashboard } from "./pages/AdminDashboard";
 
-// Все возможные экраны приложения
-type View = "dashboard" | "plans" | "terms" | "privacy" | "refund" | "help";
+type View = "dashboard" | "plans" | "terms" | "privacy" | "refund" | "help" | "admin";
 
 const MainApp: React.FC = () => {
   const { isAuthenticated, isLoading, logout } = useAuth();
@@ -24,7 +27,7 @@ const MainApp: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-behance-grayBg dark:bg-behance-darkBg">
-        <div className="w-6 h-6 rounded-full border-2 border-behance-blue border-t-transparent animate-spin"></div>
+        <div className="w-8 h-8 rounded-full border-2 border-behance-blue border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -36,7 +39,12 @@ const MainApp: React.FC = () => {
     if (currentView === "refund") return <RefundPage onBack={() => handleNavigate("dashboard")} />;
     if (currentView === "help") return <HelpPage onBack={() => handleNavigate("dashboard")} />;
 
-    return <AuthForm onNavigatePrivacy={() => handleNavigate("privacy")} onNavigateTerms={() => handleNavigate("terms")} />;
+    return (
+      <AuthForm
+        onNavigatePrivacy={() => handleNavigate("privacy")}
+        onNavigateTerms={() => handleNavigate("terms")}
+      />
+    );
   }
 
   // --- СТРАНИЦЫ ДЛЯ АВТОРИЗОВАННЫХ ---
@@ -45,12 +53,19 @@ const MainApp: React.FC = () => {
       {currentView === "dashboard" && (
         <Dashboard
           onNavigatePricing={() => handleNavigate("plans")}
-          onNavigateLegal={handleNavigate} // Теперь handleNavigate принимает все View
+          onNavigateLegal={handleNavigate}
+          onNavigateAdmin={() => handleNavigate("admin")}
           logout={logout}
         />
       )}
 
-      {currentView === "plans" && <Plans onBack={() => handleNavigate("dashboard")} onNavigateLegal={handleNavigate} />}
+      {currentView === "admin" && (
+        <AdminDashboard onBackToApp={() => handleNavigate("dashboard")} />
+      )}
+
+      {currentView === "plans" && (
+        <Plans onBack={() => handleNavigate("dashboard")} onNavigateLegal={handleNavigate} />
+      )}
       {currentView === "privacy" && <PrivacyPage onBack={() => handleNavigate("dashboard")} />}
       {currentView === "terms" && <OfferPage onBack={() => handleNavigate("dashboard")} />}
       {currentView === "refund" && <RefundPage onBack={() => handleNavigate("dashboard")} />}
@@ -62,7 +77,11 @@ const MainApp: React.FC = () => {
 export function App() {
   return (
     <AuthProvider>
-      <MainApp />
+      <ToastProvider>
+        <MainApp />
+        <ToastContainer />
+        <ConfirmModal />
+      </ToastProvider>
     </AuthProvider>
   );
 }

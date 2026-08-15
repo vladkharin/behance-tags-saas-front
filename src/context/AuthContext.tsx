@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import type { AuthCredentials } from "../types/auth.types";
+import React, { useState, useEffect, useCallback } from "react";
+import type { AuthCredentials, AuthResponse, UserProfile } from "../types/auth.types";
 import { authService } from "../api/auth.service";
+import api from "../api/axios";
 import { AuthContext } from "./AuthContextInstance";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -12,41 +13,80 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return localStorage.getItem("userId");
   });
 
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    return localStorage.getItem("isAdmin") === "true";
+  });
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Вспомогательная функция для обработки ответа (логин/регистрация)
-  const handleAuthResponse = (res: any) => {
-    // 1. Пытаемся достать данные. Если res.data существует — берем его, если нет — берем сам res.
-    const data = res.data || res;
+  const logout = useCallback(() => {
+    authService.logout();
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
+    setUser(null);
+    setIsAdmin(false);
+    setIsAuthenticated(false);
+  }, []);
 
-    console.log("DEBUG: Полный ответ сервера:", res);
-    console.log("DEBUG: Извлеченные данные:", data);
+  // Проверка профиля и прав администратора на бэкенде
+  const verifyProfile = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-    // 2. Проверяем все возможные варианты ключей (user, userId, id)
-    const fetchedUserId = data.user || data.userId || data.id;
-    const token = data.access_token || data.token;
+    try {
+      const res = await api.get<UserProfile>("/auth/me");
+      const adminStatus = !!res.data.isAdmin;
+      setIsAdmin(adminStatus);
+      localStorage.setItem("isAdmin", String(adminStatus));
+    } catch {
+      // Игнорируем ошибки фоновой проверки
+    }
+  }, []);
 
-    console.log("DEBUG: Попытка найти userId:", fetchedUserId);
+  useEffect(() => {
+    if (isAuthenticated) {
+      verifyProfile();
+    }
+  }, [isAuthenticated, verifyProfile]);
+
+  // Слушаем событие разлогина из axios interceptor (401)
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      logout();
+    };
+
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => {
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
+  }, [logout]);
+
+  const handleAuthResponse = (res: AuthResponse) => {
+    const fetchedUserId = res.user;
+    const token = res.access_token;
+    const adminStatus = !!res.isAdmin;
 
     if (fetchedUserId) {
       localStorage.setItem("userId", fetchedUserId);
       setUser(fetchedUserId);
-      console.log("DEBUG: Успешно записано в localStorage");
-    } else {
-      console.error("DEBUG: ОШИБКА! userId не найден. Проверьте структуру JSON в Network.");
     }
 
     if (token) {
       localStorage.setItem("token", token);
       setIsAuthenticated(true);
     }
+
+    setIsAdmin(adminStatus);
+    localStorage.setItem("isAdmin", String(adminStatus));
   };
 
   const login = async (data: AuthCredentials) => {
     setIsLoading(true);
     try {
       const res = await authService.login(data);
-      handleAuthResponse(res); // Используем общую логику
+      handleAuthResponse(res);
+      await verifyProfile();
     } finally {
       setIsLoading(false);
     }
@@ -56,19 +96,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const res = await authService.register(data);
-      handleAuthResponse(res); // Теперь и здесь ID подхватится правильно
+      handleAuthResponse(res);
+      await verifyProfile();
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    authService.logout();
-    localStorage.removeItem("userId");
-    localStorage.removeItem("token");
-    setUser(null);
-    setIsAuthenticated(false);
-  };
-
-  return <AuthContext.Provider value={{ isAuthenticated, user, isLoading, login, register, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, user, isAdmin, isLoading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
