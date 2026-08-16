@@ -639,7 +639,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   onDeleteProject={handleDeleteProject}
                 />
 
-                {/* 2. METRICS GRID */}
+                {/* 2. VERDICT STATUS & TRAFFIC LIGHT */}
                 <MetricsGrid
                   stats={stats}
                   views={projectData.activeProject?.views || 0}
@@ -647,19 +647,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   comments={projectData.activeProject?.comments || 0}
                   activeFilter={activeFilter}
                   onFilterChange={setActiveFilter}
+                  onCopyTags={() => {
+                    const allTags = projectData.tagsMatrix.map((t) => t.tag.replace(/^#/, "").trim()).join(", ");
+                    if (allTags) {
+                      navigator.clipboard.writeText(allTags);
+                      showToast("Все теги скопированы для настроек Behance (через запятую)!", "success");
+                    }
+                  }}
                 />
 
-                {/* 3. RANKINGS CHART */}
-                <RankingsChart
-                  hasHistory={planLimits.hasHistory}
-                  history={history}
-                  visibleTags={visibleTags}
-                  focusedTag={focusedTag}
-                  tagColors={tagColors}
-                  onNavigatePricing={onNavigatePricing}
-                />
-
-                {/* 4. TAGS MATRIX */}
+                {/* 3. CRYSTAL CLEAR TAGS LIST */}
                 <TagsMatrix
                   tags={sortedAndFilteredTags}
                   visibleTags={visibleTags}
@@ -678,6 +675,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   onAddSuggestedTag={handleAddSuggestedTag}
                   onRemoveTag={handleRemoveTag}
                   onFocusTag={setFocusedTag}
+                />
+
+                {/* 4. PROGRESSIVE DISCLOSURE: DETAILED CHARTS ACCORDION */}
+                <RankingsChart
+                  hasHistory={planLimits.hasHistory}
+                  history={history}
+                  visibleTags={visibleTags}
+                  focusedTag={focusedTag}
+                  tagColors={tagColors}
+                  onNavigatePricing={onNavigatePricing}
                 />
               </div>
             )

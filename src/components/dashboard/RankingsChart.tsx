@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContextInstance";
@@ -18,36 +18,22 @@ interface CustomTooltipProps {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, isDark }) => {
   if (active && payload && payload.length) {
     const sortedPayload = [...payload].sort((a, b) => (Number(a.value) || 999) - (Number(b.value) || 999));
-    const itemsCount = sortedPayload.length;
-
-    let gridColsClass = "grid-cols-1";
-    let maxWidthClass = "max-w-xs";
-
-    if (itemsCount > 12) {
-      gridColsClass = "grid-cols-3";
-      maxWidthClass = "max-w-4xl";
-    } else if (itemsCount > 6) {
-      gridColsClass = "grid-cols-2";
-      maxWidthClass = "max-w-2xl";
-    }
 
     return (
       <div
-        className={`p-4 rounded-2xl border backdrop-blur-xl shadow-2xl transition-all ${maxWidthClass} ${
+        className={`p-3 rounded-xl border backdrop-blur-md shadow-xl ${
           isDark ? "bg-[#0d0d10]/95 border-white/10 text-white" : "bg-white/95 border-zinc-200 text-zinc-900"
         }`}
       >
-        <p className="text-[10px] font-black uppercase tracking-wider mb-2.5 opacity-40">{label}</p>
-        <div className={`grid ${gridColsClass} gap-x-5 gap-y-1.5`}>
-          {sortedPayload.map((entry, index) => (
-            <div key={index} className="flex items-center justify-between gap-3 min-w-[150px]">
-              <div className="flex items-center gap-2 overflow-hidden">
+        <p className="text-[10px] font-bold uppercase tracking-wider mb-2 opacity-40">{label}</p>
+        <div className="space-y-1">
+          {sortedPayload.slice(0, 8).map((entry, index) => (
+            <div key={index} className="flex items-center justify-between gap-4 text-xs font-medium">
+              <div className="flex items-center gap-1.5 truncate max-w-[120px]">
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.stroke }}></div>
-                <span className="text-[11px] font-bold uppercase tracking-tight opacity-80 truncate" title={entry.name}>
-                  {entry.name}
-                </span>
+                <span className="truncate">#{entry.name}</span>
               </div>
-              <span className={`text-[11px] font-black shrink-0 ${Number(entry.value) <= 10 ? "text-green-500" : ""}`}>
+              <span className={`font-bold ${Number(entry.value) <= 10 ? "text-green-500" : ""}`}>
                 #{entry.value}
               </span>
             </div>
@@ -76,35 +62,39 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
   tagColors,
   onNavigatePricing,
 }) => {
-  const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // PAYWALL FOR FREE PLAN
   if (!hasHistory) {
     return (
       <div
-        className={`p-8 rounded-2xl border text-center relative overflow-hidden transition-all ${
-          isDark ? "bg-[#141418] border-white/10 shadow-inner" : "bg-white border-zinc-200 shadow-xs"
+        className={`p-4 rounded-2xl border transition-all ${
+          isDark ? "bg-[#121216] border-white/10" : "bg-white border-zinc-200 shadow-sm"
         }`}
       >
-        <div className="max-w-md mx-auto space-y-4 py-8">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl mx-auto">
-            🔒
-          </div>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h3 className="text-base font-black uppercase tracking-tight">
-              Графики истории и динамики позиций
-            </h3>
-            <p className="text-xs opacity-60 leading-relaxed mt-1 font-medium">
-              Доступны на тарифах Daily Fresh и Pro Stream. Отслеживайте историю изменений позиций каждого тега по дням.
-            </p>
+            <span className="text-xs font-bold flex items-center gap-1.5">
+              <span>📊</span>
+              <span>История позиций по дням</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-bold uppercase">
+                Pro
+              </span>
+            </span>
+            <span className="text-[11px] opacity-60 block mt-0.5">
+              Графики истории изменений за 14 дней доступны на тарифах Daily Fresh и Pro Stream
+            </span>
           </div>
+
           <button
             onClick={onNavigatePricing}
-            className="px-6 py-2.5 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider shadow-md shadow-blue-500/20 hover:scale-105 transition-all cursor-pointer"
+            type="button"
+            className="px-3 py-1.5 rounded-xl bg-behance-blue text-white text-xs font-bold uppercase tracking-wider cursor-pointer shrink-0"
           >
-            Открыть тарифы
+            Узнать больше
           </button>
         </div>
       </div>
@@ -131,81 +121,86 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
 
   return (
     <div
-      className={`p-6 rounded-2xl border transition-all ${
-        isDark ? "bg-[#141418] border-white/10" : "bg-white border-zinc-200 shadow-xs"
+      className={`rounded-2xl border transition-all overflow-hidden ${
+        isDark ? "bg-[#121216] border-white/10" : "bg-white border-zinc-200 shadow-sm"
       }`}
     >
-      <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
-        <div>
-          <h3 className="text-sm font-black uppercase tracking-wider">
-            История позиций тегов в поиске Behance
-          </h3>
-          <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mt-0.5">
-            Шкала от #1 (вершина выдачи) до #100
-          </p>
-        </div>
-
+      {/* ACCORDION TRIGGER */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        type="button"
+        className="w-full p-4 md:p-5 flex justify-between items-center text-left hover:bg-zinc-500/5 transition-colors cursor-pointer"
+      >
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold opacity-60 uppercase">
-            Отображается: {activeTags.length} тегов
-          </span>
-        </div>
-      </div>
-
-      <div className="h-72 w-full relative">
-        {activeTags.length === 0 || chartData.length === 0 ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-zinc-500/5 rounded-xl border border-dashed border-zinc-300 dark:border-white/10">
-            <span className="text-2xl mb-2">📈</span>
-            <p className="text-xs font-bold uppercase tracking-wider opacity-60 max-w-sm leading-relaxed">
-              {t("dashboard.chart.empty", "Выберите теги в матрице ниже для визуализации истории позиций")}
-            </p>
+          <span className="text-sm">📊</span>
+          <div>
+            <span className="text-xs md:text-sm font-bold block">
+              {isExpanded ? "Скрыть детальные графики" : "Показать детальные графики истории позиций"}
+            </span>
+            <span className="text-[11px] opacity-50 block">
+              {isExpanded
+                ? "Динамика каждого тега в выдаче Behance по дням"
+                : "Нажмите для просмотра изменений за 14 дней"}
+            </span>
           </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={false}
-                stroke={isDark ? "rgba(255,255,255,0.06)" : "#f0f0f0"}
-              />
-              <XAxis
-                dataKey="date"
-                stroke={isDark ? "#555" : "#aaa"}
-                fontSize={10}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                reversed={true}
-                domain={[1, 100]}
-                stroke={isDark ? "#555" : "#aaa"}
-                fontSize={10}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(val) => `#${val}`}
-              />
-              <Tooltip content={<CustomTooltip isDark={isDark} />} />
+        </div>
 
-              {activeTags.map((tag) => {
-                const isFocused = focusedTag === tag;
-                const isAnotherFocused = focusedTag && focusedTag !== tag;
-                return (
-                  <Line
-                    key={tag}
-                    type="monotone"
-                    dataKey={tag}
-                    stroke={tagColors[tag] || "#0057ff"}
-                    strokeWidth={isFocused ? 3.5 : isAnotherFocused ? 1 : 2}
-                    opacity={isAnotherFocused ? 0.2 : 1}
-                    dot={{ r: isFocused ? 4 : 2 }}
-                    activeDot={{ r: 6 }}
+        <span className="text-xs font-bold px-2 py-1 rounded-lg bg-zinc-100 dark:bg-white/10">
+          {isExpanded ? "▲ Свернуть" : "▼ Развернуть"}
+        </span>
+      </button>
+
+      {/* EXPANDED CONTENT */}
+      {isExpanded && (
+        <div className="p-5 pt-0 border-t border-zinc-200 dark:border-white/10 mt-2 animate-in fade-in">
+          <div className="h-64 w-full pt-4">
+            {chartData.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-xs opacity-50">
+                Данные истории появятся после нескольких автоматических проверок
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke={isDark ? "rgba(255,255,255,0.06)" : "#f0f0f0"}
                   />
-                );
-              })}
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+                  <XAxis
+                    dataKey="date"
+                    stroke={isDark ? "#555" : "#aaa"}
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    reversed={true}
+                    domain={[1, 100]}
+                    stroke={isDark ? "#555" : "#aaa"}
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(val) => `#${val}`}
+                  />
+                  <Tooltip content={<CustomTooltip isDark={isDark} />} />
+
+                  {activeTags.map((tag) => (
+                    <Line
+                      key={tag}
+                      type="monotone"
+                      dataKey={tag}
+                      stroke={tagColors[tag] || "#0057ff"}
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      activeDot={{ r: 5 }}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
