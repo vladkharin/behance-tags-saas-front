@@ -132,10 +132,10 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
             3
           </div>
           <h4 className="text-xs font-black uppercase text-behance-black dark:text-white mb-1">
-            Рост и тренды
+            История и тренды
           </h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-            Следите за графиком динамики, находите растущие теги и продвигайте кейсы в топ.
+            Следите за графиком динамики и анализируйте изменение позиций ваших тегов во времени.
           </p>
         </div>
       </div>

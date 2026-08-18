@@ -196,11 +196,11 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         {/* HEADER */}
         <div>
           <span className="text-[10px] font-black uppercase tracking-widest text-behance-blue block">
-            Экспорт для заказчиков и сторис
+            Экспорт отчета о позициях
           </span>
-          <h2 className="text-xl md:text-2xl font-black mt-1">Карточка успеха кейса</h2>
+          <h2 className="text-xl md:text-2xl font-black mt-1">Отчет о позициях кейса</h2>
           <p className="text-xs text-zinc-400 mt-1">
-            Поделитесь высокими позициями вашего проекта в соцсетях или отправьте заказчику.
+            Скачайте отчет о текущих позициях кейса для соцсетей или отправки заказчику.
           </p>
         </div>
 
