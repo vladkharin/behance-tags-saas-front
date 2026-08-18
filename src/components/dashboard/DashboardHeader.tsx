@@ -16,6 +16,7 @@ interface DashboardHeaderProps {
   onNavigatePricing: () => void;
   onOpenMobileMenu: () => void;
   onOpenVideoTutorial?: () => void;
+  onOpenShareCard?: () => void;
   onDeleteProject?: () => void;
 }
 
@@ -32,6 +33,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onNavigatePricing,
   onOpenMobileMenu,
   onOpenVideoTutorial,
+  onOpenShareCard,
   onDeleteProject,
 }) => {
   const { t } = useTranslation();
@@ -102,16 +104,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <button
               onClick={onNavigatePricing}
               type="button"
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase border transition-all cursor-pointer ${
-                hasEnoughBalance
-                  ? isDark
-                    ? "bg-white/5 border-white/5 text-zinc-300 hover:bg-white/10"
-                    : "bg-zinc-100 border-zinc-200 text-zinc-600 hover:bg-zinc-200"
-                  : "bg-red-500/10 text-red-500 border-red-500/20"
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase border transition-all cursor-pointer ${
+                tagBalance < 50
+                  ? "bg-red-500/10 text-red-500 border-red-500/30 animate-pulse"
+                  : tagBalance < 150
+                    ? "bg-amber-500/10 text-amber-500 border-amber-500/30"
+                    : isDark
+                      ? "bg-white/5 border-white/5 text-zinc-300 hover:bg-white/10"
+                      : "bg-zinc-100 border-zinc-200 text-zinc-600 hover:bg-zinc-200"
               }`}
             >
               <span>Топливо: {tagBalance} тегов</span>
-              {!hasEnoughBalance && <span>⚠️</span>}
+              {tagBalance < 150 && <span>(Пополнить ⚡)</span>}
             </button>
           )}
         </div>
@@ -119,6 +123,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
       {/* RIGHT: ACTIONS */}
       <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto">
+        {onOpenShareCard && (
+          <button
+            onClick={onOpenShareCard}
+            type="button"
+            className="px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+            title="Скачать или отправить отчет клиенту"
+          >
+            <span>📸</span>
+            <span>Поделиться отчетом</span>
+          </button>
+        )}
+
         {onOpenVideoTutorial && (
           <button
             onClick={onOpenVideoTutorial}

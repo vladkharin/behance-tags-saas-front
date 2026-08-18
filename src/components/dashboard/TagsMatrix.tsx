@@ -43,6 +43,26 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   const [copiedTag, setCopiedTag] = useState<string | null>(null);
   const [isSubmittingTags, setIsSubmittingTags] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCopyMenu, setShowCopyMenu] = useState(false);
+  const [onlyRising, setOnlyRising] = useState(false);
+
+  // Stats calculation for filter chips
+  const top10Count = useMemo(
+    () => tags.filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10).length,
+    [tags]
+  );
+  const potentialCount = useMemo(
+    () => tags.filter((t) => typeof t.currentRank === "number" && t.currentRank > 10 && t.currentRank <= 30).length,
+    [tags]
+  );
+  const lostCount = useMemo(
+    () => tags.filter((t) => t.currentRank === null || t.currentRank <= 0).length,
+    [tags]
+  );
+  const risingCount = useMemo(
+    () => tags.filter((t) => getTrend(t.tag, t.currentRank) > 0).length,
+    [tags, getTrend]
+  );
 
   // Filter and sort tags
   const processedTags = useMemo(() => {
@@ -54,6 +74,10 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
       list = list.filter((t) => typeof t.currentRank === "number" && t.currentRank > 10 && t.currentRank <= 30);
     } else if (activeFilter === "lost") {
       list = list.filter((t) => t.currentRank === null || t.currentRank <= 0);
+    }
+
+    if (onlyRising) {
+      list = list.filter((t) => getTrend(t.tag, t.currentRank) > 0);
     }
 
     if (searchQuery.trim()) {
@@ -69,13 +93,43 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
     });
 
     return list;
-  }, [tags, activeFilter, searchQuery]);
+  }, [tags, activeFilter, searchQuery, onlyRising, getTrend]);
 
   const handleCopyTag = (tag: string) => {
     navigator.clipboard.writeText(tag).then(() => {
       setCopiedTag(tag);
       showToast(`#${tag} скопирован!`, "success", undefined, 1500);
       setTimeout(() => setCopiedTag(null), 1500);
+    });
+  };
+
+  const handleCopyFormattedTags = (format: "comma" | "hashtags" | "top10") => {
+    let tagsToCopy: string[] = [];
+
+    if (format === "top10") {
+      tagsToCopy = tags
+        .filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10)
+        .map((t) => t.tag);
+    } else {
+      tagsToCopy = tags.map((t) => t.tag);
+    }
+
+    if (tagsToCopy.length === 0) {
+      showToast("Нет тегов для копирования", "info");
+      setShowCopyMenu(false);
+      return;
+    }
+
+    let result = "";
+    if (format === "hashtags") {
+      result = tagsToCopy.map((t) => `#${t}`).join(" ");
+    } else {
+      result = tagsToCopy.join(", ");
+    }
+
+    navigator.clipboard.writeText(result).then(() => {
+      showToast(`Скопировано ${tagsToCopy.length} тегов в буфер обмена! 📋`, "success");
+      setShowCopyMenu(false);
     });
   };
 
@@ -123,7 +177,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
           {/* SEARCH */}
           <div className="relative flex-1 sm:w-44">
             <input
@@ -142,6 +196,47 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
             </span>
           </div>
 
+          {/* COPY DROPDOWN BUTTON */}
+          <div className="relative">
+            <button
+              onClick={() => setShowCopyMenu(!showCopyMenu)}
+              type="button"
+              className="px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+            >
+              <span>📋</span>
+              <span>Копировать</span>
+            </button>
+
+            {showCopyMenu && (
+              <div className="absolute right-0 top-full mt-1.5 w-56 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 shadow-2xl p-2 z-30 animate-in fade-in space-y-1">
+                <button
+                  onClick={() => handleCopyFormattedTags("comma")}
+                  type="button"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
+                >
+                  <span>Через запятую</span>
+                  <span className="text-[10px] opacity-40">tag1, tag2</span>
+                </button>
+                <button
+                  onClick={() => handleCopyFormattedTags("hashtags")}
+                  type="button"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
+                >
+                  <span>Хештегами</span>
+                  <span className="text-[10px] opacity-40">#tag1 #tag2</span>
+                </button>
+                <button
+                  onClick={() => handleCopyFormattedTags("top10")}
+                  type="button"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-500 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
+                >
+                  <span>Только ТОП-10 🔥</span>
+                  <span className="text-[10px] opacity-60">({top10Count})</span>
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* ADD TAGS BUTTON */}
           {hasCustomTags && (
             <button
@@ -155,7 +250,88 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
         </div>
       </div>
 
-      {/* 2. EXPANDABLE ADD TAG FORM */}
+      {/* 2. SMART FILTER CHIPS */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <button
+          onClick={() => {
+            onFilterChange("all");
+            setOnlyRising(false);
+          }}
+          type="button"
+          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+            activeFilter === "all" && !onlyRising
+              ? "bg-behance-blue text-white shadow-xs"
+              : "bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-white/10"
+          }`}
+        >
+          Все ({tags.length})
+        </button>
+
+        <button
+          onClick={() => {
+            onFilterChange("top10");
+            setOnlyRising(false);
+          }}
+          type="button"
+          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            activeFilter === "top10" && !onlyRising
+              ? "bg-green-500 text-white shadow-xs"
+              : "bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20"
+          }`}
+        >
+          <span>🟢 ТОП 1–10</span>
+          <span className="opacity-75 font-mono">({top10Count})</span>
+        </button>
+
+        <button
+          onClick={() => {
+            onFilterChange("potential");
+            setOnlyRising(false);
+          }}
+          type="button"
+          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            activeFilter === "potential" && !onlyRising
+              ? "bg-amber-500 text-white shadow-xs"
+              : "bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20"
+          }`}
+        >
+          <span>🟡 ТОП 11–30</span>
+          <span className="opacity-75 font-mono">({potentialCount})</span>
+        </button>
+
+        <button
+          onClick={() => {
+            onFilterChange("lost");
+            setOnlyRising(false);
+          }}
+          type="button"
+          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            activeFilter === "lost" && !onlyRising
+              ? "bg-zinc-600 text-white shadow-xs"
+              : "bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-white/10"
+          }`}
+        >
+          <span>⚪ Вне ТОП-100</span>
+          <span className="opacity-75 font-mono">({lostCount})</span>
+        </button>
+
+        {risingCount > 0 && (
+          <button
+            onClick={() => setOnlyRising(!onlyRising)}
+            type="button"
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              onlyRising
+                ? "bg-blue-600 text-white shadow-xs"
+                : "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+            }`}
+          >
+            <span>🚀 Растущие</span>
+            <span className="opacity-75 font-mono">({risingCount})</span>
+          </button>
+        )}
+      </div>
+
+      {/* 3. EXPANDABLE ADD TAG FORM */}
       {showAddForm && hasCustomTags && (
         <form
           onSubmit={handleAddTagsSubmit}
@@ -180,13 +356,13 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
         </form>
       )}
 
-      {/* 3. TAGS CARDS LIST (MAXIMAL SIMPLE UX) */}
+      {/* 4. TAGS CARDS LIST */}
       <div className="space-y-2">
         {processedTags.length === 0 ? (
           <div className="py-8 text-center text-xs opacity-50 font-medium">
             {searchQuery
               ? "По вашему запросу ничего не найдено"
-              : activeFilter !== "all"
+              : activeFilter !== "all" || onlyRising
                 ? "В этой категории нет тегов. Переключите фильтр выше."
                 : "У этого кейса пока нет тегов"}
           </div>
@@ -219,42 +395,42 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                         ? "bg-green-500 animate-pulse"
                         : isPotential
                           ? "bg-amber-500"
-                          : "bg-zinc-400"
+                          : "bg-zinc-400 opacity-40"
                     }`}
                   />
                   <div>
-                    <span className="text-sm font-black tracking-tight block">
-                      #{item.tag}
-                    </span>
-                    <span className="text-[11px] font-medium opacity-60 block">
-                      {isChecking ? (
-                        <span className="text-blue-400 animate-pulse">
-                          🤖 Идет проверка выдачи...
-                        </span>
-                      ) : isTop ? (
-                        <span className="text-green-500 font-bold">
-                          🔥 В ТОП-10 выдачи Behance (отличная видимость)
-                        </span>
-                      ) : isPotential ? (
-                        <span className="text-amber-500 font-bold">
-                          ⚡ Рядом с ТОПом (хороший потенциал для роста)
-                        </span>
-                      ) : (
-                        <span className="opacity-60">
-                          ⚪ Вне первых 100 мест (трафик не идет)
-                        </span>
-                      )}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-black text-behance-black dark:text-white">
+                        #{item.tag}
+                      </span>
+                      <button
+                        onClick={() => handleCopyTag(item.tag)}
+                        type="button"
+                        className="text-[10px] opacity-40 hover:opacity-100 transition-opacity cursor-pointer"
+                        title="Скопировать тег"
+                      >
+                        {copiedTag === item.tag ? "✓" : "📋"}
+                      </button>
+                    </div>
+
+                    <div className="text-[11px] font-medium opacity-60 mt-0.5">
+                      {isTop && "🔥 В самом топе поиска Behance"}
+                      {isPotential && "🟡 Высокий потенциал (страница 1-2)"}
+                      {!isTop && !isPotential && rank && rank > 0 && `Место #${rank}`}
+                      {(!rank || rank <= 0) && "Вне ТОП-100 (нужно менять тег)"}
+                    </div>
                   </div>
                 </div>
 
-                {/* RANK BADGE, TREND & ACTIONS */}
+                {/* RANK BADGE & ACTIONS */}
                 <div className="flex items-center gap-3 self-end sm:self-center">
-                  {/* 24H TREND */}
-                  {trend !== 0 && !isChecking && (
+                  {/* TREND BADGE */}
+                  {trend !== 0 && (
                     <span
-                      className={`text-xs font-bold ${
-                        trend > 0 ? "text-green-500" : "text-red-500"
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                        trend > 0
+                          ? "bg-green-500/10 text-green-500"
+                          : "bg-red-500/10 text-red-500"
                       }`}
                     >
                       {trend > 0 ? `▲ +${trend}` : `▼ ${trend}`}
@@ -262,52 +438,33 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                   )}
 
                   {/* RANK PILL */}
-                  {!isChecking && (
-                    <span
-                      className={`px-3 py-1 rounded-xl text-xs font-black shrink-0 ${
-                        isTop
-                          ? "bg-green-500 text-white shadow-xs shadow-green-500/20"
-                          : isPotential
-                            ? "bg-amber-500 text-black shadow-xs shadow-amber-500/20"
-                            : "bg-zinc-200 dark:bg-white/10 text-zinc-600 dark:text-zinc-400"
-                      }`}
-                    >
-                      {rank && rank > 0 ? `#${rank} место` : "Вне ТОПа"}
-                    </span>
-                  )}
-
-                  {/* QUICK ACTIONS */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleCopyTag(item.tag)}
-                      type="button"
-                      title="Скопировать тег"
-                      className="p-1.5 rounded-lg bg-zinc-100 dark:bg-white/10 hover:bg-behance-blue hover:text-white text-xs transition-colors cursor-pointer"
-                    >
-                      {copiedTag === item.tag ? "✓" : "📋"}
-                    </button>
-
-                    <a
-                      href={`https://www.behance.net/search/projects?search=${encodeURIComponent(item.tag)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      title="Открыть поиск Behance"
-                      className="p-1.5 rounded-lg bg-zinc-100 dark:bg-white/10 hover:bg-behance-blue hover:text-white text-xs transition-colors"
-                    >
-                      ↗
-                    </a>
-
-                    {onRemoveTag && (
-                      <button
-                        onClick={() => handleDeleteTagClick(item.tag)}
-                        type="button"
-                        title="Удалить тег"
-                        className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white text-xs transition-colors cursor-pointer"
-                      >
-                        🗑️
-                      </button>
-                    )}
+                  <div
+                    className={`px-3 py-1.5 rounded-xl font-mono text-xs font-black shrink-0 ${
+                      isTop
+                        ? "bg-green-500 text-white shadow-xs"
+                        : isPotential
+                          ? "bg-amber-500 text-white shadow-xs"
+                          : "bg-zinc-200 dark:bg-white/10 text-zinc-600 dark:text-zinc-300"
+                    }`}
+                  >
+                    {isChecking
+                      ? "⏳ Проверка..."
+                      : rank && rank > 0
+                        ? `#${rank}`
+                        : ">100"}
                   </div>
+
+                  {/* REMOVE TAG */}
+                  {onRemoveTag && (
+                    <button
+                      onClick={() => handleDeleteTagClick(item.tag)}
+                      type="button"
+                      className="text-xs opacity-30 hover:opacity-100 hover:text-red-500 transition-all p-1 cursor-pointer"
+                      title="Удалить тег из мониторинга"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               </div>
             );

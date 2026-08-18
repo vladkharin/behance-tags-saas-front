@@ -12,6 +12,8 @@ import { RankingsChart } from "../components/dashboard/RankingsChart";
 import { TagsMatrix } from "../components/dashboard/TagsMatrix";
 import { DashboardHeader } from "../components/dashboard/DashboardHeader";
 import { AddProjectView } from "../components/dashboard/AddProjectView";
+import { ShareCardModal } from "../components/dashboard/ShareCardModal";
+import { EmptyProjectsView } from "../components/dashboard/EmptyProjectsView";
 import { WelcomeModal } from "../components/WelcomeModal";
 import { VideoTutorialModal } from "../components/ui/VideoTutorialModal";
 import { Footer } from "../components/Footer";
@@ -79,6 +81,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [isPolling, setIsPolling] = useState(false);
   const [activeFilter, setActiveFilter] = useState<"all" | "top10" | "potential" | "lost">("all");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isShareCardOpen, setIsShareCardOpen] = useState(false);
 
   // --- PLAN CALCULATIONS ---
   const userPlan = useMemo<PlanType>(() => {
@@ -618,6 +621,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
               onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
               onOpenVideoTutorial={() => setIsVideoTutorialOpen(true)}
             />
+          ) : !loading && !isDemoMode && projects.length === 0 ? (
+            <EmptyProjectsView
+              onAddProject={handleImport}
+              onLoadDemo={handleTryDemo}
+              isAdding={actionLoading}
+            />
           ) : (
             selectedProjectId &&
             projectData && (
@@ -636,6 +645,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   onNavigatePricing={onNavigatePricing}
                   onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
                   onOpenVideoTutorial={() => setIsVideoTutorialOpen(true)}
+                  onOpenShareCard={() => setIsShareCardOpen(true)}
                   onDeleteProject={handleDeleteProject}
                 />
 
@@ -690,6 +700,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             )
           )}
         </div>
+
+        {/* SHARE CARD MODAL */}
+        <ShareCardModal
+          isOpen={isShareCardOpen}
+          onClose={() => setIsShareCardOpen(false)}
+          project={selectedProjectInSidebar}
+          tags={sortedAndFilteredTags}
+          views={projectData?.activeProject?.views}
+          appreciations={projectData?.activeProject?.appreciations}
+        />
 
         <Footer onNavigate={onNavigateLegal} />
       </div>
