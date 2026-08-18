@@ -150,6 +150,23 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
     await submitCode(otpCode);
   };
 
+  const handleResendOtp = async () => {
+    if (countdown > 0 || isResending) return;
+    setIsResending(true);
+    setError(null);
+
+    try {
+      await resendCode(email.trim());
+      setCountdown(60);
+      showToast(t("auth.codeSentToast"), "info");
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } }; message?: string };
+      setError(axiosError.response?.data?.message || "Ошибка отправки кода. Попробуйте позже.");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value.replace(/\D/g, "").slice(0, 6);
     setOtpCode(rawVal);

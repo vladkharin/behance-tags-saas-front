@@ -24,14 +24,6 @@ const MainApp: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-behance-grayBg dark:bg-behance-darkBg">
-        <div className="w-8 h-8 rounded-full border-2 border-behance-blue border-t-transparent animate-spin"></div>
-      </div>
-    );
-  }
-
   // --- ПУБЛИЧНЫЕ СТРАНИЦЫ (Доступны без логина) ---
   if (!isAuthenticated) {
     if (currentView === "privacy") return <PrivacyPage onBack={() => handleNavigate("dashboard")} />;
