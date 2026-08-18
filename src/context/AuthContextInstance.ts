@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { AuthCredentials } from "../types/auth.types";
+import type { AuthCredentials, RegisterResponse, VerifyCodeCredentials } from "../types/auth.types";
 
 export interface AuthContextType {
   isAuthenticated: boolean;
@@ -7,7 +7,9 @@ export interface AuthContextType {
   user: string | null;
   isAdmin: boolean;
   login: (data: AuthCredentials) => Promise<void>;
-  register: (data: AuthCredentials) => Promise<void>;
+  register: (data: AuthCredentials) => Promise<RegisterResponse>;
+  verifyCode: (data: VerifyCodeCredentials) => Promise<void>;
+  resendCode: (email: string) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
 }
 

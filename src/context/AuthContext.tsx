@@ -92,10 +92,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (data: AuthCredentials) => {
+  const register = async (data: AuthCredentials): Promise<RegisterResponse> => {
     setIsLoading(true);
     try {
       const res = await authService.register(data);
+      if (res.access_token) {
+        handleAuthResponse(res as AuthResponse);
+        await verifyProfile();
+      }
+      return res;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyCode = async (data: VerifyCodeCredentials) => {
+    setIsLoading(true);
+    try {
+      const res = await authService.verifyCode(data);
       handleAuthResponse(res);
       await verifyProfile();
     } finally {
@@ -103,9 +117,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resendCode = async (email: string) => {
+    return await authService.resendCode(email);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, isAdmin, isLoading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        isAdmin,
+        isLoading,
+        login,
+        register,
+        verifyCode,
+        resendCode,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
+

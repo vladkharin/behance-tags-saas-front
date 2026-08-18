@@ -225,7 +225,15 @@
     "noAccount": "No account? Create",
     "hasAccount": "Have an account? Login",
     "errorEmpty": "Fill all fields",
-    "errorAgreement": "Agreement required"
+    "errorAgreement": "Agreement required",
+    "verifyTitle": "Email Verification",
+    "verifySubtitle": "We have sent a 6-digit code to",
+    "codeLabel": "6-digit code from email",
+    "verifyBtn": "Verify and Continue",
+    "resendIn": "Resend code in",
+    "resendBtn": "Resend verification code",
+    "changeEmail": "← Change email or login",
+    "codeSentToast": "Verification code has been sent to your email"
   },
   "legal": { "back": "← Back", "updated": "Updated July 15, 2026", "requisitesTitle": "Contractor Details" },
   "privacy": {
