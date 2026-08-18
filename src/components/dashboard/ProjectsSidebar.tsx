@@ -225,7 +225,7 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
             }}
             className="text-[9px] font-black uppercase px-2 py-1 rounded-lg bg-behance-blue text-white hover:bg-behance-darkBlue transition-colors cursor-pointer"
           >
-            Upgrade
+            {userPlan === "PRO_STREAM" || isDemoMode ? "Тарифы" : "Upgrade"}
           </button>
         </div>
 
