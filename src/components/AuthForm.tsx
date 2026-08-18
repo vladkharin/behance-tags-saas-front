@@ -117,11 +117,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    const cleanCode = otpCode.replace(/\D/g, "").trim();
+  const submitCode = async (codeToVerify: string) => {
+    const cleanCode = codeToVerify.replace(/\D/g, "").trim();
     if (cleanCode.length < 4) {
       setError("Пожалуйста, введите полный код из письма");
       return;
@@ -147,26 +144,19 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
     }
   };
 
-  const handleResendOtp = async () => {
-    if (countdown > 0 || isResending) return;
-    setIsResending(true);
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
-
-    try {
-      await resendCode(email.trim());
-      setCountdown(60);
-      showToast(t("auth.codeSentToast"), "info");
-    } catch (err: unknown) {
-      const axiosError = err as { response?: { data?: { message?: string } }; message?: string };
-      setError(axiosError.response?.data?.message || "Ошибка отправки кода. Попробуйте позже.");
-    } finally {
-      setIsResending(false);
-    }
+    await submitCode(otpCode);
   };
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value.replace(/\D/g, "").slice(0, 6);
     setOtpCode(rawVal);
+    if (rawVal.length === 6) {
+      setError(null);
+      submitCode(rawVal);
+    }
   };
 
   return (
