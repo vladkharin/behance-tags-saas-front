@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ui/ToastContainer";
@@ -12,69 +13,90 @@ import { OfferPage } from "./pages/OfferPage";
 import { RefundPage } from "./pages/RefundPage";
 import { HelpPage } from "./pages/HelpPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
-type View = "dashboard" | "plans" | "terms" | "privacy" | "refund" | "help" | "admin";
+const AuthRoute: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-const MainApp: React.FC = () => {
-  const { isAuthenticated, isLoading, logout } = useAuth();
-  const [currentView, setCurrentView] = useState<View>("dashboard");
-
-  const handleNavigate = (view: View) => {
-    setCurrentView(view);
-    window.scrollTo(0, 0);
-  };
-
-  // --- ПУБЛИЧНЫЕ СТРАНИЦЫ (Доступны без логина) ---
-  if (!isAuthenticated) {
-    if (currentView === "privacy") return <PrivacyPage onBack={() => handleNavigate("dashboard")} />;
-    if (currentView === "terms") return <OfferPage onBack={() => handleNavigate("dashboard")} />;
-    if (currentView === "refund") return <RefundPage onBack={() => handleNavigate("dashboard")} />;
-    if (currentView === "help") return <HelpPage onBack={() => handleNavigate("dashboard")} />;
-
-    return (
-      <AuthForm
-        onNavigatePrivacy={() => handleNavigate("privacy")}
-        onNavigateTerms={() => handleNavigate("terms")}
-      />
-    );
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
   }
 
-  // --- СТРАНИЦЫ ДЛЯ АВТОРИЗОВАННЫХ ---
+  return (
+    <AuthForm
+      onNavigatePrivacy={() => navigate("/privacy")}
+      onNavigateTerms={() => navigate("/terms")}
+    />
+  );
+};
+
+const MainApp: React.FC = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-behance-grayBg dark:bg-behance-darkBg">
-      {currentView === "dashboard" && (
-        <Dashboard
-          onNavigatePricing={() => handleNavigate("plans")}
-          onNavigateLegal={handleNavigate}
-          onNavigateAdmin={() => handleNavigate("admin")}
-          logout={logout}
-        />
-      )}
+      <Routes>
+        {/* Публичный роут авторизации */}
+        <Route path="/auth" element={<AuthRoute />} />
 
-      {currentView === "admin" && (
-        <AdminDashboard onBackToApp={() => handleNavigate("dashboard")} />
-      )}
+        {/* Публичные страницы (доступны всем) */}
+        <Route path="/help" element={<HelpPage onBack={() => navigate("/")} />} />
+        <Route path="/privacy" element={<PrivacyPage onBack={() => navigate("/")} />} />
+        <Route path="/terms" element={<OfferPage onBack={() => navigate("/")} />} />
+        <Route path="/refund" element={<RefundPage onBack={() => navigate("/")} />} />
 
-      {currentView === "plans" && (
-        <Plans onBack={() => handleNavigate("dashboard")} onNavigateLegal={handleNavigate} />
-      )}
-      {currentView === "privacy" && <PrivacyPage onBack={() => handleNavigate("dashboard")} />}
-      {currentView === "terms" && <OfferPage onBack={() => handleNavigate("dashboard")} />}
-      {currentView === "refund" && <RefundPage onBack={() => handleNavigate("dashboard")} />}
-      {currentView === "help" && <HelpPage onBack={() => handleNavigate("dashboard")} />}
+        {/* Закрытые роуты для авторизованных пользователей */}
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path="/"
+            element={
+              <Dashboard
+                onNavigatePricing={() => navigate("/plans")}
+                onNavigateLegal={(view) => navigate(`/${view}`)}
+                onNavigateAdmin={() => navigate("/admin")}
+                logout={logout}
+              />
+            }
+          />
+          <Route
+            path="/plans"
+            element={
+              <Plans
+                onBack={() => navigate("/")}
+                onNavigateLegal={(view) => navigate(`/${view}`)}
+              />
+            }
+          />
+        </Route>
+
+        {/* Закрытый роут только для администратора */}
+        <Route element={<ProtectedRoute adminOnly />}>
+          <Route
+            path="/admin"
+            element={<AdminDashboard onBackToApp={() => navigate("/")} />}
+          />
+        </Route>
+
+        {/* Дефолтный редирект */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   );
 };
 
 export function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <MainApp />
-        <ToastContainer />
-        <ConfirmModal />
-      </ToastProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <ToastProvider>
+          <MainApp />
+          <ToastContainer />
+          <ConfirmModal />
+        </ToastProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
