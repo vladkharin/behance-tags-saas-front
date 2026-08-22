@@ -12,25 +12,6 @@ interface AddProjectViewProps {
   onOpenVideoTutorial?: () => void;
 }
 
-const TAG_PRESETS = [
-  {
-    category: "🎨 UI/UX",
-    tags: ["ui/ux", "mobile app", "figma", "landing page", "dashboard", "web design"],
-  },
-  {
-    category: "🧊 3D & Motion",
-    tags: ["3d render", "blender", "cinema 4d", "octane", "motion design", "cgi"],
-  },
-  {
-    category: "🔤 Branding",
-    tags: ["branding", "visual identity", "logo design", "typography", "packaging"],
-  },
-  {
-    category: "📸 Photo & Art",
-    tags: ["photography", "art direction", "illustration", "photoshop", "concept art"],
-  },
-];
-
 export const AddProjectView: React.FC<AddProjectViewProps> = ({
   hasCustomTags,
   actionLoading,
@@ -67,19 +48,6 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
       }
     } catch (err) {
       showToast("Не удалось прочитать буфер. Вставьте вручную (Ctrl+V)", "warning");
-    }
-  };
-
-  const handlePresetClick = (tag: string) => {
-    const currentTags = tagsInput
-      .split(",")
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
-
-    if (!currentTags.includes(tag)) {
-      const nextTags = [...currentTags, tag].join(", ");
-      setTagsInput(nextTags);
-      if (!showTagsInput) setShowTagsInput(true);
     }
   };
 
@@ -139,7 +107,7 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
           isDark ? "bg-[#141418] border-white/10" : "bg-white border-zinc-200 shadow-sm"
         }`}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs font-bold">
               <span>Ссылка на проект с Behance:</span>
@@ -188,7 +156,7 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
               {showTagsInput && (
                 <input
                   type="text"
-                  placeholder="figma, mobile app, dashboard, branding..."
+                  placeholder="figma, mobile app, dashboard, branding (через запятую)..."
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   className={`w-full rounded-xl px-4 py-2.5 text-xs font-medium outline-none border transition-all ${
@@ -200,34 +168,6 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
               )}
             </div>
           )}
-
-          {/* CATEGORY TAG PRESETS */}
-          <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-white/5">
-            <span className="text-[10px] font-bold uppercase tracking-wider opacity-50 block">
-              💡 Быстрые пресеты тегов по нишам:
-            </span>
-            <div className="space-y-2">
-              {TAG_PRESETS.map((p) => (
-                <div key={p.category} className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[10px] font-bold opacity-60 w-24 shrink-0">
-                    {p.category}:
-                  </span>
-                  <div className="flex flex-wrap gap-1">
-                    {p.tags.map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => handlePresetClick(t)}
-                        className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-white/5 hover:bg-behance-blue hover:text-white text-[10px] font-medium transition-colors cursor-pointer"
-                      >
-                        +{t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {/* SUBMIT BUTTON */}
           <button

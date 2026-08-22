@@ -21,23 +21,46 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
 
     return (
       <div
-        className={`p-3 rounded-xl border backdrop-blur-md shadow-xl ${
-          isDark ? "bg-[#0d0d10]/95 border-white/10 text-white" : "bg-white/95 border-zinc-200 text-zinc-900"
+        className={`p-3.5 rounded-2xl border backdrop-blur-md shadow-2xl min-w-[220px] max-w-[340px] ${
+          isDark ? "bg-[#0d0d12]/95 border-white/15 text-white" : "bg-white/95 border-zinc-200 text-zinc-900"
         }`}
       >
-        <p className="text-[10px] font-bold uppercase tracking-wider mb-2 opacity-40">{label}</p>
-        <div className="space-y-1">
-          {sortedPayload.slice(0, 8).map((entry, index) => (
-            <div key={index} className="flex items-center justify-between gap-4 text-xs font-medium">
-              <div className="flex items-center gap-1.5 truncate max-w-[120px]">
-                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.stroke }}></div>
-                <span className="truncate">#{entry.name}</span>
+        <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-zinc-200 dark:border-white/10">
+          <p className="text-[11px] font-mono font-black uppercase tracking-wider opacity-60">{label}</p>
+          <span className="text-[10px] opacity-40 font-bold">{sortedPayload.length} тегов</span>
+        </div>
+
+        <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700">
+          {sortedPayload.map((entry, index) => {
+            const rankNum = Number(entry.value);
+            const isTop = rankNum <= 10 && rankNum > 0;
+            const isPotential = rankNum > 10 && rankNum <= 30;
+
+            return (
+              <div key={index} className="flex items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div
+                    className="w-2 h-2 rounded-full shrink-0 shadow-xs"
+                    style={{ backgroundColor: entry.stroke }}
+                  />
+                  <span className="font-medium text-xs truncate" title={`#${entry.name}`}>
+                    #{entry.name}
+                  </span>
+                </div>
+                <span
+                  className={`font-mono font-black text-xs shrink-0 ${
+                    isTop
+                      ? "text-green-500"
+                      : isPotential
+                        ? "text-amber-500"
+                        : "opacity-60"
+                  }`}
+                >
+                  #{entry.value}
+                </span>
               </div>
-              <span className={`font-bold ${Number(entry.value) <= 10 ? "text-green-500" : ""}`}>
-                #{entry.value}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
