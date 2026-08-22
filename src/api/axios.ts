@@ -9,7 +9,7 @@ const getBaseUrl = () => {
     window.location.hostname !== "localhost" &&
     window.location.hostname !== "127.0.0.1"
   ) {
-    return "/api";
+    return "https://behance-api.domcraft.digital";
   }
   return "http://localhost:3000";
 };
