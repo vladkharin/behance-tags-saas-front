@@ -66,10 +66,25 @@
       "updateBtnProcessing": "🤖 Сканирование..."
     },
     "chart": {
-      "empty": "Выберите теги в матрице ниже \nдля визуализации истории позиций"
+      "empty": "Выберите теги в матрице ниже \nдля визуализации истории позиций",
+      "proBadge": "Pro",
+      "historyPaywallTitle": "История позиций по дням",
+      "historyPaywallSubtitle": "Графики истории изменений за 14 дней доступны на тарифах Daily Fresh и Pro Stream",
+      "learnMore": "Узнать больше",
+      "showDetailed": "Показать детальные графики истории позиций",
+      "hideDetailed": "Скрыть детальные графики",
+      "showDetailedSubtitle": "Нажмите для просмотра изменений за 14 дней",
+      "hideDetailedSubtitle": "Динамика каждого тега в выдаче Behance по дням",
+      "expandBtn": "▼ Развернуть",
+      "collapseBtn": "▲ Свернуть",
+      "noHistory": "Данные истории появятся после нескольких автоматических проверок",
+      "tagsCount": "{{count}} тегов"
     },
     "matrix": {
       "title": "Матрица тегов",
+      "tagListTitle": "Список тегов кейса ({{count}})",
+      "tagListSubtitle": "Реальные позиции вашего кейса в поисковой выдаче Behance",
+      "searchPlaceholder": "Поиск по тегам...",
       "smartTagsTitle": "Умные теги из названия и ниши кейса:",
       "smartTagsSubtitle": "Нажмите ＋ чтобы добавить в мониторинг в 1 клик",
       "addTagBtn": "＋ Добавить тег",

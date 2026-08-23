@@ -173,10 +173,10 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-200 dark:border-white/10">
         <div>
           <h3 className="text-base font-black">
-            Список тегов кейса ({processedTags.length})
+            {t("dashboard.matrix.tagListTitle", { count: processedTags.length })}
           </h3>
           <p className="text-xs opacity-50 font-medium">
-            Реальные позиции вашего кейса в поисковой выдаче Behance
+            {t("dashboard.matrix.tagListSubtitle")}
           </p>
         </div>
 
@@ -185,7 +185,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
           <div className="relative flex-1 sm:w-44">
             <input
               type="text"
-              placeholder="Поиск по тегам..."
+              placeholder={t("dashboard.matrix.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={`w-full rounded-xl pl-7 pr-3 py-1.5 text-xs font-medium outline-none border transition-all ${

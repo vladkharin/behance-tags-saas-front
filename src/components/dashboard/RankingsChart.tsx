@@ -16,6 +16,7 @@ interface CustomTooltipProps {
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, isDark }) => {
+  const { t } = useTranslation();
   if (active && payload && payload.length) {
     const sortedPayload = [...payload].sort((a, b) => (Number(a.value) || 999) - (Number(b.value) || 999));
 
@@ -27,7 +28,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
       >
         <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-zinc-200 dark:border-white/10">
           <p className="text-[11px] font-mono font-black uppercase tracking-wider opacity-60">{label}</p>
-          <span className="text-[10px] opacity-40 font-bold">{sortedPayload.length} тегов</span>
+          <span className="text-[10px] opacity-40 font-bold">{t("dashboard.chart.tagsCount", { count: sortedPayload.length })}</span>
         </div>
 
         <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700">
@@ -85,6 +86,7 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
   tagColors,
   onNavigatePricing,
 }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -102,13 +104,13 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
           <div>
             <span className="text-xs font-bold flex items-center gap-1.5">
               <span>📊</span>
-              <span>История позиций по дням</span>
+              <span>{t("dashboard.chart.historyPaywallTitle")}</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-bold uppercase">
-                Pro
+                {t("dashboard.chart.proBadge")}
               </span>
             </span>
             <span className="text-[11px] opacity-60 block mt-0.5">
-              Графики истории изменений за 14 дней доступны на тарифах Daily Fresh и Pro Stream
+              {t("dashboard.chart.historyPaywallSubtitle")}
             </span>
           </div>
 
@@ -117,7 +119,7 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
             type="button"
             className="px-3 py-1.5 rounded-xl bg-behance-blue text-white text-xs font-bold uppercase tracking-wider cursor-pointer shrink-0"
           >
-            Узнать больше
+            {t("dashboard.chart.learnMore")}
           </button>
         </div>
       </div>
@@ -158,18 +160,18 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
           <span className="text-sm">📊</span>
           <div>
             <span className="text-xs md:text-sm font-bold block">
-              {isExpanded ? "Скрыть детальные графики" : "Показать детальные графики истории позиций"}
+              {isExpanded ? t("dashboard.chart.hideDetailed") : t("dashboard.chart.showDetailed")}
             </span>
             <span className="text-[11px] opacity-50 block">
               {isExpanded
-                ? "Динамика каждого тега в выдаче Behance по дням"
-                : "Нажмите для просмотра изменений за 14 дней"}
+                ? t("dashboard.chart.hideDetailedSubtitle")
+                : t("dashboard.chart.showDetailedSubtitle")}
             </span>
           </div>
         </div>
 
         <span className="text-xs font-bold px-2 py-1 rounded-lg bg-zinc-100 dark:bg-white/10">
-          {isExpanded ? "▲ Свернуть" : "▼ Развернуть"}
+          {isExpanded ? t("dashboard.chart.collapseBtn") : t("dashboard.chart.expandBtn")}
         </span>
       </button>
 
@@ -179,7 +181,7 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
           <div className="h-64 w-full pt-4">
             {chartData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-xs opacity-50">
-                Данные истории появятся после нескольких автоматических проверок
+                {t("dashboard.chart.noHistory")}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">

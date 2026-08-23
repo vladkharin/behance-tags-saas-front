@@ -66,10 +66,25 @@
       "updateBtnProcessing": "🤖 Scanning..."
     },
     "chart": {
-      "empty": "Select tags in the matrix below \nto visualize position history"
+      "empty": "Select tags in the matrix below \nto visualize position history",
+      "proBadge": "Pro",
+      "historyPaywallTitle": "Daily Position History",
+      "historyPaywallSubtitle": "14-day position history charts available on Daily Fresh and Pro Stream plans",
+      "learnMore": "Learn More",
+      "showDetailed": "Show detailed position history charts",
+      "hideDetailed": "Hide detailed charts",
+      "showDetailedSubtitle": "Click to view changes over 14 days",
+      "hideDetailedSubtitle": "Daily rank trends for each tag in Behance search",
+      "expandBtn": "▼ Expand",
+      "collapseBtn": "▲ Collapse",
+      "noHistory": "History data will appear after several automatic scans",
+      "tagsCount": "{{count}} tags"
     },
     "matrix": {
       "title": "Tag Matrix",
+      "tagListTitle": "Case Tag List ({{count}})",
+      "tagListSubtitle": "Real-time rankings of your case in Behance search",
+      "searchPlaceholder": "Search tags...",
       "smartTagsTitle": "Smart tags from case title & niche:",
       "smartTagsSubtitle": "Click ＋ to monitor in 1 click",
       "addTagBtn": "＋ Add tag",
