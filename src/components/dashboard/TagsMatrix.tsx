@@ -45,9 +45,20 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   const [newTagsInput, setNewTagsInput] = useState("");
   const [copiedTag, setCopiedTag] = useState<string | null>(null);
   const [isSubmittingTags, setIsSubmittingTags] = useState(false);
+  const [isAddingAll, setIsAddingAll] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showCopyMenu, setShowCopyMenu] = useState(false);
   const [onlyRising, setOnlyRising] = useState(false);
+
+  const handleAddAllSuggestedTags = async () => {
+    if (!suggestedTags || suggestedTags.length === 0 || isAddingAll || isBusy) return;
+    setIsAddingAll(true);
+    try {
+      await onAddCustomTags(suggestedTags.join(", "));
+    } finally {
+      setIsAddingAll(false);
+    }
+  };
 
   // Stats calculation for filter chips
   const top10Count = useMemo(
@@ -362,31 +373,46 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
       {/* 3.1 SMART SUGGESTED TAGS FROM CASE TITLE & CONTENT */}
       {hasCustomTags && suggestedTags && suggestedTags.length > 0 && onAddSuggestedTag && (
         <div
-          className={`p-3.5 rounded-2xl border transition-all ${
+          className={`p-3.5 md:p-4 rounded-2xl border transition-all ${
             isDark
               ? "bg-gradient-to-r from-blue-950/30 via-purple-950/20 to-transparent border-blue-500/20"
               : "bg-gradient-to-r from-blue-50 to-indigo-50/30 border-blue-200 shadow-xs"
           }`}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2.5">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm">🪄</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🪄</span>
               <span className="text-xs font-black uppercase tracking-wider text-behance-blue">
                 {t("dashboard.matrix.smartTagsTitle")}
               </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-behance-blue/15 text-behance-blue font-black font-mono">
+                {suggestedTags.length}
+              </span>
             </div>
-            <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
-              {t("dashboard.matrix.smartTagsSubtitle")}
-            </span>
+
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium hidden md:inline">
+                {t("dashboard.matrix.smartTagsSubtitle")}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleAddAllSuggestedTags}
+                disabled={isBusy || isAddingAll}
+                className="px-3.5 py-1.5 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-bold shadow-sm cursor-pointer flex items-center gap-1.5 shrink-0 disabled:opacity-50 transition-all hover:scale-[1.02] active:scale-95"
+              >
+                <span>{isAddingAll ? t("dashboard.matrix.addingAll") : t("dashboard.matrix.addAllBtn", { count: suggestedTags.length })}</span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-behance-blue/20">
             {suggestedTags.map((tag) => (
               <button
                 key={tag}
                 type="button"
                 onClick={() => onAddSuggestedTag(tag)}
-                disabled={isBusy}
+                disabled={isBusy || isAddingAll}
                 className="px-2.5 py-1 rounded-xl bg-white dark:bg-white/10 hover:bg-behance-blue hover:text-white dark:hover:bg-behance-blue border border-zinc-200 dark:border-white/10 text-xs font-medium transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-50"
               >
                 <span className="font-bold text-behance-blue">＋</span>
