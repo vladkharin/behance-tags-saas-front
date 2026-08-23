@@ -44,16 +44,16 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-zinc-200 dark:border-white/10">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-wider opacity-50 block">
-            Результат проверки тегов в поиске Behance
+            {t("dashboard.metrics.verdictSubtitle")}
           </span>
           <h3 className="text-base md:text-lg font-black mt-0.5">
             {stats.top10 > 0 ? (
               <span className="text-green-500">
-                🔥 {stats.top10} из {stats.total} тегов работают в ТОП-10
+                {t("dashboard.metrics.verdictTop10", { top10: stats.top10, total: stats.total })}
               </span>
             ) : (
               <span className="opacity-80">
-                📊 Проверено {stats.total} тегов
+                {t("dashboard.metrics.verdictChecked", { total: stats.total })}
               </span>
             )}
           </h3>
@@ -67,7 +67,7 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({
             className="w-full sm:w-auto px-4 py-2 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
           >
             <span>📋</span>
-            <span>Скопировать теги для Behance</span>
+            <span>{t("dashboard.metrics.copyTagsForBehance")}</span>
           </button>
         )}
       </div>
@@ -89,12 +89,12 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold flex items-center gap-1.5 text-green-500">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span>В ТОП-10 (Дают просмотры)</span>
+              <span>{t("dashboard.metrics.top10CardTitle")}</span>
             </span>
             <span className="text-lg font-black text-green-500">{stats.top10}</span>
           </div>
           <span className="text-[10px] opacity-50 block mt-1">
-            Кейс на первых местах в выдаче
+            {t("dashboard.metrics.top10CardSubtitle")}
           </span>
         </button>
 
@@ -113,12 +113,12 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold flex items-center gap-1.5 text-amber-500">
               <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <span>На подходе (11–30 место)</span>
+              <span>{t("dashboard.metrics.potentialCardTitle")}</span>
             </span>
             <span className="text-lg font-black text-amber-500">{stats.potential}</span>
           </div>
           <span className="text-[10px] opacity-50 block mt-1">
-            Близко к ТОПу, есть потенциал роста
+            {t("dashboard.metrics.potentialCardSubtitle")}
           </span>
         </button>
 
@@ -137,27 +137,27 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold flex items-center gap-1.5 opacity-60">
               <span className="w-2 h-2 rounded-full bg-zinc-400" />
-              <span>Вне поиска (Не находит)</span>
+              <span>{t("dashboard.metrics.lostCardTitle")}</span>
             </span>
             <span className="text-lg font-black opacity-60">{lostCount}</span>
           </div>
           <span className="text-[10px] opacity-50 block mt-1">
-            По этим тегам трафик не идет
+            {t("dashboard.metrics.lostCardSubtitle")}
           </span>
         </button>
       </div>
 
       {/* 3. CASE STATS (VIEWS, LIKES, COMMENTS) */}
       <div className="flex items-center gap-4 md:gap-6 pt-4 mt-4 border-t border-zinc-200 dark:border-white/10 text-xs font-medium opacity-70 flex-wrap">
-        <span>Статистика кейса на Behance:</span>
+        <span>{t("dashboard.metrics.behanceStats")}</span>
         <span className="flex items-center gap-1">
-          <span>👁️</span> <strong>{views.toLocaleString()}</strong> просмотров
+          <span>👁️</span> <strong>{views.toLocaleString()}</strong> {t("dashboard.stats.views")}
         </span>
         <span className="flex items-center gap-1">
-          <span>👍</span> <strong>{appreciations.toLocaleString()}</strong> лайков
+          <span>👍</span> <strong>{appreciations.toLocaleString()}</strong> {t("dashboard.stats.likes")}
         </span>
         <span className="flex items-center gap-1">
-          <span>💬</span> <strong>{comments.toLocaleString()}</strong> комментариев
+          <span>💬</span> <strong>{comments.toLocaleString()}</strong> {t("dashboard.stats.comments")}
         </span>
       </div>
     </div>

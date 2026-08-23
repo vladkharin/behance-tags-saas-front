@@ -8,11 +8,15 @@
   },
   "sidebar": {
     "newProject": "Новый проект",
+    "monitoredCases": "Кейсы на мониторинге ({{current}}/{{max}})",
+    "adminPanel": "Панель владельца",
     "status": {
       "pending": "В очереди",
       "processing": "Анализ...",
       "active": "Активен"
     },
+    "plansBtn": "Тарифы",
+    "upgradeBtn": "Upgrade ⚡",
     "managePlan": "Управление тарифом",
     "logout": "Выйти из системы"
   },
@@ -32,73 +36,63 @@
       "demoBtn": "Посмотреть на демо-проекте"
     },
     "metrics": {
-      "visibility": "Индекс видимости",
-      "top10": "В ТОП-10",
-      "potential": "Потенциал роста",
-      "total": "Всего тегов",
-      "tags": "тегов",
-      "top1Gap": "До ТОП-1 не хватает",
-      "likes": "лайков",
-      "views": "просмотров"
-    },
-    "init": {
-      "title": "Инициализация",
-      "urlPlaceholder": "Ссылка на проект Behance",
-      "addCustomTags": "+ Добавить свои теги (опционально)",
-      "tagsPlaceholder": "Свои теги (через запятую)...",
-      "button": "Запустить проект",
-      "loading": "Подключение..."
-    },
-    "meta": {
-      "plan": "Тариф",
-      "update": "Авто-обновление",
-      "balance": "Баланс тегов"
-    },
-    "errors": {
-      "lowBalance": "Недостаточно тегов",
-      "lowBalanceAction": "Пополнить баланс"
+      "verdictSubtitle": "Результат проверки тегов в поиске Behance",
+      "verdictTop10": "🔥 {{top10}} из {{total}} тегов работают в ТОП-10",
+      "verdictChecked": "📊 Проверено {{total}} тегов",
+      "copyTagsForBehance": "Скопировать теги для Behance",
+      "top10CardTitle": "В ТОП-10 (Дают просмотры)",
+      "top10CardSubtitle": "Кейс на первых местах в выдаче",
+      "potentialCardTitle": "На подходе (11–30 место)",
+      "potentialCardSubtitle": "Близко к ТОПу, есть потенциал роста",
+      "lostCardTitle": "Вне поиска (Не находит)",
+      "lostCardSubtitle": "По этим тегам трафик не идет",
+      "behanceStats": "Статистика кейса на Behance:",
+      "viewsCount": "{{count}} просмотров",
+      "likesCount": "{{count}} лайков",
+      "commentsCount": "{{count}} комментариев"
     },
     "header": {
+      "viewOnBehance": "Посмотреть на Behance",
       "robot": "Робот",
-      "robotActive": "Активен",
+      "robotActive": "Активен (24ч)",
       "robotOff": "Выключен",
+      "fuel": "Топливо: {{count}} тегов",
+      "topUp": "(Пополнить ⚡)",
+      "shareReport": "Поделиться отчетом",
+      "videoGuide": "Видео-гид",
+      "deleteProject": "Удалить проект",
       "updateBtn": "Обновить позиции",
       "updateBtnPending": "⏳ В очереди",
-      "updateBtnProcessing": "🤖 Анализ..."
+      "updateBtnProcessing": "🤖 Сканирование..."
     },
     "chart": {
       "empty": "Выберите теги в матрице ниже \nдля визуализации истории позиций"
     },
     "matrix": {
       "title": "Матрица тегов",
-      "showAll": "Отобразить всё",
-      "hideAll": "Скрыть всё",
-      "inputPlaceholder": "Добавить тег...",
-      "addBtn": "Добавить",
-      "rankChecking": "🤖 Проверка...",
-      "rankOutOfTop": "Вне Топ-100",
-      "rankPlace": "Место #{{rank}}",
-      "copyAll": "Копировать список",
-      "copied": "Список скопирован в буфер!",
-      "searchLink": "Открыть поиск на Behance",
-      "filters": {
-        "all": "Все",
-        "top10": "ТОП-10",
-        "potential": "Потенциал",
-        "lost": "Вне поиска"
-      },
-      "cols": {
-        "tag": "Тег",
-        "rank": "Ранг",
-        "trend": "24ч Динамика",
-        "status": "Статус"
-      },
-      "statuses": {
-        "top": "В Топе",
-        "growth": "Растет",
-        "falling": "Падает",
-        "stable": "Стабилен"
-      }
+      "smartTagsTitle": "Умные теги из названия и ниши кейса:",
+      "smartTagsSubtitle": "Нажмите ＋ чтобы добавить в мониторинг в 1 клик",
+      "addTagBtn": "＋ Добавить тег",
+      "cancelBtn": "✕ Отмена",
+      "copyDropdown": "Скопировать теги",
+      "copyComma": "Через запятую (для Behance)",
+      "copyHashtags": "С решётками (#branding)",
+      "copyOnlyTop10": "Только ТОП-10 🔥",
+      "filterAll": "Все",
+      "filterTop10": "🟢 ТОП 1–10",
+      "filterPotential": "🟡 ТОП 11–30",
+      "filterLost": "⚪ Вне ТОП-100",
+      "filterRising": "🚀 Растущие",
+      "inputPlaceholder": "Введите теги через запятую (например: figma, branding, ui/ux)...",
+      "checkBtn": "Проверить",
+      "checkingBtn": "Проверка...",
+      "statusTop": "В самом топе поиска Behance",
+      "statusPotential": "Высокий потенциал (страница 1-2)",
+      "statusLost": "Вне ТОП-100 выдачи",
+      "statusChecking": "Проверяем выдачу...",
+      "emptyState": "У этого кейса пока нет тегов",
+      "emptySearch": "По вашему запросу ничего не найдено",
+      "emptyFilter": "В этой категории нет тегов. Переключите фильтр выше."
     }
   },
   "onboarding": {

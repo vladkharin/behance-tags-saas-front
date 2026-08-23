@@ -109,7 +109,7 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
           >
             <div className="flex items-center gap-2">
               <span>👑</span>
-              <span>Панель владельца</span>
+              <span>{t("sidebar.adminPanel")}</span>
             </div>
             <span className="text-[9px] opacity-70">➔</span>
           </button>
@@ -136,7 +136,7 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
 
         <div className="pt-2">
           <span className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2 block mb-1.5">
-            Кейсы на мониторинге ({projects.length}/{maxProjects})
+            {t("sidebar.monitoredCases", { current: projects.length, max: maxProjects })}
           </span>
 
           {/* PROJECT CARDS */}
@@ -169,10 +169,10 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
                     }`}
                   >
                     {status === "PENDING"
-                      ? "В очереди"
+                      ? t("sidebar.status.pending")
                       : status === "PROCESSING"
-                        ? "Анализ..."
-                        : `${p.views.toLocaleString()} views`}
+                        ? t("sidebar.status.processing")
+                        : `${p.views.toLocaleString()} ${t("dashboard.stats.views").toLowerCase()}`}
                   </div>
                 </div>
 
@@ -208,7 +208,9 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
           }`}
         >
           <div>
-            <span className="text-[8px] font-black uppercase opacity-40 block">Тариф</span>
+            <span className="text-[8px] font-black uppercase opacity-40 block">
+              {t("dashboard.meta.plan") || "Plan"}
+            </span>
             <span
               className={`text-[11px] font-black uppercase tracking-wider ${
                 isDemoMode ? "text-amber-400" : "text-behance-blue"
@@ -225,7 +227,9 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
             }}
             className="text-[9px] font-black uppercase px-2 py-1 rounded-lg bg-behance-blue text-white hover:bg-behance-darkBlue transition-colors cursor-pointer"
           >
-            {userPlan === "PRO_STREAM" || isDemoMode ? "Тарифы" : "Upgrade"}
+            {userPlan === "PRO_STREAM" || isDemoMode
+              ? t("sidebar.plansBtn")
+              : t("sidebar.upgradeBtn")}
           </button>
         </div>
 
@@ -245,7 +249,7 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
             type="button"
             className="py-2 px-3 rounded-lg bg-zinc-100 dark:bg-white/5 text-[10px] font-bold uppercase opacity-60 hover:opacity-100 hover:text-red-500 transition-colors cursor-pointer text-center"
           >
-            Выйти
+            {t("sidebar.logout")}
           </button>
         </div>
       </div>

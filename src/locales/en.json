@@ -8,11 +8,15 @@
   },
   "sidebar": {
     "newProject": "New Project",
+    "monitoredCases": "Monitored Cases ({{current}}/{{max}})",
+    "adminPanel": "Owner Panel",
     "status": {
       "pending": "In Queue",
       "processing": "Analyzing...",
       "active": "Active"
     },
+    "plansBtn": "Plans",
+    "upgradeBtn": "Upgrade ⚡",
     "managePlan": "Manage Plan",
     "logout": "Sign Out"
   },
@@ -32,73 +36,63 @@
       "demoBtn": "Try with Demo Project"
     },
     "metrics": {
-      "visibility": "Visibility Index",
-      "top10": "In TOP-10",
-      "potential": "Growth Potential",
-      "total": "Total Tags",
-      "tags": "tags",
-      "top1Gap": "Distance to TOP-1",
-      "likes": "likes",
-      "views": "views"
-    },
-    "init": {
-      "title": "Initialization",
-      "urlPlaceholder": "Behance project link",
-      "addCustomTags": "+ Add custom tags (optional)",
-      "tagsPlaceholder": "Your tags (comma separated)...",
-      "button": "Launch Project",
-      "loading": "Connecting..."
-    },
-    "meta": {
-      "plan": "Plan",
-      "update": "Auto-update",
-      "balance": "Tag Balance"
-    },
-    "errors": {
-      "lowBalance": "Insufficient balance",
-      "lowBalanceAction": "Top up now"
+      "verdictSubtitle": "Behance search tag ranking result",
+      "verdictTop10": "🔥 {{top10}} of {{total}} tags rank in TOP-10",
+      "verdictChecked": "📊 Analyzed {{total}} tags",
+      "copyTagsForBehance": "Copy tags for Behance",
+      "top10CardTitle": "In TOP-10 (Drive views)",
+      "top10CardSubtitle": "Case ranks at the top of search",
+      "potentialCardTitle": "Approaching (Ranks 11–30)",
+      "potentialCardSubtitle": "Close to TOP, high growth potential",
+      "lostCardTitle": "Out of search (Unranked)",
+      "lostCardSubtitle": "No search traffic from these tags",
+      "behanceStats": "Behance Case Stats:",
+      "viewsCount": "{{count}} views",
+      "likesCount": "{{count}} appreciations",
+      "commentsCount": "{{count}} comments"
     },
     "header": {
+      "viewOnBehance": "View on Behance",
       "robot": "Robot",
-      "robotActive": "ON",
-      "robotOff": "OFF",
+      "robotActive": "Active (24h)",
+      "robotOff": "Inactive",
+      "fuel": "Fuel: {{count}} tags",
+      "topUp": "(Top up ⚡)",
+      "shareReport": "Share Report",
+      "videoGuide": "Video Guide",
+      "deleteProject": "Delete Project",
       "updateBtn": "Update Positions",
       "updateBtnPending": "⏳ In Queue",
-      "updateBtnProcessing": "🤖 Analyzing..."
+      "updateBtnProcessing": "🤖 Scanning..."
     },
     "chart": {
       "empty": "Select tags in the matrix below \nto visualize position history"
     },
     "matrix": {
       "title": "Tag Matrix",
-      "showAll": "Show All",
-      "hideAll": "Hide All",
-      "inputPlaceholder": "Add tag...",
-      "addBtn": "Add",
-      "rankChecking": "🤖 Checking...",
-      "rankOutOfTop": "Out of Top 100",
-      "rankPlace": "Rank #{{rank}}",
-      "copyAll": "Copy List",
-      "copied": "List copied to clipboard!",
-      "searchLink": "View on Behance",
-      "filters": {
-        "all": "All",
-        "top10": "TOP 10",
-        "potential": "Potential",
-        "lost": "Lost"
-      },
-      "cols": {
-        "tag": "Tag",
-        "rank": "Rank",
-        "trend": "24h Trend",
-        "status": "Status"
-      },
-      "statuses": {
-        "top": "In Top",
-        "growth": "Rising",
-        "falling": "Falling",
-        "stable": "Stable"
-      }
+      "smartTagsTitle": "Smart tags from case title & niche:",
+      "smartTagsSubtitle": "Click ＋ to monitor in 1 click",
+      "addTagBtn": "＋ Add tag",
+      "cancelBtn": "✕ Cancel",
+      "copyDropdown": "Copy tags",
+      "copyComma": "Comma separated (for Behance)",
+      "copyHashtags": "With hashtags (#branding)",
+      "copyOnlyTop10": "Only TOP-10 🔥",
+      "filterAll": "All",
+      "filterTop10": "🟢 TOP 1–10",
+      "filterPotential": "🟡 TOP 11–30",
+      "filterLost": "⚪ Out of TOP-100",
+      "filterRising": "🚀 Rising",
+      "inputPlaceholder": "Enter tags separated by commas (e.g. figma, branding, ui/ux)...",
+      "checkBtn": "Check",
+      "checkingBtn": "Checking...",
+      "statusTop": "Top ranked on Behance",
+      "statusPotential": "High potential (Page 1-2)",
+      "statusLost": "Out of TOP-100 search",
+      "statusChecking": "Checking rankings...",
+      "emptyState": "No tags for this case yet",
+      "emptySearch": "No tags found matching your query",
+      "emptyFilter": "No tags in this category. Switch the filter above."
     }
   },
   "onboarding": {

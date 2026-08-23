@@ -73,7 +73,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-[11px] font-bold text-behance-blue hover:underline"
             >
-              <span>Посмотреть на Behance</span>
+              <span>{t("dashboard.header.viewOnBehance")}</span>
               <span>↗</span>
             </a>
           )}
@@ -96,7 +96,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 project?.isScheduled ? "bg-green-500 animate-pulse" : "bg-zinc-400"
               }`}
             />
-            <span>Робот: {project?.isScheduled ? "Активен (24ч)" : "Выключен"}</span>
+            <span>
+              {t("dashboard.header.robot")}: {project?.isScheduled ? t("dashboard.header.robotActive") : t("dashboard.header.robotOff")}
+            </span>
           </button>
 
           {/* FUEL TAG BALANCE */}
@@ -114,8 +116,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                       : "bg-zinc-100 border-zinc-200 text-zinc-600 hover:bg-zinc-200"
               }`}
             >
-              <span>Топливо: {tagBalance} тегов</span>
-              {tagBalance < 150 && <span>(Пополнить ⚡)</span>}
+              <span>{t("dashboard.header.fuel", { count: tagBalance })}</span>
+              {tagBalance < 150 && <span>{t("dashboard.header.topUp")}</span>}
             </button>
           )}
         </div>
@@ -128,10 +130,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             onClick={onOpenShareCard}
             type="button"
             className="px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
-            title="Скачать или отправить отчет клиенту"
+            title={t("dashboard.header.shareReport")}
           >
             <span>📸</span>
-            <span>Поделиться отчетом</span>
+            <span>{t("dashboard.header.shareReport")}</span>
           </button>
         )}
 
@@ -142,7 +144,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             className="px-3 py-2 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-behance-blue hover:text-white dark:hover:bg-behance-blue text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
           >
             <span>▶️</span>
-            <span>Видео-гид</span>
+            <span>{t("dashboard.header.videoGuide")}</span>
           </button>
         )}
 
@@ -150,7 +152,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <button
             onClick={onDeleteProject}
             type="button"
-            title="Удалить проект"
+            title={t("dashboard.header.deleteProject")}
             className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 text-xs transition-all cursor-pointer"
           >
             🗑️
@@ -171,9 +173,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         >
           {isBusy
             ? status === "PENDING"
-              ? "⏳ В очереди"
-              : "🤖 Сканирование..."
-            : "🔄 Обновить позиции"}
+              ? t("dashboard.header.updateBtnPending")
+              : t("dashboard.header.updateBtnProcessing")
+            : t("dashboard.header.updateBtn")}
         </button>
       </div>
     </div>

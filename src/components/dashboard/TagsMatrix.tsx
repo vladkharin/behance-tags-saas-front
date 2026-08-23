@@ -204,7 +204,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
               className="px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
             >
               <span>📋</span>
-              <span>Копировать</span>
+              <span>{t("dashboard.matrix.copyDropdown")}</span>
             </button>
 
             {showCopyMenu && (
@@ -214,7 +214,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                   type="button"
                   className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
                 >
-                  <span>Через запятую</span>
+                  <span>{t("dashboard.matrix.copyComma")}</span>
                   <span className="text-[10px] opacity-40">tag1, tag2</span>
                 </button>
                 <button
@@ -222,7 +222,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                   type="button"
                   className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
                 >
-                  <span>Хештегами</span>
+                  <span>{t("dashboard.matrix.copyHashtags")}</span>
                   <span className="text-[10px] opacity-40">#tag1 #tag2</span>
                 </button>
                 <button
@@ -230,7 +230,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                   type="button"
                   className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-500 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
                 >
-                  <span>Только ТОП-10 🔥</span>
+                  <span>{t("dashboard.matrix.copyOnlyTop10")}</span>
                   <span className="text-[10px] opacity-60">({top10Count})</span>
                 </button>
               </div>
@@ -244,7 +244,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
               type="button"
               className="px-3 py-1.5 rounded-xl bg-behance-blue/10 hover:bg-behance-blue hover:text-white text-behance-blue text-xs font-bold transition-all cursor-pointer shrink-0"
             >
-              {showAddForm ? "✕ Отмена" : "＋ Добавить тег"}
+              {showAddForm ? t("dashboard.matrix.cancelBtn") : t("dashboard.matrix.addTagBtn")}
             </button>
           )}
         </div>
@@ -264,7 +264,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
               : "bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-white/10"
           }`}
         >
-          Все ({tags.length})
+          {t("dashboard.matrix.filterAll")} ({tags.length})
         </button>
 
         <button
@@ -279,7 +279,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
               : "bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20"
           }`}
         >
-          <span>🟢 ТОП 1–10</span>
+          <span>{t("dashboard.matrix.filterTop10")}</span>
           <span className="opacity-75 font-mono">({top10Count})</span>
         </button>
 
@@ -295,7 +295,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
               : "bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20"
           }`}
         >
-          <span>🟡 ТОП 11–30</span>
+          <span>{t("dashboard.matrix.filterPotential")}</span>
           <span className="opacity-75 font-mono">({potentialCount})</span>
         </button>
 
@@ -311,7 +311,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
               : "bg-zinc-100 dark:bg-white/5 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-white/10"
           }`}
         >
-          <span>⚪ Вне ТОП-100</span>
+          <span>{t("dashboard.matrix.filterLost")}</span>
           <span className="opacity-75 font-mono">({lostCount})</span>
         </button>
 
@@ -325,7 +325,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                 : "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
             }`}
           >
-            <span>🚀 Растущие</span>
+            <span>{t("dashboard.matrix.filterRising")}</span>
             <span className="opacity-75 font-mono">({risingCount})</span>
           </button>
         )}
@@ -339,7 +339,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
         >
           <input
             type="text"
-            placeholder="Введите теги через запятую (например: figma, branding, ui/ux)..."
+            placeholder={t("dashboard.matrix.inputPlaceholder")}
             value={newTagsInput}
             onChange={(e) => setNewTagsInput(e.target.value)}
             className={`flex-1 rounded-lg px-3 py-2 text-xs outline-none border ${
@@ -351,7 +351,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
             disabled={isSubmittingTags || !newTagsInput.trim()}
             className="px-4 py-2 rounded-lg bg-behance-blue text-white text-xs font-bold uppercase disabled:opacity-50 cursor-pointer shrink-0"
           >
-            {isSubmittingTags ? "Проверка..." : "Проверить"}
+            {isSubmittingTags ? t("dashboard.matrix.checkingBtn") : t("dashboard.matrix.checkBtn")}
           </button>
         </form>
       )}
@@ -369,11 +369,11 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
             <div className="flex items-center gap-1.5">
               <span className="text-sm">🪄</span>
               <span className="text-xs font-black uppercase tracking-wider text-behance-blue">
-                Умные теги из названия и ниши кейса:
+                {t("dashboard.matrix.smartTagsTitle")}
               </span>
             </div>
             <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
-              Нажмите ＋ чтобы добавить в мониторинг в 1 клик
+              {t("dashboard.matrix.smartTagsSubtitle")}
             </span>
           </div>
 
@@ -399,10 +399,10 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
         {processedTags.length === 0 ? (
           <div className="py-8 text-center text-xs opacity-50 font-medium">
             {searchQuery
-              ? "По вашему запросу ничего не найдено"
+              ? t("dashboard.matrix.emptySearch")
               : activeFilter !== "all" || onlyRising
-                ? "В этой категории нет тегов. Переключите фильтр выше."
-                : "У этого кейса пока нет тегов"}
+                ? t("dashboard.matrix.emptyFilter")
+                : t("dashboard.matrix.emptyState")}
           </div>
         ) : (
           processedTags.map((item) => {
@@ -445,17 +445,17 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                         onClick={() => handleCopyTag(item.tag)}
                         type="button"
                         className="text-[10px] opacity-40 hover:opacity-100 transition-opacity cursor-pointer"
-                        title="Скопировать тег"
+                        title="Copy tag"
                       >
                         {copiedTag === item.tag ? "✓" : "📋"}
                       </button>
                     </div>
 
                     <div className="text-[11px] font-medium opacity-60 mt-0.5">
-                      {isTop && "🔥 В самом топе поиска Behance"}
-                      {isPotential && "🟡 Высокий потенциал (страница 1-2)"}
-                      {!isTop && !isPotential && rank && rank > 0 && `Место #${rank}`}
-                      {(!rank || rank <= 0) && "Вне ТОП-100 (нужно менять тег)"}
+                      {isTop && `🔥 ${t("dashboard.matrix.statusTop")}`}
+                      {isPotential && `🟡 ${t("dashboard.matrix.statusPotential")}`}
+                      {!isTop && !isPotential && rank && rank > 0 && `#${rank}`}
+                      {(!rank || rank <= 0) && t("dashboard.matrix.statusLost")}
                     </div>
                   </div>
                 </div>
@@ -486,7 +486,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                     }`}
                   >
                     {isChecking
-                      ? "⏳ Проверка..."
+                      ? `⏳ ${t("dashboard.matrix.statusChecking")}`
                       : rank && rank > 0
                         ? `#${rank}`
                         : ">100"}
@@ -498,7 +498,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                       onClick={() => handleDeleteTagClick(item.tag)}
                       type="button"
                       className="text-xs opacity-30 hover:opacity-100 hover:text-red-500 transition-all p-1 cursor-pointer"
-                      title="Удалить тег из мониторинга"
+                      title="Delete tag"
                     >
                       ✕
                     </button>
