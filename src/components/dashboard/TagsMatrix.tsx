@@ -26,14 +26,17 @@ interface TagsMatrixProps {
 
 export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   tags,
+  suggestedTags,
   activeFilter,
   hasCustomTags,
   isBusy,
   getTrend,
   onFilterChange,
   onAddCustomTags,
+  onAddSuggestedTag,
   onRemoveTag,
 }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { showToast, confirm } = useToast();
   const isDark = theme === "dark";
