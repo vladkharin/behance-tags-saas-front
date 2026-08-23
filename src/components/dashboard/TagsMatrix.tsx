@@ -356,6 +356,44 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
         </form>
       )}
 
+      {/* 3.1 SMART SUGGESTED TAGS FROM CASE TITLE & CONTENT */}
+      {hasCustomTags && suggestedTags && suggestedTags.length > 0 && onAddSuggestedTag && (
+        <div
+          className={`p-3.5 rounded-2xl border transition-all ${
+            isDark
+              ? "bg-gradient-to-r from-blue-950/30 via-purple-950/20 to-transparent border-blue-500/20"
+              : "bg-gradient-to-r from-blue-50 to-indigo-50/30 border-blue-200 shadow-xs"
+          }`}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm">🪄</span>
+              <span className="text-xs font-black uppercase tracking-wider text-behance-blue">
+                Умные теги из названия и ниши кейса:
+              </span>
+            </div>
+            <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+              Нажмите ＋ чтобы добавить в мониторинг в 1 клик
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            {suggestedTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => onAddSuggestedTag(tag)}
+                disabled={isBusy}
+                className="px-2.5 py-1 rounded-xl bg-white dark:bg-white/10 hover:bg-behance-blue hover:text-white dark:hover:bg-behance-blue border border-zinc-200 dark:border-white/10 text-xs font-medium transition-all shadow-xs cursor-pointer flex items-center gap-1 shrink-0 disabled:opacity-50"
+              >
+                <span className="font-bold text-behance-blue">＋</span>
+                <span>#{tag}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 4. TAGS CARDS LIST */}
       <div className="space-y-2">
         {processedTags.length === 0 ? (
