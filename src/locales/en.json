@@ -49,12 +49,20 @@
       "behanceStats": "Behance Case Stats:",
       "viewsCount": "{{count}} views",
       "likesCount": "{{count}} appreciations",
-      "commentsCount": "{{count}} comments"
+      "commentsCount": "{{count}} comments",
+      "meta": {
+        "plan": "Plan",
+        "update": "Auto-update",
+        "balance": "Tag Balance"
+      }
     },
     "header": {
       "viewOnBehance": "View on Behance",
       "robot": "Robot",
       "robotActive": "Active (24h)",
+      "robotActive24h": "Active (24h)",
+      "robotActive3d": "Active (3d)",
+      "robotActive7d": "Active (7d)",
       "robotOff": "Inactive",
       "fuel": "Fuel: {{count}} tags",
       "topUp": "(Top up ⚡)",
@@ -115,34 +123,34 @@
   "onboarding": {
     "title": "Welcome to BeRanked! 🚀",
     "step1": {
-      "h": "Step 1. Add Project",
-      "p": "Simply copy your Behance case link and paste it into the field."
+      "h": "Step 1. Add project",
+      "p": "Copy your case URL from Behance address bar and paste it into the field."
     },
     "step2": {
-      "h": "Step 2. Choose Tags",
-      "p": "We'll pull the original tags, but you can add custom ones to find new niches."
+      "h": "Step 2. Choose tags",
+      "p": "We will fetch native project tags, or you can add custom ones to discover new niches."
     },
     "step3": {
-      "h": "Step 3. Track Growth",
-      "p": "The bot checks rankings daily. You'll see real dynamics on the charts."
+      "h": "Step 3. Track growth",
+      "p": "Robot checks positions daily. You will see rank trends on visual charts."
     },
     "button": "Got it, let's go!"
   },
   "help": {
-    "title": "How it works",
+    "title": "How It Works",
     "back": "← Back",
-    "updated": "Manual updated: July 2026",
+    "updated": "Updated July 2026",
     "categories": [
       {
         "title": "📁 Project Management",
         "items": [
           {
             "q": "How to add a project?",
-            "a": "Click 'New Project' in the sidebar. Paste your direct Behance link. Enter tags below. After clicking 'Launch', the robot will analyze your case."
+            "a": "Click 'New Project' in sidebar. Paste direct Behance URL. Enter tags comma separated. Click launch to start scanning."
           },
           {
-            "q": "What do the sidebar statuses mean?",
-            "a": "'In Queue' — waiting for parsing. 'Analyzing...' — scanning search results. 'Active' — data is ready."
+            "q": "What do sidebar statuses mean?",
+            "a": "'In Queue' — project waiting for parser. 'Analyzing...' — scanner active. 'Active' — data loaded."
           }
         ]
       },
@@ -150,10 +158,13 @@
         "title": "📊 Interactive Chart",
         "items": [
           {
-            "q": "How to read the chart?",
-            "a": "The axis is inverted: the higher the dot, the better your rank (#1 is top). Upward line means your project is growing."
+            "q": "How to read the position chart?",
+            "a": "Chart is inverted: higher point means better rank (#1 is at the top)."
           },
-          { "q": "How to see exact numbers?", "a": "Hover over any point to see the smart Tooltip with exact rankings for that date." }
+          {
+            "q": "How to see exact rank numbers?",
+            "a": "Hover over any chart point to open Tooltip with exact ranks."
+          }
         ]
       },
       {
@@ -161,11 +172,11 @@
         "items": [
           {
             "q": "Why use filters?",
-            "a": "TOP-10 and Potential buttons allow you to instantly filter your best performing tags without searching through the entire list."
+            "a": "TOP-10 and Potential filters isolate best tags quickly."
           },
           {
-            "q": "How to copy tags?",
-            "a": "Click 'Copy List' to grab all currently visible tags separated by commas. Perfect for pasting into new Behance cases."
+            "q": "How to copy tag list?",
+            "a": "Click 'Copy List' to copy all tags comma separated for Behance settings."
           }
         ]
       },
@@ -173,8 +184,8 @@
         "title": "🤖 Automation",
         "items": [
           {
-            "q": "What does the Robot toggle do?",
-            "a": "When Robot is ON, the system automatically updates your project rankings based on your plan schedule. If OFF — only manual updates."
+            "q": "What does Robot button do?",
+            "a": "When ON, system automatically updates rankings on plan schedule."
           }
         ]
       }
@@ -189,32 +200,43 @@
     }
   },
   "plans": {
-    "header": { "title": "Upgrade Your <br /> Visibility", "subtitle": "Transparent pricing for any scale" },
-    "names": { "free": "Free", "daily": "Daily Fresh", "pro": "Pro Stream" },
+    "header": {
+      "title": "Choose your <br /> growth tier",
+      "subtitle": "Transparent plans for creators and studios"
+    },
+    "names": {
+      "free": "Free",
+      "daily": "Daily Fresh",
+      "pro": "Pro Stream"
+    },
     "descriptions": {
-      "free": "For those just starting their Behance journey",
+      "free": "For beginners starting on Behance",
       "daily": "Optimal for active designers",
-      "pro": "For studios and top-makers"
+      "pro": "For agencies and top creators"
     },
     "features": {
       "slot1": "1 project slot",
       "slot3": "3 project slots",
       "slot10": "10 project slots",
-      "update7": "Updates: 1 per 7 days",
-      "update3": "Updates: 1 per 3 days",
-      "updateDaily": "Updates: Every day",
+      "update7": "Auto-update: Once per 7 days",
+      "update3": "Auto-update: Once per 3 days",
+      "updateDaily": "Auto-update: Every single day",
       "limit90": "Limit: 90 tags/mo",
-      "limit1500": "Limit: 1,500 tags/mo",
-      "limit6000": "Limit: 6,000 tags/mo",
-      "customTags": "Custom tags via input",
-      "charts": "Ranking history charts",
-      "trends": "Trend analysis"
+      "limit1500": "Limit: 1 500 tags/mo",
+      "limit6000": "Limit: 6 000 tags/mo",
+      "customTags": "Custom tags input",
+      "charts": "History charts",
+      "trends": "Trend analytics"
     },
-    "buttons": { "current": "Current Plan", "selectDaily": "Select Daily", "getPro": "Get PRO" },
+    "buttons": {
+      "current": "Current Plan",
+      "selectDaily": "Select Daily",
+      "getPro": "Get PRO"
+    },
     "fuel": {
-      "title": "Out of credits?",
-      "desc": "Top up with Fuel packs to instantly continue monitoring.",
-      "pack": "Pack {{amount}}",
+      "title": "Out of limits?",
+      "desc": "Buy Fuel tag packs to resume instant rank tracking.",
+      "pack": "{{amount}} Pack",
       "tags": "{{count}} tags",
       "buy": "Buy {{price}}"
     }
@@ -246,7 +268,11 @@
     "changeEmail": "← Change email or login",
     "codeSentToast": "Verification code has been sent to your email"
   },
-  "legal": { "back": "← Back", "updated": "Updated July 15, 2026", "requisitesTitle": "Contractor Details" },
+  "legal": {
+    "back": "← Back",
+    "updated": "Updated July 15, 2026",
+    "requisitesTitle": "Contractor Details"
+  },
   "privacy": {
     "title": "Privacy Policy",
     "updated": "Effective from July 15, 2026",
@@ -254,34 +280,124 @@
     "sections": [
       {
         "h": "1. General Provisions",
-        "p": "1.1. This Privacy Policy defines the procedure for processing and protecting personal data of individuals..."
+        "p": "1.1. This Privacy Policy defines the procedure for processing and protecting personal data of individuals ('Users') using the 'BeRanked' web service at https://beranked.domcraft.digital/."
       },
       {
         "p": "1.2. The operator of personal data is the self-employed Vladislav Kharin (citizen of RK, residency in RF, ITN 563811937786)."
+      },
+      {
+        "p": "1.3. The purpose of this Policy is to ensure adequate protection of User information against unauthorized access and disclosure."
+      },
+      {
+        "h": "2. Data Collection & Scope",
+        "p": "The Operator may process the following data:",
+        "list": [
+          "Email address — for registration and communication.",
+          "Telegram ID — if using notification bot.",
+          "Technical data — IP address, cookies, browser information."
+        ],
+        "important": "Important note: Operator never collects or stores credit card details. All transactions processed via Robokassa or Lava.top."
+      },
+      {
+        "h": "3. Purpose of Processing",
+        "list": [
+          "User identification and access to Personal Account.",
+          "Communication and support response.",
+          "Service activity analysis and optimization."
+        ]
+      },
+      {
+        "h": "4. Storage Terms & Location",
+        "highlight": "Personal data is stored exclusively on electronic media on servers located in the Russian Federation.",
+        "p": "Data is processed until account deletion or written User request."
       }
     ],
-    "requisites": { "title": "Details", "name": "Vladislav Kharin", "inn": "563811937786", "support": "dom.craft.digital@gmail.com" }
+    "requisites": {
+      "title": "Operator Details",
+      "name": "Vladislav Kharin",
+      "inn": "563811937786",
+      "support": "dom.craft.digital@gmail.com"
+    }
   },
   "refund": {
     "title": "Refund Policy",
     "updated": "Effective from July 15, 2026",
     "back": "← Back",
     "intro": "You can cancel your paid subscription or credit package at any time.",
-    "sections": [{ "h": "1. Cancellation Terms", "p": "Refunds for already used limits are not provided as access is granted instantly." }],
-    "stepsTitle": "2. Refund Procedure",
-    "steps": [
-      { "id": "Step 1", "text": "Send a request to dom.craft.digital@gmail.com with your login." },
-      { "id": "Step 2", "text": "Request processed within 24 hours." },
-      { "id": "Step 3", "text": "Funds return within 5-10 business days." }
+    "sections": [
+      {
+        "h": "1. Cancellation & Refund Terms",
+        "p": "Users have the right to cancel service orders prior to actual provision of access (credit allocation). Since BeRanked provides instant digital service access, refunds for already consumed credits are not provided."
+      }
     ],
-    "footer": { "timeline": "Timeline: 5-10 business days.", "warning": "Note: Full amount returned without system fees." }
+    "stepsTitle": "2. Refund Application Algorithm",
+    "stepsDesc": "If you made an erroneous payment or encountered a technical issue, please follow these steps:",
+    "steps": [
+      {
+        "id": "Step 1",
+        "text": "Send a free-form request to dom.craft.digital@gmail.com stating your account Email and payment date."
+      },
+      {
+        "id": "Step 2",
+        "text": "Your request will be processed by support within 24 hours."
+      },
+      {
+        "id": "Step 3",
+        "text": "Upon approval, funds will be refunded back to the original payment card."
+      }
+    ],
+    "footer": {
+      "timeline": "Refund timeline: Funds return within 5-10 business days depending on your bank.",
+      "warning": "Note: Full payment amount is refunded without processor fee deductions."
+    }
   },
   "offer": {
     "title": "Public Offer",
     "updated": "Effective from July 15, 2026",
     "back": "← Back",
-    "warning": "Please read this agreement carefully.",
-    "sections": [{ "h": "1. Description", "p": "BeRanked is a SaaS platform for analyzing and monitoring public Behance data." }],
-    "requisites": { "title": "Details", "name": "Vladislav Kharin", "inn": "563811937786", "support": "dom.craft.digital@gmail.com" }
+    "warning": "Please read this Agreement carefully. Account registration or payment indicates full and unconditional acceptance of all terms.",
+    "sections": [
+      {
+        "h": "1. Service Description & Features",
+        "p": "1.1. Contractor provides access to BeRanked SaaS service for analyzing public Behance platform data.",
+        "italic": "Service capabilities: Automated rank monitoring for Behance projects by target tags, position history charts, and tag balance management.",
+        "list": [
+          "Slot — technical slot for tracking 1 project.",
+          "Limits — deduction units for checking 1 tag rank."
+        ]
+      },
+      {
+        "h": "2. Agreement Subject & Order Procedure",
+        "p": "2.1. Contractor grants Service usage license, User pays according to chosen Plan.",
+        "p2": "2.2. Service ordering is performed independently by registering in Personal Account and paying via payment gateways."
+      },
+      {
+        "h": "3. Pricing & Payment Terms",
+        "p": "3.1. Service cost (Plans) is specified on Website under 'Plans' section.",
+        "p2": "3.2. Payment is made cashless via Robokassa payment system (Cards, SBP).",
+        "p3": "3.3. Service is deemed fully rendered upon credit allocation or Plan activation."
+      },
+      {
+        "h": "4. Refund Conditions & Process",
+        "p": "User may request cancellation at any time. Process:",
+        "steps": [
+          "Application: Send email to dom.craft.digital@gmail.com with account login and date.",
+          "Processing: Reviewed within 24 hours.",
+          "Execution: Refund issued back to original payment card.",
+          "Timeline: Funds credit within 5-10 business days."
+        ],
+        "note": "* Note: Full refund processed without fee deductions."
+      },
+      {
+        "h": "5. Limitation of Liability",
+        "p": "5.1. BeRanked is not affiliated with Adobe Inc. or Behance. Contractor bears no liability for third-party platforms."
+      }
+    ],
+    "requisites": {
+      "title": "Contractor Details",
+      "name": "Self-employed Vladislav Kharin",
+      "inn": "563811937786",
+      "support": "dom.craft.digital@gmail.com"
+    }
   }
 }

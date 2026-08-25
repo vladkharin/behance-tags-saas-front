@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContextInstance";
-import type { BehanceProject } from "../../types/analytics.types";
+import type { BehanceProject, PlanType } from "../../types/analytics.types";
 
 interface DashboardHeaderProps {
   project: BehanceProject | null;
@@ -11,6 +11,7 @@ interface DashboardHeaderProps {
   isBusy: boolean;
   actionLoading: boolean;
   status: string;
+  userPlan?: PlanType;
   onRefreshRankings: () => void;
   onToggleSchedule: () => void;
   onNavigatePricing: () => void;
@@ -28,6 +29,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   isBusy,
   actionLoading,
   status,
+  userPlan = "FREE",
   onRefreshRankings,
   onToggleSchedule,
   onNavigatePricing,
@@ -39,6 +41,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  const getRobotStatusText = () => {
+    if (!project?.isScheduled) return t("dashboard.header.robotOff");
+    if (userPlan === "PRO_STREAM" || isDemoMode) return t("dashboard.header.robotActive24h");
+    if (userPlan === "DAILY_FRESH") return t("dashboard.header.robotActive3d");
+    return t("dashboard.header.robotActive7d");
+  };
 
   return (
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-6 border-b border-zinc-200 dark:border-white/10">
@@ -97,7 +106,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               }`}
             />
             <span>
-              {t("dashboard.header.robot")}: {project?.isScheduled ? t("dashboard.header.robotActive") : t("dashboard.header.robotOff")}
+              {t("dashboard.header.robot")}: {getRobotStatusText()}
             </span>
           </button>
 

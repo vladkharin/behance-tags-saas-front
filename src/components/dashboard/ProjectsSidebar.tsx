@@ -15,6 +15,7 @@ interface ProjectsSidebarProps {
   onCloseMobile: () => void;
   onSelectProject: (id: string) => void;
   onAddNewProject: () => void;
+  onTryDemo?: () => void;
   onNavigatePricing: () => void;
   onNavigateLegal: (view: "help" | "plans" | "terms" | "privacy" | "refund") => void;
   onNavigateAdmin?: () => void;
@@ -33,6 +34,7 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
   onCloseMobile,
   onSelectProject,
   onAddNewProject,
+  onTryDemo,
   onNavigatePricing,
   onNavigateLegal,
   onNavigateAdmin,
@@ -196,6 +198,32 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
               </div>
             );
           })}
+
+          {/* DEMO PROJECT BUTTON */}
+          {onTryDemo && (
+            <button
+              onClick={() => {
+                onTryDemo();
+                onCloseMobile();
+              }}
+              type="button"
+              className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer mt-2 ${
+                isDemoMode
+                  ? "bg-amber-500/20 border-amber-500/40 text-amber-400 font-bold shadow-sm"
+                  : "bg-amber-500/5 border-amber-500/20 text-amber-500/80 hover:bg-amber-500/10 hover:text-amber-400"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm">⭐</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">
+                  {t("dashboard.emptyState.demoBtn") || "Демо-проект"}
+                </span>
+              </div>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
+                DEMO
+              </span>
+            </button>
+          )}
         </div>
       </div>
 

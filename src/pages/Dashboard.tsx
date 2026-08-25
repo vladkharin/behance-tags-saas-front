@@ -597,6 +597,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         onSelectProject={handleProjectSelect}
         onAddNewProject={handleAddNewProjectClick}
+        onTryDemo={handleTryDemo}
         onNavigatePricing={onNavigatePricing}
         onNavigateLegal={onNavigateLegal}
         onNavigateAdmin={onNavigateAdmin}
@@ -640,6 +641,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   isBusy={isSelectedProjectBusy}
                   actionLoading={actionLoading}
                   status={projectData.status}
+                  userPlan={userPlan}
                   onRefreshRankings={handleRefreshRankings}
                   onToggleSchedule={toggleAutoUpdate}
                   onNavigatePricing={onNavigatePricing}
