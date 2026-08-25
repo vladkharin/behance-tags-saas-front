@@ -18,7 +18,12 @@ interface CustomTooltipProps {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, isDark }) => {
   const { t } = useTranslation();
   if (active && payload && payload.length) {
-    const sortedPayload = [...payload].sort((a, b) => (Number(a.value) || 999) - (Number(b.value) || 999));
+    const validPayload = payload.filter((item) => item.value !== undefined && item.value !== null);
+    const sortedPayload = [...validPayload].sort((a, b) => {
+      const valA = Number(a.value) > 0 ? Number(a.value) : 999;
+      const valB = Number(b.value) > 0 ? Number(b.value) : 999;
+      return valA - valB;
+    });
 
     return (
       <div
@@ -34,6 +39,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
         <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700">
           {sortedPayload.map((entry, index) => {
             const rankNum = Number(entry.value);
+            const isValidRank = rankNum > 0 && rankNum <= 100;
             const isTop = rankNum <= 10 && rankNum > 0;
             const isPotential = rankNum > 10 && rankNum <= 30;
 
@@ -57,7 +63,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
                         : "opacity-60"
                   }`}
                 >
-                  #{entry.value}
+                  {isValidRank ? `#${rankNum}` : ">100"}
                 </span>
               </div>
             );
@@ -127,13 +133,15 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
   }
 
   // Format data for Recharts
-  const dateMap: Record<string, Record<string, number>> = {};
+  const dateMap: Record<string, Record<string, number | null>> = {};
   const activeTags = visibleTags.filter((tag) => history[tag]);
 
   activeTags.forEach((tag) => {
     history[tag]?.forEach((pt) => {
-      if (!dateMap[pt.date]) dateMap[pt.date] = {};
-      dateMap[pt.date][tag] = pt.rank;
+      const dateStr = pt.date;
+      if (!dateMap[dateStr]) dateMap[dateStr] = {};
+      const validRank = pt.rank > 0 && pt.rank <= 100 ? pt.rank : null;
+      dateMap[dateStr][tag] = validRank;
     });
   });
 
@@ -209,17 +217,22 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
                   />
                   <Tooltip content={<CustomTooltip isDark={isDark} />} />
 
-                  {activeTags.map((tag) => (
-                    <Line
-                      key={tag}
-                      type="monotone"
-                      dataKey={tag}
-                      stroke={tagColors[tag] || "#0057ff"}
-                      strokeWidth={2}
-                      dot={{ r: 2 }}
-                      activeDot={{ r: 5 }}
-                    />
-                  ))}
+                  {activeTags.map((tag) => {
+                    const isFocused = focusedTag === tag;
+                    return (
+                      <Line
+                        key={tag}
+                        type="monotone"
+                        dataKey={tag}
+                        stroke={tagColors[tag] || "#0057ff"}
+                        strokeWidth={focusedTag ? (isFocused ? 3.5 : 1) : 2}
+                        strokeOpacity={focusedTag ? (isFocused ? 1 : 0.2) : 1}
+                        dot={{ r: isFocused ? 4 : 2 }}
+                        activeDot={{ r: 6 }}
+                        connectNulls={true}
+                      />
+                    );
+                  })}
                 </LineChart>
               </ResponsiveContainer>
             )}
