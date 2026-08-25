@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContextInstance";
 import { fireConfetti } from "../../utils/confetti";
 
