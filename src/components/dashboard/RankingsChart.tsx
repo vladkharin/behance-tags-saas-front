@@ -243,6 +243,7 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
                   />
                   <Tooltip
                     content={<CustomTooltip isDark={isDark} />}
+                    position={{ y: 0 }}
                     wrapperStyle={{ zIndex: 100, outline: "none", pointerEvents: "none" }}
                     allowEscapeViewBox={{ x: true, y: true }}
                   />
