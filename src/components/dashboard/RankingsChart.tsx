@@ -25,9 +25,6 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
       return valA - valB;
     });
 
-    const displayedPayload = sortedPayload.slice(0, 8);
-    const hiddenCount = sortedPayload.length - displayedPayload.length;
-
     const formattedLabel = label
       ? label.split("-").length === 3
         ? `${label.split("-")[2]}.${label.split("-")[1]}.${label.split("-")[0]}`
@@ -36,7 +33,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
 
     return (
       <div
-        className={`p-3 rounded-2xl border backdrop-blur-xl shadow-2xl w-60 pointer-events-none select-none z-50 ${
+        className={`p-3 rounded-2xl border backdrop-blur-xl shadow-2xl w-64 pointer-events-none select-none z-50 ${
           isDark ? "bg-[#0c0c10]/95 border-white/20 text-white shadow-black/80" : "bg-white/95 border-zinc-200 text-zinc-900 shadow-xl"
         }`}
       >
@@ -48,7 +45,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
         </div>
 
         <div className="space-y-1">
-          {displayedPayload.map((entry, index) => {
+          {sortedPayload.map((entry, index) => {
             const rankNum = Number(entry.value);
             const isValidRank = rankNum > 0 && rankNum <= 100;
             const isTop = rankNum <= 10 && rankNum > 0;
@@ -80,12 +77,6 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
             );
           })}
         </div>
-
-        {hiddenCount > 0 && (
-          <div className="pt-1.5 mt-1 border-t border-zinc-200 dark:border-white/10 text-[10px] opacity-40 text-center font-bold tracking-wider uppercase">
-            {t("dashboard.chart.moreTags", { count: hiddenCount })}
-          </div>
-        )}
       </div>
     );
   }
