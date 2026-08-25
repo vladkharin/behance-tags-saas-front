@@ -25,6 +25,9 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
       return valA - valB;
     });
 
+    const displayedPayload = sortedPayload.slice(0, 8);
+    const hiddenCount = sortedPayload.length - displayedPayload.length;
+
     const formattedLabel = label
       ? label.split("-").length === 3
         ? `${label.split("-")[2]}.${label.split("-")[1]}.${label.split("-")[0]}`
@@ -33,19 +36,19 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
 
     return (
       <div
-        className={`p-3.5 rounded-2xl border backdrop-blur-xl shadow-2xl w-64 max-w-[260px] z-50 ${
+        className={`p-3 rounded-2xl border backdrop-blur-xl shadow-2xl w-60 pointer-events-none select-none z-50 ${
           isDark ? "bg-[#0c0c10]/95 border-white/20 text-white shadow-black/80" : "bg-white/95 border-zinc-200 text-zinc-900 shadow-xl"
         }`}
       >
-        <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-zinc-200 dark:border-white/10">
+        <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-zinc-200 dark:border-white/10">
           <p className="text-[11px] font-mono font-black tracking-wider opacity-70">{formattedLabel}</p>
           <span className="text-[10px] opacity-50 font-bold font-mono">
             {t("dashboard.chart.tagsCount", { count: sortedPayload.length })}
           </span>
         </div>
 
-        <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700">
-          {sortedPayload.map((entry, index) => {
+        <div className="space-y-1">
+          {displayedPayload.map((entry, index) => {
             const rankNum = Number(entry.value);
             const isValidRank = rankNum > 0 && rankNum <= 100;
             const isTop = rankNum <= 10 && rankNum > 0;
@@ -77,6 +80,12 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
             );
           })}
         </div>
+
+        {hiddenCount > 0 && (
+          <div className="pt-1.5 mt-1 border-t border-zinc-200 dark:border-white/10 text-[10px] opacity-40 text-center font-bold tracking-wider uppercase">
+            {t("dashboard.chart.moreTags", { count: hiddenCount })}
+          </div>
+        )}
       </div>
     );
   }
@@ -232,7 +241,7 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
                   />
                   <Tooltip
                     content={<CustomTooltip isDark={isDark} />}
-                    wrapperStyle={{ zIndex: 100, outline: "none" }}
+                    wrapperStyle={{ zIndex: 100, outline: "none", pointerEvents: "none" }}
                     allowEscapeViewBox={{ x: false, y: false }}
                   />
 

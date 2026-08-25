@@ -86,7 +86,8 @@
       "expandBtn": "▼ Развернуть",
       "collapseBtn": "▲ Свернуть",
       "noHistory": "Данные истории появятся после нескольких автоматических проверок",
-      "tagsCount": "{{count}} тегов"
+      "tagsCount": "{{count}} тегов",
+      "moreTags": "+ {{count}} more tags"
     },
     "matrix": {
       "title": "Матрица тегов",
