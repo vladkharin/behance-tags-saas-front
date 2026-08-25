@@ -59,7 +59,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
             type="button"
             className="flex-1 py-4 md:py-5 rounded-2xl bg-behance-blue/10 text-behance-blue font-black uppercase text-[10px] md:text-[11px] tracking-widest hover:bg-behance-blue hover:text-white transition-all cursor-pointer text-center"
           >
-            ▶️ Видео-обзор (1 мин)
+            {t("onboarding.videoGuide") || "▶️ Video Overview (1 min)"}
           </button>
           <button
             onClick={handleClose}

@@ -1,10 +1,12 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useToast } from "../../context/ToastContext";
 import { useTheme } from "../../context/ThemeContextInstance";
 
 export const ConfirmModal: React.FC = () => {
   const { confirmDialog, closeConfirm } = useToast();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
 
   if (!confirmDialog) return null;
@@ -40,13 +42,13 @@ export const ConfirmModal: React.FC = () => {
             onClick={handleCancel}
             className="px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider opacity-60 hover:opacity-100 transition-all"
           >
-            {confirmDialog.cancelText || "Отмена"}
+            {confirmDialog.cancelText || t("modals.confirm.cancel")}
           </button>
           <button
             onClick={handleConfirm}
             className="px-6 py-3 rounded-xl bg-behance-blue text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all"
           >
-            {confirmDialog.confirmText || "Подтвердить"}
+            {confirmDialog.confirmText || t("modals.confirm.confirm")}
           </button>
         </div>
       </div>

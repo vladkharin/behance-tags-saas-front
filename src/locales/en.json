@@ -1,6 +1,6 @@
 {
   "common": {
-    "loading": "Initializing BeRanked",
+    "loading": "BeRanked Initializing",
     "source": "Source ↗",
     "support": "Direct Support",
     "monthShort": "/mo",
@@ -9,7 +9,7 @@
   "sidebar": {
     "newProject": "New Project",
     "monitoredCases": "Monitored Cases ({{current}}/{{max}})",
-    "adminPanel": "Owner Panel",
+    "adminPanel": "Owner Dashboard",
     "status": {
       "pending": "In Queue",
       "processing": "Analyzing...",
@@ -17,175 +17,176 @@
     },
     "plansBtn": "Plans",
     "upgradeBtn": "Upgrade ⚡",
-    "managePlan": "Manage Plan",
-    "logout": "Sign Out"
+    "managePlan": "Manage Subscription",
+    "logout": "Logout"
   },
   "dashboard": {
     "demo": {
-      "badge": "DEMO MODE",
-      "restricted": "Analysis functions are restricted in demo mode. Add your own project for full access."
+      "badge": "ДЕМО-РЕЖИМ",
+      "restricted": "В демо-режиме функции анализа ограничены. Добавьте свой проект для полной работы."
     },
     "stats": {
-      "views": "Views",
-      "likes": "Likes",
-      "comments": "Comments"
+      "views": "Просмотры",
+      "likes": "Лайки",
+      "comments": "Комменты"
     },
     "emptyState": {
-      "title": "Start Monitoring",
-      "subtitle": "Paste your case link and discover your Behance search rankings in seconds",
-      "demoBtn": "Try with Demo Project"
+      "title": "Начните мониторинг",
+      "subtitle": "Вставьте ссылку на кейс и узнайте свои позиции в поиске Behance за секунды",
+      "demoBtn": "Посмотреть на демо-проекте"
     },
     "metrics": {
-      "verdictSubtitle": "Behance search tag ranking result",
-      "verdictTop10": "🔥 {{top10}} of {{total}} tags rank in TOP-10",
-      "verdictChecked": "📊 Analyzed {{total}} tags",
-      "copyTagsForBehance": "Copy tags for Behance",
-      "top10CardTitle": "In TOP-10 (Drive views)",
-      "top10CardSubtitle": "Case ranks at the top of search",
-      "potentialCardTitle": "Approaching (Ranks 11–30)",
-      "potentialCardSubtitle": "Close to TOP, high growth potential",
-      "lostCardTitle": "Out of search (Unranked)",
-      "lostCardSubtitle": "No search traffic from these tags",
-      "behanceStats": "Behance Case Stats:",
-      "viewsCount": "{{count}} views",
-      "likesCount": "{{count}} appreciations",
-      "commentsCount": "{{count}} comments",
-      "meta": {
-        "plan": "Plan",
-        "update": "Auto-update",
-        "balance": "Tag Balance"
-      }
+      "verdictSubtitle": "Результат проверки тегов в поиске Behance",
+      "verdictTop10": "🔥 {{top10}} из {{total}} тегов работают в ТОП-10",
+      "verdictChecked": "📊 Проверено {{total}} тегов",
+      "copyTagsForBehance": "Скопировать теги для Behance",
+      "top10CardTitle": "В ТОП-10 (Дают просмотры)",
+      "top10CardSubtitle": "Кейс на первых местах в выдаче",
+      "potentialCardTitle": "На подходе (11–30 место)",
+      "potentialCardSubtitle": "Близко к ТОПу, есть потенциал роста",
+      "lostCardTitle": "Вне поиска (Не находит)",
+      "lostCardSubtitle": "По этим тегам трафик не идет",
+      "behanceStats": "Статистика кейса на Behance:",
+      "viewsCount": "{{count}} просмотров",
+      "likesCount": "{{count}} лайков",
+      "commentsCount": "{{count}} комментариев"
+    },
+    "meta": {
+      "plan": "Тариф",
+      "update": "Авто-обновление",
+      "balance": "Баланс тегов"
     },
     "header": {
-      "viewOnBehance": "View on Behance",
-      "robot": "Robot",
-      "robotActive": "Active (24h)",
-      "robotActive24h": "Active (24h)",
-      "robotActive3d": "Active (3d)",
-      "robotActive7d": "Active (7d)",
-      "robotOff": "Inactive",
-      "fuel": "Fuel: {{count}} tags",
-      "topUp": "(Top up ⚡)",
-      "shareReport": "Share Report",
-      "videoGuide": "Video Guide",
-      "deleteProject": "Delete Project",
-      "updateBtn": "Update Positions",
-      "updateBtnPending": "⏳ In Queue",
-      "updateBtnProcessing": "🤖 Scanning..."
+      "viewOnBehance": "Посмотреть на Behance",
+      "robot": "Робот",
+      "robotActive": "Активен (24ч)",
+      "robotActive24h": "Активен (24ч)",
+      "robotActive3d": "Активен (3 дня)",
+      "robotActive7d": "Активен (7 дн)",
+      "robotOff": "Выключен",
+      "fuel": "Топливо: {{count}} тегов",
+      "topUp": "(Пополнить ⚡)",
+      "shareReport": "Поделиться отчетом",
+      "videoGuide": "Видео-гид",
+      "deleteProject": "Удалить проект",
+      "updateBtn": "Обновить позиции",
+      "updateBtnPending": "⏳ В очереди",
+      "updateBtnProcessing": "🤖 Сканирование..."
     },
     "chart": {
-      "empty": "Select tags in the matrix below \nto visualize position history",
+      "empty": "Выберите теги в матрице ниже \nдля визуализации истории позиций",
       "proBadge": "Pro",
-      "historyPaywallTitle": "Daily Position History",
-      "historyPaywallSubtitle": "14-day position history charts available on Daily Fresh and Pro Stream plans",
-      "learnMore": "Learn More",
-      "showDetailed": "Show detailed position history charts",
-      "hideDetailed": "Hide detailed charts",
-      "showDetailedSubtitle": "Click to view changes over 14 days",
-      "hideDetailedSubtitle": "Daily rank trends for each tag in Behance search",
-      "expandBtn": "▼ Expand",
-      "collapseBtn": "▲ Collapse",
-      "noHistory": "History data will appear after several automatic scans",
-      "tagsCount": "{{count}} tags"
+      "historyPaywallTitle": "История позиций по дням",
+      "historyPaywallSubtitle": "Графики истории изменений за 14 дней доступны на тарифах Daily Fresh и Pro Stream",
+      "learnMore": "Узнать больше",
+      "showDetailed": "Показать детальные графики истории позиций",
+      "hideDetailed": "Скрыть детальные графики",
+      "showDetailedSubtitle": "Нажмите для просмотра изменений за 14 дней",
+      "hideDetailedSubtitle": "Динамика каждого тега в выдаче Behance по дням",
+      "expandBtn": "▼ Развернуть",
+      "collapseBtn": "▲ Свернуть",
+      "noHistory": "Данные истории появятся после нескольких автоматических проверок",
+      "tagsCount": "{{count}} тегов"
     },
     "matrix": {
-      "title": "Tag Matrix",
-      "tagListTitle": "Case Tag List ({{count}})",
-      "tagListSubtitle": "Real-time rankings of your case in Behance search",
-      "searchPlaceholder": "Search tags...",
-      "smartTagsTitle": "Smart tags from case title & niche:",
-      "smartTagsSubtitle": "Click ＋ or add all with 1 click",
-      "addAllBtn": "⚡ Add all ({{count}})",
-      "addingAll": "⏳ Adding...",
-      "addTagBtn": "＋ Add tag",
-      "cancelBtn": "✕ Cancel",
-      "copyDropdown": "Copy tags",
-      "copyComma": "Comma separated (for Behance)",
-      "copyHashtags": "With hashtags (#branding)",
-      "copyOnlyTop10": "Only TOP-10 🔥",
-      "filterAll": "All",
-      "filterTop10": "🟢 TOP 1–10",
-      "filterPotential": "🟡 TOP 11–30",
-      "filterLost": "⚪ Out of TOP-100",
-      "filterRising": "🚀 Rising",
-      "inputPlaceholder": "Enter tags separated by commas (e.g. figma, branding, ui/ux)...",
-      "checkBtn": "Check",
-      "checkingBtn": "Checking...",
-      "statusTop": "Top ranked on Behance",
-      "statusPotential": "High potential (Page 1-2)",
-      "statusLost": "Out of TOP-100 search",
-      "statusChecking": "Checking rankings...",
-      "emptyState": "No tags for this case yet",
-      "emptySearch": "No tags found matching your query",
-      "emptyFilter": "No tags in this category. Switch the filter above."
+      "title": "Матрица тегов",
+      "tagListTitle": "Список тегов кейса ({{count}})",
+      "tagListSubtitle": "Реальные позиции вашего кейса в поисковой выдаче Behance",
+      "searchPlaceholder": "Поиск по тегам...",
+      "smartTagsTitle": "Умные теги из названия и ниши кейса:",
+      "smartTagsSubtitle": "Нажмите ＋ или добавьте сразу все в 1 клик",
+      "addAllBtn": "⚡ Добавить все ({{count}})",
+      "addingAll": "⏳ Добавление...",
+      "addTagBtn": "＋ Добавить тег",
+      "cancelBtn": "✕ Отмена",
+      "copyDropdown": "Скопировать теги",
+      "copyComma": "Через запятую (для Behance)",
+      "copyHashtags": "С решётками (#branding)",
+      "copyOnlyTop10": "Только ТОП-10 🔥",
+      "filterAll": "Все",
+      "filterTop10": "🟢 ТОП 1–10",
+      "filterPotential": "🟡 ТОП 11–30",
+      "filterLost": "⚪ Вне ТОП-100",
+      "filterRising": "🚀 Растущие",
+      "inputPlaceholder": "Введите теги через запятую (например: figma, branding, ui/ux)...",
+      "checkBtn": "Проверить",
+      "checkingBtn": "Проверка...",
+      "statusTop": "В самом топе поиска Behance",
+      "statusPotential": "Высокий потенциал (страница 1-2)",
+      "statusLost": "Вне ТОП-100 выдачи",
+      "statusChecking": "Проверяем выдачу...",
+      "emptyState": "У этого кейса пока нет тегов",
+      "emptySearch": "По вашему запросу ничего не найдено",
+      "emptyFilter": "В этой категории нет тегов. Переключите фильтр выше."
     }
   },
   "onboarding": {
     "title": "Welcome to BeRanked! 🚀",
     "step1": {
       "h": "Step 1. Add project",
-      "p": "Copy your case URL from Behance address bar and paste it into the field."
+      "p": "Copy your case URL from Behance address bar and paste it."
     },
     "step2": {
       "h": "Step 2. Choose tags",
-      "p": "We will fetch native project tags, or you can add custom ones to discover new niches."
+      "p": "We will fetch native project tags, or you can add custom ones."
     },
     "step3": {
       "h": "Step 3. Track growth",
-      "p": "Robot checks positions daily. You will see rank trends on visual charts."
+      "p": "Robot checks positions daily. You will see rank trends."
     },
-    "button": "Got it, let's go!"
+    "button": "Got it, let's go!",
+    "videoGuide": "▶️ Video Overview (1 min)"
   },
   "help": {
-    "title": "How It Works",
-    "back": "← Back",
-    "updated": "Updated July 2026",
+    "title": "Как это работает",
+    "back": "← Назад",
+    "updated": "Инструкция актуальна на июль 2026",
     "categories": [
       {
-        "title": "📁 Project Management",
+        "title": "📁 Управление проектами",
         "items": [
           {
-            "q": "How to add a project?",
-            "a": "Click 'New Project' in sidebar. Paste direct Behance URL. Enter tags comma separated. Click launch to start scanning."
+            "q": "Как добавить проект?",
+            "a": "Нажмите «Новый проект» в сайдбаре. Вставьте прямую ссылку на ваш кейс Behance. В поле ниже введите теги через запятую. После нажатия «Запустить» робот проанализирует ваш кейс."
           },
           {
-            "q": "What do sidebar statuses mean?",
-            "a": "'In Queue' — project waiting for parser. 'Analyzing...' — scanner active. 'Active' — data loaded."
+            "q": "Что значат статусы в сайдбаре?",
+            "a": "«В очереди» — проект ждет своей очереди на парсинг. «Анализ...» — наш робот прямо сейчас сканирует поиск Behance. «Активен» — данные загружены и готовы к просмотру."
           }
         ]
       },
       {
-        "title": "📊 Interactive Chart",
+        "title": "📊 Интерактивный график",
         "items": [
           {
-            "q": "How to read the position chart?",
-            "a": "Chart is inverted: higher point means better rank (#1 is at the top)."
+            "q": "Как читать график позиций?",
+            "a": "График инвертирован: чем выше точка на линии, тем лучше ваша позиция (место №1 — в самом верху). Если линия идет вверх, ваш проект поднимается в выдаче."
           },
           {
-            "q": "How to see exact rank numbers?",
-            "a": "Hover over any chart point to open Tooltip with exact ranks."
+            "q": "Как увидеть конкретные цифры?",
+            "a": "Наведите курсор на любую точку графика. Появится умная подсказка (Tooltip), которая покажет точное место по каждому выбранному тегу на эту дату."
           }
         ]
       },
       {
-        "title": "🔢 Tag Matrix",
+        "title": "🔢 Матрица тегов",
         "items": [
           {
-            "q": "Why use filters?",
-            "a": "TOP-10 and Potential filters isolate best tags quickly."
+            "q": "Зачем нужны фильтры?",
+            "a": "Кнопки ТОП-10 и Потенциал позволяют мгновенно отсеять лучшие теги или те, которые близки к вершине, чтобы не искать их в общем списке."
           },
           {
-            "q": "How to copy tag list?",
-            "a": "Click 'Copy List' to copy all tags comma separated for Behance settings."
+            "q": "Как копировать теги?",
+            "a": "Нажмите «Копировать список», чтобы забрать все теги текущего вида через запятую. Это удобно для вставки в новые кейсы на Behance."
           }
         ]
       },
       {
-        "title": "🤖 Automation",
+        "title": "🤖 Автоматизация",
         "items": [
           {
-            "q": "What does Robot button do?",
-            "a": "When ON, system automatically updates rankings on plan schedule."
+            "q": "Что делает кнопка «Робот»?",
+            "a": "Если Робот включен, система будет автоматически обновлять позиции по расписанию вашего тарифа. Если выключен — только вручную."
           }
         ]
       }
@@ -201,7 +202,7 @@
   },
   "plans": {
     "header": {
-      "title": "Choose your <br /> growth tier",
+      "title": "Choose your growth tier",
       "subtitle": "Transparent plans for creators and studios"
     },
     "names": {
@@ -260,13 +261,13 @@
     "errorEmpty": "Fill all fields",
     "errorAgreement": "Agreement required",
     "verifyTitle": "Email Verification",
-    "verifySubtitle": "We have sent a 6-digit code to",
-    "codeLabel": "6-digit code from email",
+    "verifySubtitle": "We sent code to",
+    "codeLabel": "6-digit code",
     "verifyBtn": "Verify and Continue",
     "resendIn": "Resend code in",
-    "resendBtn": "Resend verification code",
+    "resendBtn": "Resend code",
     "changeEmail": "← Change email or login",
-    "codeSentToast": "Verification code has been sent to your email"
+    "codeSentToast": "Verification code sent to email"
   },
   "legal": {
     "back": "← Back",
@@ -274,130 +275,166 @@
     "requisitesTitle": "Contractor Details"
   },
   "privacy": {
-    "title": "Privacy Policy",
-    "updated": "Effective from July 15, 2026",
-    "back": "← Back",
+    "title": "Политика конфиденциальности",
+    "updated": "Действующая редакция от 15 июля 2026 года",
+    "back": "← На главную",
     "sections": [
       {
-        "h": "1. General Provisions",
-        "p": "1.1. This Privacy Policy defines the procedure for processing and protecting personal data of individuals ('Users') using the 'BeRanked' web service at https://beranked.domcraft.digital/."
+        "h": "1. Общие положения",
+        "p": "1.1. Настоящая Политика конфиденциальности определяет порядок обработки и защиты персональных данных физических лиц (далее — «Пользователей»), использующих возможности веб-сервиса «BeRanked», расположенного на домене https://beranked.domcraft.digital/."
       },
       {
-        "p": "1.2. The operator of personal data is the self-employed Vladislav Kharin (citizen of RK, residency in RF, ITN 563811937786)."
+        "p": "1.2. Оператором персональных данных является самозанятый Харин Владислав (гражданин РК, ВНЖ в РФ, ИНН 563811937786)."
       },
       {
-        "p": "1.3. The purpose of this Policy is to ensure adequate protection of User information against unauthorized access and disclosure."
+        "p": "1.3. Целью настоящей Политики является обеспечение надлежащей защиты информации о Пользователях от несанкционированного доступа и разглашения."
       },
       {
-        "h": "2. Data Collection & Scope",
-        "p": "The Operator may process the following data:",
+        "h": "2. Состав и сбор персональных данных",
+        "p": "Оператор может обрабатывать следующие данные:",
         "list": [
-          "Email address — for registration and communication.",
-          "Telegram ID — if using notification bot.",
-          "Technical data — IP address, cookies, browser information."
+          "Адрес электронной почты (e-mail) — для регистрации и связи.",
+          "Telegram ID — в случае использования бота уведомлений.",
+          "Технические данные — IP-адрес, файлы cookies, данные о браузере."
         ],
-        "important": "Important note: Operator never collects or stores credit card details. All transactions processed via Robokassa or Lava.top."
+        "important": "Важное примечание: Оператор никогда не собирает и не хранит данные банковских карт. Все операции идут через Робокасса или Lava.top."
       },
       {
-        "h": "3. Purpose of Processing",
+        "h": "3. Цели обработки",
         "list": [
-          "User identification and access to Personal Account.",
-          "Communication and support response.",
-          "Service activity analysis and optimization."
+          "Идентификация Пользователя и доступ к Личному кабинету.",
+          "Связь с Пользователем и ответы на запросы.",
+          "Анализ активности для улучшения Сервиса."
         ]
       },
       {
-        "h": "4. Storage Terms & Location",
-        "highlight": "Personal data is stored exclusively on electronic media on servers located in the Russian Federation.",
-        "p": "Data is processed until account deletion or written User request."
+        "h": "4. Условия и сроки",
+        "highlight": "Персональные данные Пользователей хранятся исключительно на электронных носителях на серверах, расположенных на территории РФ.",
+        "p": "Данные обрабатываются до момента удаления аккаунта или письменного требования Пользователя."
       }
     ],
     "requisites": {
-      "title": "Operator Details",
-      "name": "Vladislav Kharin",
+      "title": "Реквизиты Оператора",
+      "name": "Харин Владислав",
       "inn": "563811937786",
       "support": "dom.craft.digital@gmail.com"
     }
   },
   "refund": {
-    "title": "Refund Policy",
-    "updated": "Effective from July 15, 2026",
-    "back": "← Back",
-    "intro": "You can cancel your paid subscription or credit package at any time.",
+    "title": "Условия возврата",
+    "updated": "Действующая редакция от 15 июля 2026 года",
+    "back": "← Назад",
+    "intro": "Вы можете отказаться от платной подписки или пакета лимитов в любое время.",
     "sections": [
       {
-        "h": "1. Cancellation & Refund Terms",
-        "p": "Users have the right to cancel service orders prior to actual provision of access (credit allocation). Since BeRanked provides instant digital service access, refunds for already consumed credits are not provided."
+        "h": "1. Порядок отказа от услуг",
+        "p": "Пользователь имеет право отказаться от услуг сервиса до момента фактического предоставления доступа (начисления лимитов на баланс). Поскольку BeRanked предоставляет доступ к цифровому контенту мгновенно, возврат за уже использованные лимиты не производится."
       }
     ],
-    "stepsTitle": "2. Refund Application Algorithm",
-    "stepsDesc": "If you made an erroneous payment or encountered a technical issue, please follow these steps:",
+    "stepsTitle": "2. Алгоритм действий для возврата средств",
+    "stepsDesc": "Если вы совершили ошибочный платеж или столкнулись с технической проблемой, выполните следующие действия:",
     "steps": [
       {
-        "id": "Step 1",
-        "text": "Send a free-form request to dom.craft.digital@gmail.com stating your account Email and payment date."
+        "id": "Шаг 1",
+        "text": "Направьте обращение в свободном стиле на адрес почты dom.craft.digital@gmail.com. Укажите Email вашего аккаунта и дату платежа."
       },
       {
-        "id": "Step 2",
-        "text": "Your request will be processed by support within 24 hours."
+        "id": "Шаг 2",
+        "text": "Ваше обращение будет обработано администрацией сервиса в течение 24 часов."
       },
       {
-        "id": "Step 3",
-        "text": "Upon approval, funds will be refunded back to the original payment card."
+        "id": "Шаг 3",
+        "text": "После подтверждения, денежные средства будут отправлены на ту же банковскую карту, с которой была произведена оплата."
       }
     ],
     "footer": {
-      "timeline": "Refund timeline: Funds return within 5-10 business days depending on your bank.",
-      "warning": "Note: Full payment amount is refunded without processor fee deductions."
+      "timeline": "Срок возврата: Денежные средства возвращаются покупателю в течение 5-10 рабочих дней (зависит от вашего банка).",
+      "warning": "Внимание: Возврат денежных средств осуществляется в полном объеме уплаченной суммы. Мы не удерживаем комиссии платежных систем или банков при возврате."
     }
   },
   "offer": {
-    "title": "Public Offer",
-    "updated": "Effective from July 15, 2026",
-    "back": "← Back",
-    "warning": "Please read this Agreement carefully. Account registration or payment indicates full and unconditional acceptance of all terms.",
+    "title": "Публичная оферта",
+    "updated": "Действующая редакция от 15 июля 2026 года",
+    "back": "← Назад",
+    "warning": "Внимательно ознакомьтесь с текстом настоящего соглашения. Прохождение регистрации на Сайте или оплата услуг означает ваше полное и безоговорочное согласие со всеми пунктами оферты.",
     "sections": [
       {
-        "h": "1. Service Description & Features",
-        "p": "1.1. Contractor provides access to BeRanked SaaS service for analyzing public Behance platform data.",
-        "italic": "Service capabilities: Automated rank monitoring for Behance projects by target tags, position history charts, and tag balance management.",
+        "h": "1. Описание услуг и потребительские свойства",
+        "p": "1.1. Исполнитель предоставляет доступ к SaaS-сервису BeRanked для анализа открытых данных платформы Behance.",
+        "italic": "Потребительские свойства услуги: Пользователь получает доступ к инструментам автоматизированного мониторинга позиций проектов (кейсов) в поисковой выдаче Behance по заданным тегам, визуализацию истории этих позиций на графиках и возможность управления лимитами проверок в личном кабинете.",
         "list": [
-          "Slot — technical slot for tracking 1 project.",
-          "Limits — deduction units for checking 1 tag rank."
+          "Слот — техническое место для мониторинга одного проекта.",
+          "Лимиты — единицы списания за проверку одного тега."
         ]
       },
       {
-        "h": "2. Agreement Subject & Order Procedure",
-        "p": "2.1. Contractor grants Service usage license, User pays according to chosen Plan.",
-        "p2": "2.2. Service ordering is performed independently by registering in Personal Account and paying via payment gateways."
+        "h": "2. Предмет договора и порядок заказа",
+        "p": "2.1. Исполнитель предоставляет лицензию на использование Сервиса, а Пользователь оплачивает доступ в соответствии с выбранным Тарифом.",
+        "p2": "2.2. Заказ услуги оформляется Пользователем самостоятельно путем регистрации в Личном кабинете и совершения платежа через интегрированные платежные системы."
       },
       {
-        "h": "3. Pricing & Payment Terms",
-        "p": "3.1. Service cost (Plans) is specified on Website under 'Plans' section.",
-        "p2": "3.2. Payment is made cashless via Robokassa payment system (Cards, SBP).",
-        "p3": "3.3. Service is deemed fully rendered upon credit allocation or Plan activation."
+        "h": "3. Стоимость и порядок расчетов",
+        "p": "3.1. Стоимость Услуг (Тарифы) указана на Сайте в разделе «Plans».",
+        "p2": "3.2. Оплата производится в безналичном порядке через платежный сервис Робокасса (Robokassa). Способы оплаты: банковские карты (МИР, Visa, Mastercard), СБП.",
+        "p3": "3.3. Услуга считается оказанной в полном объеме с момента фактического начисления лимитов или активации тарифа в ЛК Пользователя."
       },
       {
-        "h": "4. Refund Conditions & Process",
-        "p": "User may request cancellation at any time. Process:",
+        "h": "4. Условия и алгоритм возврата денежных средств",
+        "p": "Пользователь имеет право отказаться от услуг в любое время. Порядок действий:",
         "steps": [
-          "Application: Send email to dom.craft.digital@gmail.com with account login and date.",
-          "Processing: Reviewed within 24 hours.",
-          "Execution: Refund issued back to original payment card.",
-          "Timeline: Funds credit within 5-10 business days."
+          "Подача заявки: Направьте запрос в свободной форме на Email: dom.craft.digital@gmail.com. В письме укажите ваш логин и дату платежа.",
+          "Срок обработки: Исполнитель рассматривает обращение в течение 24 часов.",
+          "Выполнение возврата: После подтверждения, денежные средства возвращаются на ту же карту, с которой была произведена оплата.",
+          "Срок зачисления: Деньги поступают на счет в течение 5-10 рабочих дней."
         ],
-        "note": "* Note: Full refund processed without fee deductions."
+        "note": "* Примечание: Возврат производится в полном объеме без удержания комиссий платежных сервисов."
       },
       {
-        "h": "5. Limitation of Liability",
-        "p": "5.1. BeRanked is not affiliated with Adobe Inc. or Behance. Contractor bears no liability for third-party platforms."
+        "h": "5. Ограничение ответственности",
+        "p": "5.1. BeRanked не аффилирован с Adobe Inc. или Behance. Исполнитель не несет ответственности за действия сторонних платформ."
       }
     ],
     "requisites": {
-      "title": "Contractor Details",
-      "name": "Self-employed Vladislav Kharin",
+      "title": "Реквизиты Исполнителя",
+      "name": "Самозанятый Харин Владислав",
       "inn": "563811937786",
       "support": "dom.craft.digital@gmail.com"
+    }
+  },
+  "modals": {
+    "confirm": {
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "share": {
+      "title": "Share Case Report",
+      "subtitle": "Generate a stylish social card with your project achievements",
+      "bestTag": "Best Tag",
+      "tagsOnMonitor": "Tags",
+      "monitoredCount": "{{count}} tags monitored",
+      "top10": "In TOP-10",
+      "views": "Views",
+      "likes": "Appreciations",
+      "downloadPng": "Download Image (PNG)",
+      "generating": "Generating PNG...",
+      "close": "Close"
+    },
+    "addProject": {
+      "myProjects": "My Projects",
+      "title": "Connect Behance Case",
+      "subtitle": "Paste your case URL. The robot will automatically fetch all tags, views, appreciations and track rankings.",
+      "videoGuide": "Watch 30-sec Video Guide",
+      "urlLabel": "Behance Project URL:",
+      "pasteFromClipboard": "Paste from clipboard",
+      "customTagsToggle": "Add custom additional tags",
+      "customTagsPlaceholder": "figma, mobile app, dashboard, branding...",
+      "submitBtn": "🚀 Launch Case Analysis",
+      "submittingBtn": "🤖 Connecting and analyzing...",
+      "demoBtn": "View Demo Project",
+      "clipboardWarning": "Clipboard is not supported by your browser",
+      "clipboardSuccess": "URL pasted from clipboard!",
+      "clipboardEmpty": "Clipboard is empty",
+      "clipboardError": "Could not read clipboard. Please paste manually (Ctrl+V)"
     }
   }
 }

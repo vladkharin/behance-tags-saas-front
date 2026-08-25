@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useToast } from "../../context/ToastContext";
-import type { Project, TagMatrixItem } from "../../types/analytics.types";
+import type { BehanceProject, TagMatrixItem } from "../../types/analytics.types";
 
 interface ShareCardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  project: Project | null;
+  project: BehanceProject | null;
   tags: TagMatrixItem[];
   views?: number;
   appreciations?: number;
@@ -19,6 +20,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   views = 0,
   appreciations = 0,
 }) => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -59,148 +61,159 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
       glowGrad.addColorStop(0, "rgba(0, 87, 255, 0.25)");
       glowGrad.addColorStop(1, "rgba(0, 87, 255, 0)");
       ctx.fillStyle = glowGrad;
-      ctx.fillRect(0, 0, width, height);
+      ctx.beginPath();
+      ctx.arc(width - 200, 150, 450, 0, Math.PI * 2);
+      ctx.fill();
 
-      // 2. Border
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
-      ctx.lineWidth = 4;
-      ctx.strokeRect(20, 20, width - 40, height - 40);
-
-      // 3. Logo / Brand Header
+      // 2. Header logo
       ctx.fillStyle = "#0057ff";
-      ctx.font = "900 32px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText("BERANKED", 60, 90);
+      ctx.font = "900 24px Inter, system-ui, sans-serif";
+      ctx.fillText("BERANKED", 60, 70);
 
       ctx.fillStyle = "#71717a";
-      ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText("BEHANCE SEO & TAG ANALYTICS", 260, 85);
+      ctx.font = "700 16px Inter, system-ui, sans-serif";
+      ctx.fillText("BEHANCE SEO ANALYTICS", 215, 70);
 
-      // Date badge
-      const today = new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
-      ctx.fillStyle = "#a1a1aa";
-      ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(today, width - 60, 85);
-      ctx.textAlign = "left";
+      ctx.font = "500 16px monospace";
+      const dateStr = new Date().toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
+      ctx.fillText(dateStr, width - 200, 70);
 
-      // 4. Project Title
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "900 48px -apple-system, BlinkMacSystemFont, sans-serif";
-      const displayTitle = project.title.length > 35 ? project.title.substring(0, 35) + "..." : project.title;
-      ctx.fillText(displayTitle, 60, 175);
-
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "500 20px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText(`Отчет о позициях в глобальном поиске Behance`, 60, 215);
-
-      // 5. Highlight Badges Box
-      if (bestTag && bestTag.currentRank) {
-        // Gold / Green Hero Badge
-        ctx.fillStyle = "rgba(34, 197, 94, 0.15)";
-        ctx.strokeStyle = "rgba(34, 197, 94, 0.5)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(60, 260, 500, 120, 20);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = "#22c55e";
-        ctx.font = "900 20px -apple-system, BlinkMacSystemFont, sans-serif";
-        ctx.fillText("ЛУЧШАЯ ПОЗИЦИЯ В ПОИСКЕ", 90, 300);
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "900 42px -apple-system, BlinkMacSystemFont, sans-serif";
-        ctx.fillText(`МЕСТО #${bestTag.currentRank}`, 90, 355);
-
-        ctx.fillStyle = "#86efac";
-        ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, sans-serif";
-        ctx.fillText(`по тегу #${bestTag.tag}`, 340, 353);
-      }
-
-      // Stats Right Box
-      ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+      // Divider line
       ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.roundRect(600, 260, 540, 120, 20);
+      ctx.moveTo(60, 100);
+      ctx.lineTo(width - 60, 100);
+      ctx.stroke();
+
+      // 3. Project title
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 36px Inter, system-ui, sans-serif";
+      const truncatedTitle = project.title.length > 45 ? project.title.substring(0, 42) + "..." : project.title;
+      ctx.fillText(truncatedTitle, 60, 160);
+
+      ctx.fillStyle = "#a1a1aa";
+      ctx.font = "600 18px Inter, system-ui, sans-serif";
+      ctx.fillText(t("dashboard.matrix.tagListSubtitle"), 60, 195);
+
+      // 4. Highlight Stat Box
+      ctx.fillStyle = "rgba(0, 87, 255, 0.12)";
+      ctx.strokeStyle = "rgba(0, 87, 255, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(60, 230, 520, 140, 20);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText("В ТОП-10 ВЫДАЧИ", 630, 305);
-      ctx.fillText("ПРОСМОТРОВ", 820, 305);
-      ctx.fillText("ОЦЕНОК", 1000, 305);
+      ctx.fillStyle = "#60a5fa";
+      ctx.font = "800 14px Inter, system-ui, sans-serif";
+      ctx.fillText(bestTag ? t("modals.share.bestTag").toUpperCase() : t("modals.share.tagsOnMonitor").toUpperCase(), 90, 265);
 
+      if (bestTag && bestTag.currentRank) {
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 48px Inter, system-ui, sans-serif";
+        ctx.fillText(`#${bestTag.currentRank}`, 90, 335);
+
+        ctx.fillStyle = "#93c5fd";
+        ctx.font = "700 20px Inter, system-ui, sans-serif";
+        ctx.fillText(`by #${bestTag.tag}`, 210, 330);
+      } else {
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 36px Inter, system-ui, sans-serif";
+        ctx.fillText(`${tags.length} tags`, 90, 325);
+      }
+
+      // 5. Metrics Grid Box
+      ctx.fillStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(610, 230, 530, 140, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      // Metrics columns
+      const mY = 270;
+      const vY = 325;
+
+      // TOP-10
+      ctx.fillStyle = "#a1a1aa";
+      ctx.font = "800 12px Inter, system-ui, sans-serif";
+      ctx.fillText(t("modals.share.top10").toUpperCase(), 640, mY);
+      ctx.fillStyle = "#60a5fa";
+      ctx.font = "900 36px Inter, system-ui, sans-serif";
+      ctx.fillText(String(top10Tags.length), 640, vY);
+
+      // Views
+      ctx.fillStyle = "#a1a1aa";
+      ctx.font = "800 12px Inter, system-ui, sans-serif";
+      ctx.fillText(t("modals.share.views").toUpperCase(), 810, mY);
       ctx.fillStyle = "#ffffff";
-      ctx.font = "900 36px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText(`${top10Tags.length} тегов`, 630, 355);
-      ctx.fillText(`${views.toLocaleString()}`, 820, 355);
-      ctx.fillText(`${appreciations.toLocaleString()}`, 1000, 355);
+      ctx.font = "900 36px Inter, system-ui, sans-serif";
+      ctx.fillText(views.toLocaleString(), 810, vY);
 
-      // 6. Top Tags Pill List
-      ctx.fillStyle = "#71717a";
-      ctx.font = "bold 14px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText("АКТИВНЫЕ ТЕГИ КЕЙСА В ТОПЕ:", 60, 430);
+      // Likes
+      ctx.fillStyle = "#a1a1aa";
+      ctx.font = "800 12px Inter, system-ui, sans-serif";
+      ctx.fillText(t("modals.share.likes").toUpperCase(), 990, mY);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 36px Inter, system-ui, sans-serif";
+      ctx.fillText(appreciations.toLocaleString(), 990, vY);
 
-      let xPos = 60;
-      const yPos = 460;
-      validRankedTags.slice(0, 5).forEach((t) => {
-        const tagText = `#${t.tag} (${t.currentRank})`;
-        ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, sans-serif";
-        const tagWidth = ctx.measureText(tagText).width + 36;
+      // 6. Top tags badges
+      let tagX = 60;
+      const tagY = 430;
+      validRankedTags.slice(0, 5).forEach((tItem) => {
+        const text = `#${tItem.tag} #${tItem.currentRank}`;
+        ctx.font = "700 15px Inter, system-ui, sans-serif";
+        const tWidth = ctx.measureText(text).width + 30;
 
-        ctx.fillStyle = (t.currentRank || 999) <= 10 ? "rgba(0, 87, 255, 0.2)" : "rgba(255, 255, 255, 0.08)";
-        ctx.strokeStyle = (t.currentRank || 999) <= 10 ? "#0057ff" : "rgba(255, 255, 255, 0.2)";
+        ctx.fillStyle = (tItem.currentRank || 999) <= 10 ? "rgba(0, 87, 255, 0.2)" : "rgba(255, 255, 255, 0.07)";
+        ctx.strokeStyle = (tItem.currentRank || 999) <= 10 ? "rgba(0, 87, 255, 0.5)" : "rgba(255, 255, 255, 0.15)";
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(xPos, yPos, tagWidth, 48, 12);
+        ctx.roundRect(tagX, tagY, tWidth, 42, 12);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = (t.currentRank || 999) <= 10 ? "#60a5fa" : "#e4e4e7";
-        ctx.fillText(tagText, xPos + 18, yPos + 31);
+        ctx.fillStyle = (tItem.currentRank || 999) <= 10 ? "#93c5fd" : "#e4e4e7";
+        ctx.fillText(text, tagX + 15, tagY + 26);
 
-        xPos += tagWidth + 16;
+        tagX += tWidth + 12;
       });
 
-      // 7. Footer
+      // 7. Footer URL
       ctx.fillStyle = "#52525b";
-      ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
-      ctx.fillText("⚡ Аналитика и мониторинг позиций на beranked.domcraft.digital", 60, 580);
+      ctx.font = "700 16px Inter, system-ui, sans-serif";
+      ctx.fillText("⚡ beranked.domcraft.digital — Behance SEO Engine", 60, 560);
 
-      // Download
+      // Download triggered link
+      const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
-      link.download = `beranked-${project.title.replace(/[^a-zA-Z0-9а-яА-Я]/g, "-").toLowerCase()}-report.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.download = `beranked-${project.title.toLowerCase().replace(/[^a-z0-9]/gi, "-")}.png`;
+      link.href = dataUrl;
       link.click();
 
       showToast("Карточка отчета успешно скачана! 📸", "success");
-    } catch {
-      showToast("Не удалось сохранить изображение", "error");
+    } catch (err) {
+      console.error(err);
+      showToast("Не удалось сгенерировать PNG файл", "error");
     } finally {
       setIsExporting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-      <div className="relative w-full max-w-2xl bg-[#141419] border border-white/10 rounded-3xl p-6 md:p-8 text-white shadow-2xl space-y-6">
-        {/* CLOSE BUTTON */}
-        <button
-          onClick={onClose}
-          type="button"
-          className="absolute top-6 right-6 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
-        >
-          ✕
-        </button>
-
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="max-w-xl w-full p-6 md:p-8 rounded-[2.5rem] bg-[#121319] border border-white/10 text-white shadow-2xl space-y-6">
         {/* HEADER */}
-        <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-behance-blue block">
-            Экспорт отчета о позициях
+        <div className="text-center">
+          <span className="text-[10px] font-black uppercase tracking-widest text-behance-blue px-3 py-1 rounded-full bg-behance-blue/10">
+            Social Card Generator
           </span>
-          <h2 className="text-xl md:text-2xl font-black mt-1">Отчет о позициях кейса</h2>
+          <h2 className="text-xl md:text-2xl font-black mt-1">{t("modals.share.title")}</h2>
           <p className="text-xs text-zinc-400 mt-1">
-            Скачайте отчет о текущих позициях кейса для соцсетей или отправки заказчику.
+            {t("modals.share.subtitle")}
           </p>
         </div>
 
@@ -215,20 +228,20 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               <span className="text-[10px] font-bold text-zinc-500 uppercase">Behance Analytics</span>
             </div>
             <span className="text-[10px] text-zinc-400 font-mono">
-              {new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" })}
+              {new Date().toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
             </span>
           </div>
 
           <div>
             <h3 className="text-lg font-black text-white line-clamp-1">{project.title}</h3>
-            <p className="text-xs text-zinc-400 mt-0.5">Позиции кейса в выдаче Behance</p>
+            <p className="text-xs text-zinc-400 mt-0.5">{t("dashboard.matrix.tagListSubtitle")}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             {bestTag && bestTag.currentRank ? (
               <div className="p-3.5 rounded-xl bg-green-500/10 border border-green-500/30">
                 <span className="text-[9px] font-bold text-green-400 uppercase tracking-wider block">
-                  Лучшая позиция
+                  {t("modals.share.bestTag")}
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="text-2xl font-black text-white">#{bestTag.currentRank}</span>
@@ -237,24 +250,24 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               </div>
             ) : (
               <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
-                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">Теги</span>
-                <span className="text-base font-bold text-white mt-1 block">{tags.length} тегов на мониторинге</span>
+                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block">{t("modals.share.tagsOnMonitor")}</span>
+                <span className="text-base font-bold text-white mt-1 block">{t("modals.share.monitoredCount", { count: tags.length })}</span>
               </div>
             )}
 
             <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 flex justify-around items-center text-center">
               <div>
-                <span className="text-[9px] font-bold text-zinc-400 uppercase block">В ТОП-10</span>
+                <span className="text-[9px] font-bold text-zinc-400 uppercase block">{t("modals.share.top10")}</span>
                 <span className="text-lg font-black text-blue-400">{top10Tags.length}</span>
               </div>
               <div className="w-px h-8 bg-white/10" />
               <div>
-                <span className="text-[9px] font-bold text-zinc-400 uppercase block">Просмотры</span>
+                <span className="text-[9px] font-bold text-zinc-400 uppercase block">{t("modals.share.views")}</span>
                 <span className="text-lg font-black text-white">{views.toLocaleString()}</span>
               </div>
               <div className="w-px h-8 bg-white/10" />
               <div>
-                <span className="text-[9px] font-bold text-zinc-400 uppercase block">Лайки</span>
+                <span className="text-[9px] font-bold text-zinc-400 uppercase block">{t("modals.share.likes")}</span>
                 <span className="text-lg font-black text-white">{appreciations.toLocaleString()}</span>
               </div>
             </div>
@@ -262,24 +275,20 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
 
           {validRankedTags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 pt-2">
-              {validRankedTags.slice(0, 4).map((t) => (
+              {validRankedTags.slice(0, 4).map((tItem) => (
                 <span
-                  key={t.tag}
+                  key={tItem.tag}
                   className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${
-                    (t.currentRank || 999) <= 10
+                    (tItem.currentRank || 999) <= 10
                       ? "bg-blue-500/10 border-blue-500/30 text-blue-300"
                       : "bg-white/5 border-white/10 text-zinc-300"
                   }`}
                 >
-                  #{t.tag} <span className="opacity-60">#{t.currentRank}</span>
+                  #{tItem.tag} <span className="opacity-60">#{tItem.currentRank}</span>
                 </span>
               ))}
             </div>
           )}
-
-          <div className="pt-2 text-[10px] text-zinc-500 text-center font-medium">
-            ⚡ beranked.domcraft.digital
-          </div>
         </div>
 
         {/* ACTIONS */}
@@ -291,7 +300,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             className="flex-1 py-3.5 px-6 rounded-2xl bg-behance-blue hover:bg-behance-darkBlue text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <span>📸</span>
-            <span>{isExporting ? "Генерация PNG..." : "Скачать изображение (PNG)"}</span>
+            <span>{isExporting ? t("modals.share.generating") : t("modals.share.downloadPng")}</span>
           </button>
 
           <button

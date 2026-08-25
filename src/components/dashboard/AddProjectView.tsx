@@ -73,7 +73,7 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
           className="lg:hidden mx-auto mb-2 p-2 rounded-xl bg-zinc-100 dark:bg-white/5 text-xs font-bold flex items-center gap-2 cursor-pointer"
         >
           <span>☰</span>
-          <span>Мои проекты</span>
+          <span>{t("modals.addProject.myProjects")}</span>
         </button>
 
         <div className="w-12 h-12 rounded-2xl bg-behance-blue/10 text-behance-blue flex items-center justify-center text-xl mx-auto">
@@ -81,10 +81,10 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
         </div>
 
         <h1 className="text-2xl md:text-4xl font-black uppercase tracking-tight">
-          Подключение кейса Behance
+          {t("modals.addProject.title")}
         </h1>
         <p className="text-xs md:text-sm opacity-60 max-w-md mx-auto leading-relaxed">
-          Вставьте ссылку на кейс. Робот автоматически подтянет все теги, просмотры, оценки и начнет отслеживать позиции в выдаче.
+          {t("modals.addProject.subtitle")}
         </p>
 
         {onOpenVideoTutorial && (
@@ -95,7 +95,7 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-behance-blue/10 hover:bg-behance-blue hover:text-white text-behance-blue text-xs font-bold transition-all cursor-pointer"
             >
               <span>▶️</span>
-              <span>Посмотреть 30-секундный видео-гид</span>
+              <span>{t("modals.addProject.videoGuide")}</span>
             </button>
           </div>
         )}
@@ -110,14 +110,14 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs font-bold">
-              <span>Ссылка на проект с Behance:</span>
+              <span>{t("modals.addProject.urlLabel")}</span>
               <button
                 type="button"
                 onClick={handlePasteFromClipboard}
                 className="text-[10px] uppercase font-bold text-behance-blue hover:underline cursor-pointer flex items-center gap-1"
               >
                 <span>📋</span>
-                <span>Вставить из буфера</span>
+                <span>{t("modals.addProject.pasteFromClipboard")}</span>
               </button>
             </div>
 
@@ -150,13 +150,13 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
                 className="text-[11px] font-bold text-behance-blue hover:underline cursor-pointer flex items-center gap-1"
               >
                 <span>{showTagsInput ? "▼" : "▶"}</span>
-                <span>Указать дополнительные кастомные теги</span>
+                <span>{t("modals.addProject.customTagsToggle")}</span>
               </button>
 
               {showTagsInput && (
                 <input
                   type="text"
-                  placeholder="figma, mobile app, dashboard, branding (через запятую)..."
+                  placeholder={t("modals.addProject.customTagsPlaceholder")}
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   className={`w-full rounded-xl px-4 py-2.5 text-xs font-medium outline-none border transition-all ${
@@ -175,7 +175,7 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
             disabled={actionLoading || !urlInput.trim()}
             className="w-full py-3.5 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider transition-all disabled:opacity-40 shadow-sm shadow-blue-500/20 cursor-pointer"
           >
-            {actionLoading ? "🤖 Подключение и анализ..." : "🚀 Запустить анализ кейса"}
+            {actionLoading ? t("modals.addProject.submittingBtn") : t("modals.addProject.submitBtn")}
           </button>
         </form>
 
