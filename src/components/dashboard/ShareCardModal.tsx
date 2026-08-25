@@ -308,7 +308,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             type="button"
             className="py-3.5 px-6 rounded-2xl bg-white/5 hover:bg-white/10 text-zinc-300 font-bold text-xs uppercase tracking-wider transition-all cursor-pointer text-center"
           >
-            Закрыть
+            {t("modals.share.close")}
           </button>
         </div>
       </div>

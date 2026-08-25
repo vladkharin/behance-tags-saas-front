@@ -186,7 +186,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         const prevStatus = projectData?.status;
         if (prevStatus === "PROCESSING" && detailsRes.status === "IDLE") {
           fireConfetti();
-          showToast("Позиции успешно обновлены! 🎉", "success");
+          showToast(t("dashboard.toasts.updateSuccess"), "success");
           if (visibleTags.length === 0) {
             const allTags = detailsRes.tagsMatrix.map((t) => t.tag);
             setVisibleTags(allTags);
@@ -210,7 +210,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         console.error("Failed to refresh dashboard data", e);
       }
     },
-    [projectData?.status, visibleTags.length, isDemoMode, showToast],
+    [projectData?.status, visibleTags.length, isDemoMode, showToast, t],
   );
 
   // Initial load
@@ -275,7 +275,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     try {
       await refreshData(id, true);
     } catch (e) {
-      showToast("Не удалось загрузить данные проекта", "error");
+      showToast(t("dashboard.toasts.loadError"), "error");
     } finally {
       setDetailsLoading(false);
     }
@@ -290,12 +290,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         setIsDemoMode(true);
         setIsAddingNew(false);
         await refreshData(demo.id, true);
-        showToast("Запущен демо-проект для ознакомления", "info");
+        showToast(t("dashboard.toasts.demoLoaded"), "info");
       } else {
-        showToast("Демо-проект временно недоступен", "warning");
+        showToast(t("dashboard.toasts.demoUnavailable"), "warning");
       }
     } catch (e) {
-      showToast("Демо-проект не найден", "error");
+      showToast(t("dashboard.toasts.demoNotFound"), "error");
     } finally {
       setDetailsLoading(false);
     }
@@ -304,10 +304,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const handleAddNewProjectClick = () => {
     if (projects.length >= planLimits.maxProjects) {
       confirm({
-        title: "Лимит проектов",
-        message: `Ваш текущий тариф (${userPlan}) позволяет отслеживать до ${planLimits.maxProjects} проектов. Обновите тариф для добавления новых.`,
-        confirmText: "Перейти к тарифам",
-        cancelText: "Понятно",
+        title: t("dashboard.dialogs.limitTitle"),
+        message: t("dashboard.dialogs.limitMessage", { plan: userPlan, max: planLimits.maxProjects }),
+        confirmText: t("dashboard.dialogs.limitConfirm"),
+        cancelText: t("dashboard.dialogs.limitCancel"),
         onConfirm: () => onNavigatePricing(),
       });
       return;
@@ -329,15 +329,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (!hasEnoughBalance) {
       if (!canUpdateByTime) {
         const timeUntil = formatDistanceToNow(nextUpdateTime!, { addSuffix: true, locale: dateLocale });
-        showToast(`Бесплатное обновление будет доступно ${timeUntil}`, "warning");
+        showToast(t("dashboard.toasts.freeUpdateNotice", { time: timeUntil }), "warning");
         return;
       }
 
       confirm({
-        title: t("dashboard.errors.lowBalance"),
-        message: `${t("dashboard.errors.lowBalance")}. Хотите пополнить баланс для внеочередных обновлений?`,
-        confirmText: t("dashboard.errors.lowBalanceAction"),
-        cancelText: "Отмена",
+        title: t("dashboard.dialogs.lowBalanceTitle"),
+        message: t("dashboard.dialogs.lowBalanceMessage"),
+        confirmText: t("dashboard.dialogs.lowBalanceAction"),
+        cancelText: t("modals.confirm.cancel"),
         onConfirm: () => onNavigatePricing(),
       });
       return;

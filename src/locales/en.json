@@ -117,7 +117,48 @@
       "statusChecking": "Проверяем выдачу...",
       "emptyState": "У этого кейса пока нет тегов",
       "emptySearch": "По вашему запросу ничего не найдено",
-      "emptyFilter": "В этой категории нет тегов. Переключите фильтр выше."
+      "emptyFilter": "В этой категории нет тегов. Переключите фильтр выше.",
+      "copiedTagsToast": "Copied {{count}} tags to clipboard! 📋",
+      "deleteConfirmTitle": "Delete #{{tag}}?",
+      "deleteConfirmMsg": "Tag #{{tag}} will no longer be tracked for this project.",
+      "deleteConfirmBtn": "Delete",
+      "deleteCancelBtn": "Cancel",
+      "tagCopiedToast": "Tag #{{tag}} copied!",
+      "noTagsToCopy": "No tags available to copy"
+    },
+    "emptyView": {
+      "heroBadge": "Welcome to BeRanked",
+      "title": "Track your case rankings in Behance search",
+      "subtitle": "Discover exact search rankings for your key tags, find growth opportunities, and drive thousands of views from potential clients.",
+      "inputLabel": "Paste Behance case URL to get started",
+      "inputPlaceholder": "https://www.behance.net/gallery/12345678/My-Best-Case",
+      "submitBtn": "Launch Analysis 🚀",
+      "submittingBtn": "Analyzing case...",
+      "noUrlText": "Don't have a link handy? See how analytics work on a live showcase example:",
+      "tryDemoBtn": "✨ Try interactive demo project",
+      "step1Title": "1. Import Case",
+      "step1Desc": "Paste direct URL. The robot will automatically fetch all native tags and metrics.",
+      "step2Title": "2. Rank Scanning",
+      "step2Desc": "Our robot scans Behance search results to locate exact case rankings.",
+      "step3Title": "3. History & Trends",
+      "step3Desc": "Track growth charts and analyze how tag positions change over time."
+    },
+    "toasts": {
+      "updateSuccess": "Positions updated successfully! 🎉",
+      "loadError": "Failed to load project data",
+      "demoLoaded": "Showcase demo project loaded",
+      "demoUnavailable": "Demo project temporarily unavailable",
+      "demoNotFound": "Demo project not found",
+      "freeUpdateNotice": "Free update will be available {{time}}"
+    },
+    "dialogs": {
+      "limitTitle": "Project Limit Reached",
+      "limitMessage": "Your current plan ({{plan}}) allows tracking up to {{max}} projects. Upgrade plan to add more.",
+      "limitConfirm": "View Plans",
+      "limitCancel": "Got It",
+      "lowBalanceTitle": "Low Tag Balance",
+      "lowBalanceMessage": "You ran out of tag credits. Top up to scan immediately?",
+      "lowBalanceAction": "Top Up Credits"
     }
   },
   "onboarding": {
@@ -135,7 +176,29 @@
       "p": "Robot checks positions daily. You will see rank trends."
     },
     "button": "Got it, let's go!",
-    "videoGuide": "▶️ Video Overview (1 min)"
+    "videoGuide": "▶️ Video Overview (1 min)",
+    "videoModal": {
+      "title": "How BeRanked works in 30 seconds",
+      "badge": "Live Motion Demo",
+      "subtitle": "Interactive tour: from URL link to top Behance rankings",
+      "scene": "Scene 0{{num}}: {{name}}",
+      "step1Title": "1. Import Behance Case",
+      "step1Desc": "Copy your case link from Behance and paste it into BeRanked.",
+      "step1Highlight": "Auto link recognition & niche tag presets",
+      "step1StageHeader": "Step 1. Connect Case",
+      "step1StageTitle": "Paste Behance project URL",
+      "step1Recognized": "✓ Recognized",
+      "step1LaunchBtn": "🚀 Launch Project",
+      "step2Title": "2. Robot Scans Search",
+      "step2Desc": "BeRanked smart robot emulates native Behance search to locate case.",
+      "step2Highlight": "Analyzes real search results live",
+      "step3Title": "3. Tags Skyrocket to TOP-10",
+      "step3Desc": "View exact positions for each tag and 24-hour rank growth trends.",
+      "step3Highlight": "Growth potential (Ranks 11–30) for fast scaling",
+      "step4Title": "4. Export & Views Growth",
+      "step4Desc": "Copy top tags to Behance settings and drive massive organic traffic.",
+      "step4Highlight": "Boost views and client appreciations by 2.5x–4x"
+    }
   },
   "help": {
     "title": "Как это работает",
@@ -267,7 +330,12 @@
     "resendIn": "Resend code in",
     "resendBtn": "Resend code",
     "changeEmail": "← Change email or login",
-    "codeSentToast": "Verification code sent to email"
+    "codeSentToast": "Verification code sent to email",
+    "authError": "Authorization error. Please check your credentials.",
+    "codeIncomplete": "Please enter full 6-digit code from email",
+    "verifySuccess": "Email verified successfully! Welcome!",
+    "invalidCode": "Invalid verification code",
+    "resendError": "Could not resend code. Please try again later."
   },
   "legal": {
     "back": "← Back",
@@ -434,7 +502,8 @@
       "clipboardWarning": "Clipboard is not supported by your browser",
       "clipboardSuccess": "URL pasted from clipboard!",
       "clipboardEmpty": "Clipboard is empty",
-      "clipboardError": "Could not read clipboard. Please paste manually (Ctrl+V)"
+      "clipboardError": "Could not read clipboard. Please paste manually (Ctrl+V)",
+      "orViewDemo": "Or view showcase demo project"
     }
   }
 }

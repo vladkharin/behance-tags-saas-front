@@ -36,18 +36,18 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
   const handlePasteFromClipboard = async () => {
     try {
       if (!navigator.clipboard) {
-        showToast("Буфер обмена не поддерживается вашим браузером", "warning");
+        showToast(t("modals.addProject.clipboardWarning"), "warning");
         return;
       }
       const text = await navigator.clipboard.readText();
       if (text && text.trim().length > 0) {
         setUrlInput(text.trim());
-        showToast("Ссылка вставлена из буфера!", "success", undefined, 1500);
+        showToast(t("modals.addProject.clipboardSuccess"), "success", undefined, 1500);
       } else {
-        showToast("Буфер обмена пуст", "info");
+        showToast(t("modals.addProject.clipboardEmpty"), "info");
       }
     } catch (err) {
-      showToast("Не удалось прочитать буфер. Вставьте вручную (Ctrl+V)", "warning");
+      showToast(t("modals.addProject.clipboardError"), "warning");
     }
   };
 
@@ -186,7 +186,7 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
             type="button"
             className="text-xs font-bold text-zinc-500 hover:text-behance-blue transition-colors cursor-pointer"
           >
-            Или посмотреть демо-кейс
+            {t("modals.addProject.orViewDemo")}
           </button>
         </div>
       </div>

@@ -13,6 +13,7 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -28,32 +29,32 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
 
   const steps = [
     {
-      title: "1. Вставка кейса Behance",
-      desc: "Копируете ссылку на свой проект из Behance и вставляете в BeRanked.",
+      title: t("onboarding.videoModal.step1Title"),
+      desc: t("onboarding.videoModal.step1Desc"),
       icon: "🔗",
       timeRange: [0, 8],
-      highlight: "Авто-распознавание ссылки и пресеты нишевых тегов",
+      highlight: t("onboarding.videoModal.step1Highlight"),
     },
     {
-      title: "2. Робот сканирует поиск",
-      desc: "Умный робот BeRanked эмулирует живой поиск Behance и находит кейс.",
+      title: t("onboarding.videoModal.step2Title"),
+      desc: t("onboarding.videoModal.step2Desc"),
       icon: "🤖",
       timeRange: [8, 16],
-      highlight: "Анализируются миллионы работ в реальной выдаче",
+      highlight: t("onboarding.videoModal.step2Highlight"),
     },
     {
-      title: "3. Взлет тегов в ТОП-10",
-      desc: "Вы видите точные места каждого тега и 24-часовую динамику роста.",
+      title: t("onboarding.videoModal.step3Title"),
+      desc: t("onboarding.videoModal.step3Desc"),
       icon: "🚀",
       timeRange: [16, 24],
-      highlight: "Потенциал роста (11–30 место) для быстрого масштабирования",
+      highlight: t("onboarding.videoModal.step3Highlight"),
     },
     {
-      title: "4. Экспорт и рост просмотров",
-      desc: "Копируете лучшие теги в настройки Behance и получаете взрывной трафик.",
+      title: t("onboarding.videoModal.step4Title"),
+      desc: t("onboarding.videoModal.step4Desc"),
       icon: "🎯",
       timeRange: [24, 32],
-      highlight: "Рост просмотров и лайков от заказчиков в 2.5–4 раза",
+      highlight: t("onboarding.videoModal.step4Highlight"),
     },
   ];
 
@@ -135,14 +136,14 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base md:text-lg font-black uppercase tracking-tight">
-                  Как работает BeRanked за 30 секунд
+                  {t("onboarding.videoModal.title")}
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[8px] font-black uppercase tracking-widest border border-green-500/20">
-                  Live Motion Demo
+                  {t("onboarding.videoModal.badge")}
                 </span>
               </div>
               <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">
-                Интерактивный тур: от ссылки до первых мест в поиске Behance
+                {t("onboarding.videoModal.subtitle")}
               </p>
             </div>
           </div>
@@ -190,7 +191,7 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
 
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-behance-blue/20 text-blue-400 border border-blue-500/30">
-                    Сцена 0{activeStep + 1}: {steps[activeStep].title.split(". ")[1]}
+                    {t("onboarding.videoModal.scene", { num: activeStep + 1, name: steps[activeStep].title.split(". ")[1] || steps[activeStep].title })}
                   </span>
                 </div>
               </div>
@@ -202,10 +203,10 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                   <div className="w-full max-w-lg space-y-4 animate-in fade-in zoom-in-95 duration-300">
                     <div className="text-center space-y-1">
                       <span className="text-xs font-black uppercase text-blue-400 tracking-widest">
-                        Шаг 1. Подключение кейса
+                        {t("onboarding.videoModal.step1StageHeader")}
                       </span>
                       <h4 className="text-lg md:text-xl font-black uppercase text-white tracking-tight">
-                        Вставьте ссылку на работу с Behance
+                        {t("onboarding.videoModal.step1StageTitle")}
                       </h4>
                     </div>
 
@@ -215,7 +216,7 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                           https://www.behance.net/gallery/198242/Nike-Identity
                         </span>
                         <span className="text-[9px] font-black uppercase bg-green-500/20 text-green-400 px-2 py-0.5 rounded-md shrink-0">
-                          ✓ Распознано
+                          {t("onboarding.videoModal.step1Recognized")}
                         </span>
                       </div>
                     </div>
@@ -234,7 +235,7 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                     </div>
 
                     <div className="w-full py-3.5 rounded-2xl bg-behance-blue text-white text-xs font-black uppercase tracking-widest text-center shadow-lg shadow-blue-500/30 animate-pulse">
-                      🚀 Запустить проект
+                      {t("onboarding.videoModal.step1LaunchBtn")}
                     </div>
                   </div>
                 )}

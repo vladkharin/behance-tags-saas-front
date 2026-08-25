@@ -112,7 +112,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Ошибка авторизации. Проверьте данные.");
+        setError(t("auth.authError"));
       }
     }
   };
@@ -120,14 +120,14 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
   const submitCode = async (codeToVerify: string) => {
     const cleanCode = codeToVerify.replace(/\D/g, "").trim();
     if (cleanCode.length < 4) {
-      setError("Пожалуйста, введите полный код из письма");
+      setError(t("auth.codeIncomplete"));
       return;
     }
 
     try {
       await verifyCode({ email: email.trim(), code: cleanCode });
       fireConfetti();
-      showToast("Почта успешно подтверждена! Добро пожаловать!", "success");
+      showToast(t("auth.verifySuccess"), "success");
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string | string[] } }; message?: string };
       const serverMessage = axiosError.response?.data?.message;
@@ -139,7 +139,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Неверный код подтверждения");
+        setError(t("auth.invalidCode"));
       }
     }
   };
@@ -161,7 +161,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
       showToast(t("auth.codeSentToast"), "info");
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string } }; message?: string };
-      setError(axiosError.response?.data?.message || "Ошибка отправки кода. Попробуйте позже.");
+      setError(axiosError.response?.data?.message || t("auth.resendError"));
     } finally {
       setIsResending(false);
     }

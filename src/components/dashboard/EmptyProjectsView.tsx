@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContextInstance";
 
 interface EmptyProjectsViewProps {
@@ -12,6 +13,7 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
   onLoadDemo,
   isAdding = false,
 }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [urlInput, setUrlInput] = useState("");
@@ -27,16 +29,16 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
       {/* HERO BADGE */}
       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-behance-blue text-xs font-bold uppercase tracking-wider">
         <span>🚀</span>
-        <span>Добро пожаловать в BeRanked</span>
+        <span>{t("dashboard.emptyView.heroBadge")}</span>
       </div>
 
       {/* TITLE & DESCRIPTION */}
       <div className="space-y-3">
         <h1 className="text-3xl md:text-5xl font-black tracking-tight text-behance-black dark:text-white">
-          Отслеживайте позиции ваших кейсов в поиске Behance
+          {t("dashboard.emptyView.title")}
         </h1>
         <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed font-medium">
-          Узнайте, на каком месте находится ваш проект по ключевым тегам, находите точки роста и привлекайте тысячи просмотров от заказчиков.
+          {t("dashboard.emptyView.subtitle")}
         </p>
       </div>
 
@@ -48,12 +50,12 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400">
-            Вставьте ссылку на кейс Behance для старта
+            {t("dashboard.emptyView.inputLabel")}
           </label>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="url"
-              placeholder="https://www.behance.net/gallery/12345678/My-Best-Case"
+              placeholder={t("dashboard.emptyView.inputPlaceholder")}
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               disabled={isAdding}
@@ -69,7 +71,7 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
               disabled={isAdding || !urlInput.trim()}
               className="px-6 py-3.5 bg-behance-blue hover:bg-behance-darkBlue text-white font-bold text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 cursor-pointer shrink-0"
             >
-              {isAdding ? "Анализ кейса..." : "Запустить анализ 🚀"}
+              {isAdding ? t("dashboard.emptyView.submittingBtn") : t("dashboard.emptyView.submitBtn")}
             </button>
           </div>
         </form>
@@ -77,14 +79,14 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
         {/* OR DEMO BUTTON */}
         <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-            Нет ссылки под рукой? Посмотрите, как работает аналитика на примере:
+            {t("dashboard.emptyView.noUrlText")}
           </div>
           <button
             onClick={onLoadDemo}
             type="button"
             className="text-xs font-bold text-behance-blue hover:underline cursor-pointer shrink-0"
           >
-            ✨ Попробовать интерактивное демо
+            {t("dashboard.emptyView.tryDemoBtn")}
           </button>
         </div>
       </div>
@@ -100,10 +102,10 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
             1
           </div>
           <h4 className="text-xs font-black uppercase text-behance-black dark:text-white mb-1">
-            Добавление кейса
+            {t("dashboard.emptyView.step1Title")}
           </h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-            Вставьте прямую ссылку. Робот автоматически подтянет все родные теги и метрики.
+            {t("dashboard.emptyView.step1Desc")}
           </p>
         </div>
 
@@ -116,10 +118,10 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
             2
           </div>
           <h4 className="text-xs font-black uppercase text-behance-black dark:text-white mb-1">
-            Съем позиций
+            {t("dashboard.emptyView.step2Title")}
           </h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-            Наш робот сканирует поисковую выдачу Behance и находит точное место кейса.
+            {t("dashboard.emptyView.step2Desc")}
           </p>
         </div>
 
@@ -132,10 +134,10 @@ export const EmptyProjectsView: React.FC<EmptyProjectsViewProps> = ({
             3
           </div>
           <h4 className="text-xs font-black uppercase text-behance-black dark:text-white mb-1">
-            История и тренды
+            {t("dashboard.emptyView.step3Title")}
           </h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-            Следите за графиком динамики и анализируйте изменение позиций ваших тегов во времени.
+            {t("dashboard.emptyView.step3Desc")}
           </p>
         </div>
       </div>

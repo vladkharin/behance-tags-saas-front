@@ -112,24 +112,22 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   const handleCopyTag = (tag: string) => {
     navigator.clipboard.writeText(tag).then(() => {
       setCopiedTag(tag);
-      showToast(`#${tag} скопирован!`, "success", undefined, 1500);
-      setTimeout(() => setCopiedTag(null), 1500);
+      showToast(t("dashboard.matrix.tagCopiedToast", { tag }), "success", undefined, 1500);
+      setTimeout(() => setCopiedTag(null), 2000);
     });
   };
 
   const handleCopyFormattedTags = (format: "comma" | "hashtags" | "top10") => {
-    let tagsToCopy: string[] = [];
+    let tagsToCopy = tags.map((t) => t.tag);
 
     if (format === "top10") {
       tagsToCopy = tags
         .filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10)
         .map((t) => t.tag);
-    } else {
-      tagsToCopy = tags.map((t) => t.tag);
     }
 
     if (tagsToCopy.length === 0) {
-      showToast("Нет тегов для копирования", "info");
+      showToast(t("dashboard.matrix.noTagsToCopy"), "info");
       setShowCopyMenu(false);
       return;
     }
@@ -142,7 +140,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
     }
 
     navigator.clipboard.writeText(result).then(() => {
-      showToast(`Скопировано ${tagsToCopy.length} тегов в буфер обмена! 📋`, "success");
+      showToast(t("dashboard.matrix.copiedTagsToast", { count: tagsToCopy.length }), "success");
       setShowCopyMenu(false);
     });
   };
@@ -164,10 +162,10 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   const handleDeleteTagClick = (tagName: string) => {
     if (!onRemoveTag) return;
     confirm({
-      title: `Удалить #${tagName}?`,
-      message: `Тег #${tagName} больше не будет проверяться для этого кейса.`,
-      confirmText: "Удалить",
-      cancelText: "Отмена",
+      title: t("dashboard.matrix.deleteConfirmTitle", { tag: tagName }),
+      message: t("dashboard.matrix.deleteConfirmMsg", { tag: tagName }),
+      confirmText: t("dashboard.matrix.deleteConfirmBtn"),
+      cancelText: t("dashboard.matrix.deleteCancelBtn"),
       onConfirm: async () => {
         await onRemoveTag(tagName);
       },
