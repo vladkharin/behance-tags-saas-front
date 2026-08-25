@@ -25,18 +25,26 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
       return valA - valB;
     });
 
+    const formattedLabel = label
+      ? label.split("-").length === 3
+        ? `${label.split("-")[2]}.${label.split("-")[1]}.${label.split("-")[0]}`
+        : label
+      : "";
+
     return (
       <div
-        className={`p-3.5 rounded-2xl border backdrop-blur-md shadow-2xl min-w-[220px] max-w-[340px] ${
-          isDark ? "bg-[#0d0d12]/95 border-white/15 text-white" : "bg-white/95 border-zinc-200 text-zinc-900"
+        className={`p-3.5 rounded-2xl border backdrop-blur-xl shadow-2xl w-64 max-w-[260px] z-50 ${
+          isDark ? "bg-[#0c0c10]/95 border-white/20 text-white shadow-black/80" : "bg-white/95 border-zinc-200 text-zinc-900 shadow-xl"
         }`}
       >
         <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-zinc-200 dark:border-white/10">
-          <p className="text-[11px] font-mono font-black uppercase tracking-wider opacity-60">{label}</p>
-          <span className="text-[10px] opacity-40 font-bold">{t("dashboard.chart.tagsCount", { count: sortedPayload.length })}</span>
+          <p className="text-[11px] font-mono font-black tracking-wider opacity-70">{formattedLabel}</p>
+          <span className="text-[10px] opacity-50 font-bold font-mono">
+            {t("dashboard.chart.tagsCount", { count: sortedPayload.length })}
+          </span>
         </div>
 
-        <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700">
+        <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700">
           {sortedPayload.map((entry, index) => {
             const rankNum = Number(entry.value);
             const isValidRank = rankNum > 0 && rankNum <= 100;
@@ -44,13 +52,13 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
             const isPotential = rankNum > 10 && rankNum <= 30;
 
             return (
-              <div key={index} className="flex items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div key={index} className="flex items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
                   <div
                     className="w-2 h-2 rounded-full shrink-0 shadow-xs"
                     style={{ backgroundColor: entry.stroke }}
                   />
-                  <span className="font-medium text-xs truncate" title={`#${entry.name}`}>
+                  <span className="font-medium text-[11px] truncate leading-tight" title={`#${entry.name}`}>
                     #{entry.name}
                   </span>
                 </div>
@@ -185,15 +193,15 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
 
       {/* EXPANDED CONTENT */}
       {isExpanded && (
-        <div className="p-5 pt-0 border-t border-zinc-200 dark:border-white/10 mt-2 animate-in fade-in">
-          <div className="h-64 w-full pt-4">
+        <div className="p-4 md:p-6 pt-0 border-t border-zinc-200 dark:border-white/10 animate-in fade-in">
+          <div className="h-80 w-full pt-3">
             {chartData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-xs opacity-50">
                 {t("dashboard.chart.noHistory")}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <LineChart data={chartData} margin={{ top: 15, right: 35, left: -15, bottom: 5 }}>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
@@ -201,21 +209,32 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
                   />
                   <XAxis
                     dataKey="date"
-                    stroke={isDark ? "#555" : "#aaa"}
+                    stroke={isDark ? "#666" : "#999"}
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
+                    tickFormatter={(val) => {
+                      if (!val) return "";
+                      const parts = val.split("-");
+                      if (parts.length === 3) return `${parts[2]}.${parts[1]}`;
+                      return val;
+                    }}
                   />
                   <YAxis
                     reversed={true}
                     domain={[1, 100]}
-                    stroke={isDark ? "#555" : "#aaa"}
+                    stroke={isDark ? "#666" : "#999"}
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
+                    ticks={[1, 26, 51, 76, 100]}
                     tickFormatter={(val) => `#${val}`}
                   />
-                  <Tooltip content={<CustomTooltip isDark={isDark} />} />
+                  <Tooltip
+                    content={<CustomTooltip isDark={isDark} />}
+                    wrapperStyle={{ zIndex: 100, outline: "none" }}
+                    allowEscapeViewBox={{ x: false, y: false }}
+                  />
 
                   {activeTags.map((tag) => {
                     const isFocused = focusedTag === tag;
