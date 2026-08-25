@@ -12,10 +12,11 @@ interface CustomTooltipProps {
     stroke: string;
   }>;
   label?: string;
+  coordinate?: { x: number; y: number };
   isDark: boolean;
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, isDark }) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, coordinate, isDark }) => {
   const { t } = useTranslation();
   if (active && payload && payload.length) {
     const validPayload = payload.filter((item) => item.value !== undefined && item.value !== null);
@@ -26,6 +27,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
     });
 
     const isMultiCol = sortedPayload.length > 8;
+    const isRightHalf = coordinate ? coordinate.x > 320 : false;
 
     const formattedLabel = label
       ? label.split("-").length === 3
@@ -35,10 +37,15 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
 
     return (
       <div
-        className={`p-3 rounded-2xl border backdrop-blur-xl shadow-2xl pointer-events-none select-none z-50 transition-all ${
-          isMultiCol ? "w-[440px] max-w-[90vw]" : "w-64"
+        style={{
+          transform: isRightHalf ? "translateX(-100%) translateX(-20px)" : "translateX(15px)",
+        }}
+        className={`p-3 rounded-2xl border backdrop-blur-xl shadow-2xl pointer-events-none select-none z-50 transition-all duration-75 ${
+          isMultiCol ? "w-[380px] max-w-[85vw]" : "w-60"
         } ${
-          isDark ? "bg-[#0c0c10]/95 border-white/20 text-white shadow-black/80" : "bg-white/95 border-zinc-200 text-zinc-900 shadow-xl"
+          isDark
+            ? "bg-[#0c0c10]/95 border-white/20 text-white shadow-black/80"
+            : "bg-white/95 border-zinc-200 text-zinc-900 shadow-xl"
         }`}
       >
         <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-zinc-200 dark:border-white/10">
@@ -48,7 +55,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
           </span>
         </div>
 
-        <div className={isMultiCol ? "grid grid-cols-2 gap-x-4 gap-y-1" : "space-y-1"}>
+        <div className={isMultiCol ? "grid grid-cols-2 gap-x-3 gap-y-1" : "space-y-1"}>
           {sortedPayload.map((entry, index) => {
             const rankNum = Number(entry.value);
             const isValidRank = rankNum > 0 && rankNum <= 100;
