@@ -25,6 +25,8 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
       return valA - valB;
     });
 
+    const isMultiCol = sortedPayload.length > 8;
+
     const formattedLabel = label
       ? label.split("-").length === 3
         ? `${label.split("-")[2]}.${label.split("-")[1]}.${label.split("-")[0]}`
@@ -33,7 +35,9 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
 
     return (
       <div
-        className={`p-3 rounded-2xl border backdrop-blur-xl shadow-2xl w-64 pointer-events-none select-none z-50 ${
+        className={`p-3 rounded-2xl border backdrop-blur-xl shadow-2xl pointer-events-none select-none z-50 transition-all ${
+          isMultiCol ? "w-[440px] max-w-[90vw]" : "w-64"
+        } ${
           isDark ? "bg-[#0c0c10]/95 border-white/20 text-white shadow-black/80" : "bg-white/95 border-zinc-200 text-zinc-900 shadow-xl"
         }`}
       >
@@ -44,7 +48,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, i
           </span>
         </div>
 
-        <div className="space-y-1">
+        <div className={isMultiCol ? "grid grid-cols-2 gap-x-4 gap-y-1" : "space-y-1"}>
           {sortedPayload.map((entry, index) => {
             const rankNum = Number(entry.value);
             const isValidRank = rankNum > 0 && rankNum <= 100;
@@ -233,7 +237,7 @@ export const RankingsChart: React.FC<RankingsChartProps> = ({
                   <Tooltip
                     content={<CustomTooltip isDark={isDark} />}
                     wrapperStyle={{ zIndex: 100, outline: "none", pointerEvents: "none" }}
-                    allowEscapeViewBox={{ x: false, y: false }}
+                    allowEscapeViewBox={{ x: true, y: true }}
                   />
 
                   {activeTags.map((tag) => {
