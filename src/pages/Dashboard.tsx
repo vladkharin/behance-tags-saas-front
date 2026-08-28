@@ -49,6 +49,7 @@ interface DashboardProps {
   onNavigateLegal: (view: "help" | "plans" | "terms" | "privacy" | "refund") => void;
   onNavigateAdmin?: () => void;
   logout: () => void;
+  initialDemo?: boolean;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -56,6 +57,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onNavigateLegal,
   onNavigateAdmin,
   logout,
+  initialDemo = false,
 }) => {
   const { theme } = useTheme();
   const { t, i18n } = useTranslation();
@@ -218,6 +220,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     let mounted = true;
 
     const init = async () => {
+      if (initialDemo) {
+        await handleTryDemo();
+        if (mounted) setLoading(false);
+        return;
+      }
+
       try {
         const list = await analyticsService.getUserProjects();
         if (!mounted) return;
@@ -244,7 +252,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [initialDemo]);
 
   // Polling loop
   useEffect(() => {

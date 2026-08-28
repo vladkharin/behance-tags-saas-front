@@ -510,5 +510,93 @@
       "hybridRecognized": "✓ {{count}} tags recognized",
       "hybridClearAll": "Clear"
     }
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "safety": "Safety",
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "login": "Log in",
+      "startFree": "Start Free"
+    },
+    "hero": {
+      "safetyBadge": "🛡️ 100% Safe: No passwords or ban risk",
+      "title": "Rank your Behance cases at the TOP of search with data",
+      "subtitle": "Professional tag rank tracker for Behance creators. Discover your true positions in search results, spot rising trends, and attract high-ticket clients daily.",
+      "startFreeBtn": "🚀 Try Free Now",
+      "viewDemoBtn": "👁️ View Live Demo",
+      "trustNote": "🔒 No Adobe credentials required • Scanning public search results only",
+      "activeUsers": "over 1,500+ projects tracked"
+    },
+    "safety": {
+      "tag": "100% Safety Guarantee",
+      "title": "Why is your Behance account completely safe?",
+      "subtitle": "BeRanked is designed as a pure analytics tool. We never touch or interfere with your Adobe profile.",
+      "card1Title": "🚫 No Passwords Required",
+      "card1Desc": "We never ask for your Adobe ID or Behance credentials. Registration is completely independent.",
+      "card2Title": "🌐 Public Search Only",
+      "card2Desc": "The system queries public Behance search pages exactly like any human visitor browsing the platform.",
+      "card3Title": "🛡️ Zero Ban Risk",
+      "card3Desc": "No bot networks, spamming, or fake engagement. Your account is never linked to automated background requests."
+    },
+    "features": {
+      "tag": "Analytics Suite",
+      "title": "Everything you need to grow Behance case views",
+      "subtitle": "Turn tag selection from random guesswork into a data-driven ranking strategy.",
+      "f1Title": "📈 Daily Rank Tracking",
+      "f1Desc": "Crystal-clear daily position charts for every tag. See what drives views and what drops in ranking.",
+      "f2Title": "🪄 Smart Tags Matrix",
+      "f2Desc": "Visual categorization: Top-10 tags, Potential opportunities (ranks 11-30), and lost positions.",
+      "f3Title": "⚡ Rising Trends Discovery",
+      "f3Desc": "Instant filter for tags climbing in search ranks right now, allowing you to outrank competitors early.",
+      "f4Title": "📋 6-Format Export",
+      "f4Desc": "1-click export: comma-separated for Behance, column format for Excel/Sheets, hashtags, or quotes.",
+      "f5Title": "📊 1-Click Excel Paste",
+      "f5Desc": "Copied a column from Excel or Google Sheets? Paste it directly — BeRanked parses 50+ tags in seconds.",
+      "f6Title": "🔍 Competitor Intelligence",
+      "f6Desc": "Compare your tag rankings against top category creators and identify underserved high-demand tags."
+    },
+    "howItWorks": {
+      "tag": "Easy Setup",
+      "title": "How to rank higher in 3 steps",
+      "step1Num": "01",
+      "step1Title": "Paste your project URL",
+      "step1Desc": "Simply paste your Behance gallery link. No credentials needed.",
+      "step2Num": "02",
+      "step2Title": "Track search positions",
+      "step2Desc": "BeRanked identifies all tags and calculates their exact search ranking positions.",
+      "step3Num": "03",
+      "step3Title": "Optimize and reach the Top",
+      "step3Desc": "Replace weak tags with rising winners, reach Top-10, and get featured in Curated Galleries."
+    },
+    "pricingPreview": {
+      "tag": "Transparent Pricing",
+      "title": "Choose the right plan for your portfolio",
+      "subtitle": "Start free and upgrade anytime as your creative agency or freelance business grows.",
+      "viewAllPlansBtn": "View all plans and features →"
+    },
+    "faq": {
+      "tag": "Questions & Answers",
+      "title": "Frequently Asked Questions",
+      "q1": "Is it safe to use BeRanked for my Behance account?",
+      "a1": "Yes, 100% safe. BeRanked operates strictly as an external scanner of public search results. We never ask for Adobe passwords or perform actions on your behalf, so there is zero risk of bans or penalties.",
+      "q2": "How do optimized tags help my project reach the Top and get Featured?",
+      "a2": "Behance search algorithms prioritize projects with high relevance, search traffic, and user engagement. By tracking accurate ranks, you can replace stagnant tags with high-velocity terms that land on Page 1.",
+      "q3": "How often are rankings updated?",
+      "a3": "All monitored projects are scanned daily automatically. You always have up-to-date position data and trends on your charts.",
+      "q4": "Can I import tags directly from Excel or Google Sheets?",
+      "a4": "Yes! Our hybrid tag input supports column pasting from Excel or Sheets. Paste 50+ tags at once, and the parser cleans and formats them instantly.",
+      "q5": "How many projects can I track?",
+      "a5": "The Free tier includes 1 project. For creative studios and active freelancers, Pro and Studio plans offer 5, 15, or more projects with unlimited custom tags.",
+      "q6": "Can I cancel my subscription anytime?",
+      "a6": "Yes, you can cancel anytime with 1 click in your account settings. All your analytics remain accessible until the end of the paid period."
+    },
+    "cta": {
+      "title": "Ready to rank your projects at the top of Behance?",
+      "subtitle": "Join designers and studios using data to maximize case visibility and client inquiries.",
+      "btn": "🚀 Start Free Now"
+    }
   }
 }

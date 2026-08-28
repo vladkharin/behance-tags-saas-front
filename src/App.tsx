@@ -8,6 +8,7 @@ import { AuthForm } from "./components/AuthForm";
 import { useAuth } from "./hooks/useAuth";
 import { Dashboard } from "./pages/Dashboard";
 import { Plans } from "./pages/Plans";
+import { LandingPage } from "./pages/LandingPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { OfferPage } from "./pages/OfferPage";
 import { RefundPage } from "./pages/RefundPage";
@@ -31,6 +32,31 @@ const AuthRoute: React.FC = () => {
   );
 };
 
+const RootRoute: React.FC = () => {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  if (isAuthenticated) {
+    return (
+      <Dashboard
+        onNavigatePricing={() => navigate("/plans")}
+        onNavigateLegal={(view) => navigate(`/${view}`)}
+        onNavigateAdmin={() => navigate("/admin")}
+        logout={logout}
+      />
+    );
+  }
+
+  return (
+    <LandingPage
+      onNavigateAuth={() => navigate("/auth")}
+      onTryDemo={() => navigate("/demo")}
+      onNavigatePlans={() => navigate("/plans")}
+      onNavigateLegal={(view) => navigate(`/${view}`)}
+    />
+  );
+};
+
 const MainApp: React.FC = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -38,38 +64,39 @@ const MainApp: React.FC = () => {
   return (
     <div className="min-h-screen bg-behance-grayBg dark:bg-behance-darkBg">
       <Routes>
+        {/* Главный роут: Лендинг для гостей, Dashboard для авторизованных */}
+        <Route path="/" element={<RootRoute />} />
+
         {/* Публичный роут авторизации */}
         <Route path="/auth" element={<AuthRoute />} />
 
+        {/* Интерактивное демо (доступно без обязательной авторизации) */}
+        <Route
+          path="/demo"
+          element={
+            <Dashboard
+              onNavigatePricing={() => navigate("/plans")}
+              onNavigateLegal={(view) => navigate(`/${view}`)}
+              logout={logout}
+              initialDemo={true}
+            />
+          }
+        />
+
         {/* Публичные страницы (доступны всем) */}
+        <Route
+          path="/plans"
+          element={
+            <Plans
+              onBack={() => navigate("/")}
+              onNavigateLegal={(view) => navigate(`/${view}`)}
+            />
+          }
+        />
         <Route path="/help" element={<HelpPage onBack={() => navigate("/")} />} />
         <Route path="/privacy" element={<PrivacyPage onBack={() => navigate("/")} />} />
         <Route path="/terms" element={<OfferPage onBack={() => navigate("/")} />} />
         <Route path="/refund" element={<RefundPage onBack={() => navigate("/")} />} />
-
-        {/* Закрытые роуты для авторизованных пользователей */}
-        <Route element={<ProtectedRoute />}>
-          <Route
-            path="/"
-            element={
-              <Dashboard
-                onNavigatePricing={() => navigate("/plans")}
-                onNavigateLegal={(view) => navigate(`/${view}`)}
-                onNavigateAdmin={() => navigate("/admin")}
-                logout={logout}
-              />
-            }
-          />
-          <Route
-            path="/plans"
-            element={
-              <Plans
-                onBack={() => navigate("/")}
-                onNavigateLegal={(view) => navigate(`/${view}`)}
-              />
-            }
-          />
-        </Route>
 
         {/* Закрытый роут только для администратора */}
         <Route element={<ProtectedRoute adminOnly />}>
