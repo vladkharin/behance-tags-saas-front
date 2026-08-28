@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContextInstance";
 import { useToast } from "../../context/ToastContext";
@@ -15,8 +15,8 @@ interface TagsMatrixProps {
   hasTrends: boolean;
   isDemoMode: boolean;
   isBusy: boolean;
-  getTrend: (tag: string, rank: number | null) => number;
-  onFilterChange: (filter: "all" | "top10" | "potential" | "lost") => void;
+  getTrend?: (tag: string, rank: number | null) => number;
+  onFilterChange?: (filter: "all" | "top10" | "potential" | "lost") => void;
   onToggleTag: (e: React.MouseEvent, tagName: string) => void;
   onToggleAllTags: () => void;
   onAddCustomTags: (tags: string) => Promise<void>;
@@ -70,13 +70,24 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
     () => tags.filter((t) => typeof t.currentRank === "number" && t.currentRank > 10 && t.currentRank <= 30).length,
     [tags]
   );
+  const getTagTrend = useCallback(
+    (item: TagMatrixItem): number => {
+      if (getTrend) return getTrend(item.tag, item.currentRank);
+      if (typeof item.currentRank === "number" && typeof item.previousRank === "number") {
+        return item.previousRank - item.currentRank;
+      }
+      return 0;
+    },
+    [getTrend]
+  );
+
   const lostCount = useMemo(
     () => tags.filter((t) => t.currentRank === null || t.currentRank <= 0).length,
     [tags]
   );
   const risingCount = useMemo(
-    () => tags.filter((t) => getTrend(t.tag, t.currentRank) > 0).length,
-    [tags, getTrend]
+    () => tags.filter((t) => getTagTrend(t) > 0).length,
+    [tags, getTagTrend]
   );
 
   // Filter and sort tags
@@ -92,7 +103,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
     }
 
     if (onlyRising) {
-      list = list.filter((t) => getTrend(t.tag, t.currentRank) > 0);
+      list = list.filter((t) => getTagTrend(t) > 0);
     }
 
     if (searchQuery.trim()) {
@@ -108,7 +119,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
     });
 
     return list;
-  }, [tags, activeFilter, searchQuery, onlyRising, getTrend]);
+  }, [tags, activeFilter, searchQuery, onlyRising, getTagTrend]);
 
   const handleCopyTag = (tag: string) => {
     navigator.clipboard.writeText(tag).then(() => {
@@ -516,7 +527,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
             const isTop = rank !== null && rank >= 1 && rank <= 10;
             const isPotential = rank !== null && rank > 10 && rank <= 30;
             const isChecking = isBusy && (rank === null || rank === undefined);
-            const trend = getTrend(item.tag, rank);
+            const trend = getTagTrend(item);
 
             return (
               <div
