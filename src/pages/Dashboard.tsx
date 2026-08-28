@@ -59,6 +59,7 @@ interface DashboardProps {
   onNavigatePricing: () => void;
   onNavigateLegal: (view: "help" | "plans" | "terms" | "privacy" | "refund") => void;
   onNavigateAdmin?: () => void;
+  onNavigateAuth?: () => void;
   logout: () => void;
   initialDemo?: boolean;
 }
@@ -67,6 +68,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onNavigatePricing,
   onNavigateLegal,
   onNavigateAdmin,
+  onNavigateAuth,
   logout,
   initialDemo = false,
 }) => {
@@ -78,7 +80,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const dateLocale = i18n.language === "ru" ? ru : enUS;
 
   // --- STATE ---
-  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem("onboarding_complete"));
+  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem("onboarding_complete") && !initialDemo);
   const [isVideoTutorialOpen, setIsVideoTutorialOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [projects, setProjects] = useState<BehanceProject[]>([]);
@@ -303,6 +305,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleAddNewProjectClick = () => {
+    if (isDemoMode && !isAuthenticated) {
+      confirm({
+        title: t("dashboard.dialogs.demoAddProjectTitle"),
+        message: t("dashboard.dialogs.demoAddProjectMsg"),
+        confirmText: t("dashboard.dialogs.demoAddProjectConfirm"),
+        cancelText: t("dashboard.dialogs.demoAddProjectCancel"),
+        onConfirm: () => {
+          if (onNavigateAuth) {
+            onNavigateAuth();
+          } else {
+            onNavigatePricing();
+          }
+        },
+      });
+      return;
+    }
+
     if (projects.length >= planLimits.maxProjects) {
       confirm({
         title: t("dashboard.dialogs.limitTitle"),
@@ -580,7 +599,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     <div className="flex h-screen overflow-hidden bg-behance-grayBg dark:bg-behance-darkBg">
       {/* ONBOARDING WELCOME MODAL */}
       <WelcomeModal
-        isOpen={showWelcome}
+        isOpen={showWelcome && !isDemoMode && Boolean(isAuthenticated)}
         onClose={() => setShowWelcome(false)}
         onOpenTutorial={() => setIsVideoTutorialOpen(true)}
       />
@@ -618,7 +637,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         onAddNewProject={handleAddNewProjectClick}
         onTryDemo={handleTryDemo}
         onOpenProfile={() => setIsProfileModalOpen(true)}
-        onNavigateAuth={() => onNavigateLegal("help")}
+        onNavigateAuth={onNavigateAuth}
         onNavigatePricing={onNavigatePricing}
         onNavigateLegal={onNavigateLegal}
         onNavigateAdmin={onNavigateAdmin}
@@ -632,10 +651,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="bg-gradient-to-r from-behance-blue via-indigo-600 to-blue-700 text-white px-4 py-3 text-xs font-bold flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left animate-in fade-in sticky top-0 z-40 shadow-md">
             <div className="flex items-center gap-2">
               <span className="text-base">👁️</span>
-              <span>Вы находитесь в интерактивном Демо-режиме (Smart Watch UI/UX Case).</span>
+              <span>
+                {i18n.language === "ru"
+                  ? "Вы находитесь в интерактивном Демо-режиме (Smart Watch UI/UX Case)."
+                  : "You are currently viewing interactive Demo Mode (Smart Watch UI/UX Case)."}
+              </span>
             </div>
             <button
-              onClick={() => onNavigateLegal("help")}
+              onClick={() => {
+                if (onNavigateAuth) onNavigateAuth();
+              }}
               type="button"
               className="px-4 py-1.5 rounded-xl bg-white text-behance-blue font-black uppercase text-[11px] shadow-sm hover:scale-105 transition-all cursor-pointer shrink-0"
             >

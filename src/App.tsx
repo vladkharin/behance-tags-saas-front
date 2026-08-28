@@ -42,6 +42,7 @@ const RootRoute: React.FC = () => {
         onNavigatePricing={() => navigate("/plans")}
         onNavigateLegal={(view) => navigate(`/${view}`)}
         onNavigateAdmin={() => navigate("/admin")}
+        onNavigateAuth={() => navigate("/auth")}
         logout={logout}
       />
     );
@@ -77,7 +78,8 @@ const MainApp: React.FC = () => {
             <Dashboard
               onNavigatePricing={() => navigate("/plans")}
               onNavigateLegal={(view) => navigate(`/${view}`)}
-              logout={logout}
+              onNavigateAuth={() => navigate("/auth")}
+              logout={() => navigate("/auth")}
               initialDemo={true}
             />
           }
