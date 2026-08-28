@@ -11,11 +11,14 @@ interface ProjectsSidebarProps {
   userPlan: PlanType;
   maxProjects: number;
   isAdmin?: boolean;
+  isAuthenticated?: boolean;
   isOpenMobile: boolean;
   onCloseMobile: () => void;
   onSelectProject: (id: string) => void;
   onAddNewProject: () => void;
   onTryDemo?: () => void;
+  onOpenProfile?: () => void;
+  onNavigateAuth?: () => void;
   onNavigatePricing: () => void;
   onNavigateLegal: (view: "help" | "plans" | "terms" | "privacy" | "refund") => void;
   onNavigateAdmin?: () => void;
@@ -30,11 +33,14 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
   userPlan,
   maxProjects,
   isAdmin,
+  isAuthenticated = true,
   isOpenMobile,
   onCloseMobile,
   onSelectProject,
   onAddNewProject,
   onTryDemo,
+  onOpenProfile,
+  onNavigateAuth,
   onNavigatePricing,
   onNavigateLegal,
   onNavigateAdmin,
@@ -45,52 +51,59 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
   const isDark = theme === "dark";
 
   const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === "ru" ? "en" : "ru");
+    const nextLang = i18n.language === "ru" ? "en" : "ru";
+    i18n.changeLanguage(nextLang);
   };
 
   const sidebarContent = (
     <div
-      className={`w-72 h-full border-r flex flex-col z-40 transition-colors duration-200 ${
+      className={`w-72 h-full flex flex-col border-r transition-all ${
         isDark
-          ? "bg-[#101014] border-white/10 text-zinc-100"
-          : "bg-white border-zinc-200 text-zinc-900 shadow-xs"
+          ? "bg-[#0c0c0e] border-white/10 text-white"
+          : "bg-white border-zinc-200 text-zinc-900 shadow-sm"
       }`}
     >
-      {/* BRANDING & CONTROLS HEADER */}
-      <div className="p-5 border-b border-zinc-200 dark:border-white/10 flex items-center justify-between">
+      {/* HEADER: LOGO & CONTROLS */}
+      <div className="p-4 border-b border-zinc-200 dark:border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-behance-blue flex items-center justify-center text-white font-black text-xs shadow-md shadow-blue-500/20">
-            Be
+          <div className="w-8 h-8 rounded-xl bg-behance-blue text-white flex items-center justify-center font-black text-sm shadow-sm shadow-blue-500/30">
+            B
           </div>
           <div>
-            <span className="text-sm font-black uppercase tracking-wider block leading-tight">
+            <h1 className="text-xs font-black tracking-tight bg-gradient-to-r from-behance-blue to-indigo-500 bg-clip-text text-transparent uppercase">
               BeRanked
-            </span>
-            <span className="text-[9px] font-bold opacity-40 uppercase tracking-widest block">
-              SEO Suite
-            </span>
+            </h1>
+            <span className="text-[9px] opacity-40 font-mono block">SEO SUITE</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        {/* CONTROLS */}
+        <div className="flex items-center gap-1.5">
+          {/* LANG SWITCHER */}
           <button
             onClick={toggleLanguage}
             type="button"
-            className="w-7 h-7 rounded-lg text-[10px] font-black uppercase hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+            className="px-2 py-1 rounded-lg bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-[10px] font-bold uppercase transition-colors cursor-pointer"
+            title="Switch Language"
           >
-            {i18n.language.toUpperCase().substring(0, 2)}
+            {i18n.language === "ru" ? "RU" : "EN"}
           </button>
+
+          {/* THEME TOGGLE */}
           <button
             onClick={toggleTheme}
             type="button"
-            className="w-7 h-7 rounded-lg text-xs hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+            className="p-1.5 rounded-lg bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs transition-colors cursor-pointer"
+            title="Toggle Theme"
           >
             {isDark ? "☀️" : "🌙"}
           </button>
+
+          {/* MOBILE CLOSE */}
           <button
             onClick={onCloseMobile}
             type="button"
-            className="lg:hidden w-7 h-7 rounded-lg text-xs hover:bg-zinc-100 dark:hover:bg-white/10 flex items-center justify-center opacity-60 hover:opacity-100"
+            className="lg:hidden p-1.5 rounded-lg bg-zinc-100 dark:bg-white/5 text-xs"
           >
             ✕
           </button>
@@ -158,23 +171,43 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
                     ? "bg-behance-blue border-behance-blue text-white shadow-md shadow-blue-500/15"
                     : isDark
                       ? "bg-white/5 border-transparent text-zinc-400 hover:bg-white/10 hover:text-white"
-                      : "bg-zinc-50 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100"
+                      : "bg-zinc-100/70 border-transparent text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900"
                 }`}
               >
-                <div className="min-w-0 pr-2">
-                  <div className="text-xs font-bold truncate leading-tight">
-                    {p.title || "Untitled Project"}
-                  </div>
-                  <div
-                    className={`text-[9px] mt-0.5 font-medium uppercase tracking-wider ${
-                      isActive ? "text-white/70" : "opacity-40"
-                    }`}
-                  >
-                    {status === "PENDING"
-                      ? t("sidebar.status.pending")
-                      : status === "PROCESSING"
-                        ? t("sidebar.status.processing")
-                        : `${p.views.toLocaleString()} ${t("dashboard.stats.views").toLowerCase()}`}
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  {p.thumbnail ? (
+                    <img
+                      src={p.thumbnail}
+                      alt={p.title}
+                      className="w-7 h-7 rounded-lg object-cover shrink-0 border border-white/10"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs shrink-0">
+                      🎨
+                    </div>
+                  )}
+
+                  <div className="overflow-hidden">
+                    <h3
+                      className={`text-xs font-bold truncate ${
+                        isActive ? "text-white" : ""
+                      }`}
+                    >
+                      {p.title || "Untitled Project"}
+                    </h3>
+                    <span
+                      className={`text-[9px] block truncate ${
+                        isActive ? "text-white/80" : "opacity-50"
+                      }`}
+                    >
+                      {status === "PENDING"
+                        ? t("dashboard.status.pending")
+                        : status === "SCRAPING"
+                          ? t("dashboard.status.scraping")
+                          : status === "CHECKING_RANKS"
+                            ? t("dashboard.status.checking")
+                            : t("dashboard.status.idle")}
+                    </span>
                   </div>
                 </div>
 
@@ -261,25 +294,56 @@ export const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({
           </button>
         </div>
 
-        <div className="flex gap-1.5">
-          <button
-            onClick={() => {
-              onNavigateLegal("help");
-              onCloseMobile();
-            }}
-            type="button"
-            className="flex-1 py-2 rounded-lg bg-zinc-100 dark:bg-white/5 text-[10px] font-bold uppercase hover:bg-zinc-200 dark:hover:bg-white/10 transition-colors cursor-pointer text-center"
-          >
-            ❓ Manual
-          </button>
-          <button
-            onClick={logout}
-            type="button"
-            className="py-2 px-3 rounded-lg bg-zinc-100 dark:bg-white/5 text-[10px] font-bold uppercase opacity-60 hover:opacity-100 hover:text-red-500 transition-colors cursor-pointer text-center"
-          >
-            {t("sidebar.logout")}
-          </button>
-        </div>
+        {/* BOTTOM AUTH / PROFILE BUTTONS */}
+        {!isAuthenticated && isDemoMode ? (
+          <div className="pt-1 space-y-1">
+            <button
+              onClick={() => {
+                if (onNavigateAuth) onNavigateAuth();
+                onCloseMobile();
+              }}
+              type="button"
+              className="w-full py-2 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm"
+            >
+              🚀 {t("landing.nav.startFree")}
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-1.5">
+            {onOpenProfile && (
+              <button
+                onClick={() => {
+                  onOpenProfile();
+                  onCloseMobile();
+                }}
+                type="button"
+                className="flex-1 py-2 rounded-lg bg-zinc-100 dark:bg-white/5 text-[10px] font-bold uppercase hover:bg-zinc-200 dark:hover:bg-white/10 transition-colors cursor-pointer text-center flex items-center justify-center gap-1"
+              >
+                <span>👤</span>
+                <span className="truncate">{t("profile.title")}</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                onNavigateLegal("help");
+                onCloseMobile();
+              }}
+              type="button"
+              className="py-2 px-2.5 rounded-lg bg-zinc-100 dark:bg-white/5 text-[10px] font-bold uppercase hover:bg-zinc-200 dark:hover:bg-white/10 transition-colors cursor-pointer text-center"
+              title="Manual"
+            >
+              ❓
+            </button>
+            <button
+              onClick={logout}
+              type="button"
+              className="py-2 px-2.5 rounded-lg bg-zinc-100 dark:bg-white/5 text-[10px] font-bold uppercase opacity-60 hover:opacity-100 hover:text-red-500 transition-colors cursor-pointer text-center"
+              title={t("sidebar.logout")}
+            >
+              🚪
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -49,7 +49,8 @@
       "behanceStats": "Статистика кейса на Behance:",
       "viewsCount": "{{count}} просмотров",
       "likesCount": "{{count}} лайков",
-      "commentsCount": "{{count}} комментариев"
+      "commentsCount": "{{count}} комментариев",
+      "tags": "Tags"
     },
     "meta": {
       "plan": "Тариф",
@@ -604,5 +605,22 @@
       "subtitle": "Join designers and studios using data to maximize case visibility and client inquiries.",
       "btn": "🚀 Start Free Now"
     }
+  },
+  "profile": {
+    "title": "Personal Account",
+    "subtitle": "Manage your profile, plan and account security",
+    "emailLabel": "Your Email",
+    "verifiedBadge": "Verified",
+    "planLabel": "Active Plan",
+    "fuelBalanceLabel": "Fuel Tag Balance",
+    "tagsCount": "{{count}} tags",
+    "subscriptionStatus": "Subscription Status",
+    "subscriptionActive": "Active (No hidden recurrent charges)",
+    "subscriptionNote": "All purchased plans and fuel tags remain valid until expiration. No unexpected recurring charges are made.",
+    "upgradeBtn": "Upgrade Plan / Add Fuel →",
+    "securityTitle": "Security",
+    "securityDesc": "Your account is secured. No Adobe/Behance credentials are ever stored.",
+    "closeBtn": "Close",
+    "logoutBtn": "Log out"
   }
 }

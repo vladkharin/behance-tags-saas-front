@@ -16,9 +16,20 @@ import { ShareCardModal } from "../components/dashboard/ShareCardModal";
 import { EmptyProjectsView } from "../components/dashboard/EmptyProjectsView";
 import { WelcomeModal } from "../components/WelcomeModal";
 import { VideoTutorialModal } from "../components/ui/VideoTutorialModal";
+import { ProfileModal } from "../components/ui/ProfileModal";
 import { Footer } from "../components/Footer";
 import { fireConfetti } from "../utils/confetti";
-import type { BehanceProject, HistoryPoint, PlanType, ProjectDetailsResponse } from "../types/analytics.types";
+import {
+  MOCK_DEMO_PROJECT,
+  MOCK_DEMO_DETAILS,
+  MOCK_DEMO_HISTORY,
+} from "../utils/mockDemoData";
+import type {
+  BehanceProject,
+  HistoryPoint,
+  PlanType,
+  ProjectDetailsResponse,
+} from "../types/analytics.types";
 
 const COLORS = [
   "#0057ff",
@@ -62,16 +73,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const { theme } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast, confirm } = useToast();
-  const { isAdmin } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useAuth();
   const isDark = theme === "dark";
   const dateLocale = i18n.language === "ru" ? ru : enUS;
 
   // --- STATE ---
   const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem("onboarding_complete"));
   const [isVideoTutorialOpen, setIsVideoTutorialOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [projects, setProjects] = useState<BehanceProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(() => Boolean(initialDemo));
   const [projectData, setProjectData] = useState<ProjectDetailsResponse | null>(null);
   const [history, setHistory] = useState<Record<string, HistoryPoint[]>>({});
   const [visibleTags, setVisibleTags] = useState<string[]>([]);
@@ -79,105 +91,88 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const [isAddingNew, setIsAddingNew] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
+  const [isAddingNew, setIsAddingNew] = useState(false);
   const [activeFilter, setActiveFilter] = useState<"all" | "top10" | "potential" | "lost">("all");
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isShareCardOpen, setIsShareCardOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // --- PLAN CALCULATIONS ---
-  const userPlan = useMemo<PlanType>(() => {
+  const selectedProjectInSidebar = useMemo(() => {
+    if (isDemoMode) return MOCK_DEMO_PROJECT;
+    return projects.find((p) => p.id === selectedProjectId) || projectData?.activeProject;
+  }, [projects, selectedProjectId, projectData, isDemoMode]);
+
+  // Plan limits & normalizations
+  const userPlan: PlanType = useMemo(() => {
     if (isDemoMode) return "PRO_STREAM";
-    return normalizePlan(projectData?.plan);
-  }, [projectData, isDemoMode]);
+    return normalizePlan(user?.plan || "FREE");
+  }, [user?.plan, isDemoMode]);
 
   const planLimits = useMemo(() => {
-    return {
-      maxProjects: PLAN_PROJECT_LIMITS[userPlan] || 1,
-      hasCustomTags: userPlan !== "FREE",
-      hasHistory: userPlan !== "FREE",
-      hasTrends: userPlan === "PRO_STREAM",
-    };
-  }, [userPlan]);
+    const maxProjects = isDemoMode ? 10 : PLAN_PROJECT_LIMITS[userPlan] || 1;
+    const intervalHours = PLAN_HOURS[userPlan] || 168;
+    const hasCustomTags = userPlan !== "FREE" || isDemoMode;
+    const hasTrends = userPlan !== "FREE" || isDemoMode;
+    return { maxProjects, intervalHours, hasCustomTags, hasTrends };
+  }, [userPlan, isDemoMode]);
 
-  // --- METRICS ---
+  const hasEnoughBalance = useMemo(() => {
+    if (isDemoMode) return true;
+    if (!projectData) return true;
+    const totalActive = projectData.tagsMatrix.length;
+    return projectData.tagBalance >= totalActive;
+  }, [projectData, isDemoMode]);
+
+  const isSelectedProjectBusy = useMemo(() => {
+    if (!selectedProjectInSidebar) return false;
+    return selectedProjectInSidebar.analysisStatus !== "IDLE" || projectData?.status === "PROCESSING";
+  }, [selectedProjectInSidebar, projectData?.status]);
+
   const stats = useMemo(() => {
-    const tags = projectData?.tagsMatrix || [];
-    const inSearch = tags.filter((t) => typeof t.currentRank === "number" && t.currentRank > 0);
-    return {
-      top10: tags.filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10).length,
-      potential: tags.filter((t) => typeof t.currentRank === "number" && t.currentRank > 10 && t.currentRank <= 30).length,
-      total: tags.length,
-      visibility: tags.length > 0 ? Math.round((inSearch.length / tags.length) * 100) : 0,
-    };
-  }, [projectData]);
-
-  const nextUpdateTime = useMemo(() => {
-    if (!projectData?.lastAnalyzedAt) return null;
-    const planKey = normalizePlan(projectData.plan);
-    const interval = PLAN_HOURS[planKey] || 168;
-    return addHours(new Date(projectData.lastAnalyzedAt), interval);
-  }, [projectData]);
-
-  const canUpdateByTime = useMemo(() => {
-    if (isDemoMode) return false;
-    if (!projectData?.lastAnalyzedAt) return true;
-    return isAfter(new Date(), nextUpdateTime!);
-  }, [projectData, isDemoMode, nextUpdateTime]);
-
-  const selectedProjectInSidebar = useMemo(
-    () => projects.find((p) => p.id === selectedProjectId) || projectData?.activeProject || null,
-    [projects, selectedProjectId, projectData],
-  );
-
-  const currentCost = useMemo(() => projectData?.tagsMatrix?.length || 0, [projectData]);
-  const hasEnoughBalance = useMemo(() => (projectData?.tagBalance || 0) >= currentCost, [projectData, currentCost]);
-  const isSelectedProjectBusy = useMemo(
-    () => projectData?.status === "PENDING" || projectData?.status === "PROCESSING",
-    [projectData],
-  );
-
-  const getTrend = useCallback(
-    (tagName: string, currentRank: number | null) => {
-      const tagHistory = history[tagName];
-      if (!tagHistory || tagHistory.length < 2 || currentRank === null || currentRank <= 0) return 0;
-      const prevRank = tagHistory[tagHistory.length - 2].rank;
-      if (prevRank <= 0) return 0;
-      return prevRank - currentRank;
-    },
-    [history],
-  );
-
-  const sortedAndFilteredTags = useMemo(() => {
-    const tags = projectData?.tagsMatrix || [];
-    let result = [...tags];
-
-    if (activeFilter === "top10") {
-      result = result.filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10);
-    } else if (activeFilter === "potential") {
-      result = result.filter((t) => typeof t.currentRank === "number" && t.currentRank > 10 && t.currentRank <= 30);
-    } else if (activeFilter === "lost") {
-      result = result.filter((t) => t.currentRank === null || t.currentRank <= 0);
+    if (!projectData || !projectData.tagsMatrix) {
+      return { top10: 0, potential: 0, total: 0, visibility: 0 };
     }
+    const matrix = projectData.tagsMatrix;
+    const top10 = matrix.filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10).length;
+    const potential = matrix.filter((t) => typeof t.currentRank === "number" && t.currentRank > 10 && t.currentRank <= 30).length;
+    const total = matrix.length;
+    const visibility = total > 0 ? Math.round((top10 / total) * 100) : 0;
+    return { top10, potential, total, visibility };
+  }, [projectData]);
 
-    return result.sort((a, b) => {
-      const rankA = a.currentRank === null || a.currentRank <= 0 ? 999 : a.currentRank;
-      const rankB = b.currentRank === null || b.currentRank <= 0 ? 999 : b.currentRank;
-      return rankA - rankB;
-    });
-  }, [projectData, activeFilter]);
-
+  // Color assignments for tags on charts
   const tagColors = useMemo(() => {
     const map: Record<string, string> = {};
-    projectData?.tagsMatrix?.forEach((item, idx) => {
-      map[item.tag] = COLORS[idx % COLORS.length];
+    if (!projectData?.tagsMatrix) return map;
+    projectData.tagsMatrix.forEach((t, i) => {
+      map[t.tag] = COLORS[i % COLORS.length];
     });
     return map;
-  }, [projectData]);
+  }, [projectData?.tagsMatrix]);
 
-  // --- API DATA FETCHING ---
+  // Filtered & sorted tags
+  const sortedAndFilteredTags = useMemo(() => {
+    if (!projectData?.tagsMatrix) return [];
+    return [...projectData.tagsMatrix].sort((a, b) => {
+      const rankA = typeof a.currentRank === "number" ? a.currentRank : 9999;
+      const rankB = typeof b.currentRank === "number" ? b.currentRank : 9999;
+      return rankA - rankB;
+    });
+  }, [projectData?.tagsMatrix]);
+
+  // Refresh project details
   const refreshData = useCallback(
     async (targetId: string, isInitialLoad = false) => {
+      if (isDemoMode || targetId === MOCK_DEMO_PROJECT.id) {
+        setProjectData(MOCK_DEMO_DETAILS);
+        setHistory(MOCK_DEMO_HISTORY);
+        if (isInitialLoad && MOCK_DEMO_DETAILS.tagsMatrix) {
+          const active = MOCK_DEMO_DETAILS.tagsMatrix.filter((t) => t.onChart).map((t) => t.tag);
+          setVisibleTags(active);
+        }
+        return;
+      }
+
       try {
         const [detailsRes, historyRes, listRes] = await Promise.all([
           analyticsService.getProjectDetails(targetId),
@@ -214,6 +209,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
     },
     [projectData?.status, visibleTags.length, isDemoMode, showToast, t],
   );
+
+  const handleTryDemo = useCallback(async () => {
+    setDetailsLoading(true);
+    try {
+      setSelectedProjectId(MOCK_DEMO_PROJECT.id);
+      setIsDemoMode(true);
+      setIsAddingNew(false);
+      setProjectData(MOCK_DEMO_DETAILS);
+      setHistory(MOCK_DEMO_HISTORY);
+      setVisibleTags(
+        MOCK_DEMO_DETAILS.tagsMatrix.filter((t) => t.onChart).map((t) => t.tag)
+      );
+      showToast(t("dashboard.toasts.demoLoaded"), "info", undefined, 2000);
+    } catch (e) {
+      showToast(t("dashboard.toasts.demoNotFound"), "error");
+    } finally {
+      setDetailsLoading(false);
+      setLoading(false);
+    }
+  }, [showToast, t]);
 
   // Initial load
   useEffect(() => {
@@ -252,22 +267,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return () => {
       mounted = false;
     };
-  }, [initialDemo]);
+  }, [initialDemo, handleTryDemo]);
 
   // Polling loop
   useEffect(() => {
-    let intervalId: number | undefined;
-
-    if (isPolling && selectedProjectId) {
-      intervalId = window.setInterval(() => {
+    let intervalId: NodeJS.Timeout;
+    if (isPolling && selectedProjectId && !isDemoMode) {
+      intervalId = setInterval(() => {
         refreshData(selectedProjectId);
       }, 3000);
     }
-
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isPolling, selectedProjectId, refreshData]);
+  }, [isPolling, selectedProjectId, refreshData, isDemoMode]);
 
   // --- USER ACTIONS ---
   const handleProjectSelect = async (id: string) => {
@@ -289,26 +302,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-  const handleTryDemo = async () => {
-    setDetailsLoading(true);
-    try {
-      const demo = await analyticsService.getDemoProject();
-      if (demo && demo.id) {
-        setSelectedProjectId(demo.id);
-        setIsDemoMode(true);
-        setIsAddingNew(false);
-        await refreshData(demo.id, true);
-        showToast(t("dashboard.toasts.demoLoaded"), "info");
-      } else {
-        showToast(t("dashboard.toasts.demoUnavailable"), "warning");
-      }
-    } catch (e) {
-      showToast(t("dashboard.toasts.demoNotFound"), "error");
-    } finally {
-      setDetailsLoading(false);
-    }
-  };
-
   const handleAddNewProjectClick = () => {
     if (projects.length >= planLimits.maxProjects) {
       confirm({
@@ -320,121 +313,179 @@ export const Dashboard: React.FC<DashboardProps> = ({
       });
       return;
     }
-
     setIsAddingNew(true);
     setSelectedProjectId(null);
-    setIsDemoMode(false);
   };
 
+  // IMPORT CASE
+  const handleImport = async (url: string, customTags?: string[]) => {
+    setActionLoading(true);
+    try {
+      const newProj = await analyticsService.importCase(url);
+      setProjects((prev) => [newProj, ...prev]);
+      setSelectedProjectId(newProj.id);
+      setIsAddingNew(false);
+      setIsDemoMode(false);
+
+      await analyticsService.analyzeProject(newProj.id, customTags);
+      setIsPolling(true);
+      showToast(t("dashboard.toasts.importSuccess"), "success");
+      await refreshData(newProj.id, true);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || t("dashboard.toasts.importError");
+      showToast(msg, "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // REFRESH RANKINGS (SINGLE SCAN)
   const handleRefreshRankings = async () => {
+    if (!selectedProjectId) return;
+
     if (isDemoMode) {
-      showToast(t("dashboard.demo.restricted"), "warning");
+      showToast("В демо-режиме отображаются демонстрационные данные графика", "info");
       return;
     }
 
-    if (!selectedProjectId || actionLoading || isSelectedProjectBusy || !projectData?.tagsMatrix) return;
-
     if (!hasEnoughBalance) {
-      if (!canUpdateByTime) {
-        const timeUntil = formatDistanceToNow(nextUpdateTime!, { addSuffix: true, locale: dateLocale });
-        showToast(t("dashboard.toasts.freeUpdateNotice", { time: timeUntil }), "warning");
-        return;
-      }
-
       confirm({
-        title: t("dashboard.dialogs.lowBalanceTitle"),
-        message: t("dashboard.dialogs.lowBalanceMessage"),
-        confirmText: t("dashboard.dialogs.lowBalanceAction"),
-        cancelText: t("modals.confirm.cancel"),
+        title: "Недостаточно тегов Fuel",
+        message: `Для сканирования требуется ${projectData?.tagsMatrix.length} тегов. Ваш текущий баланс: ${projectData?.tagBalance}. Пополните баланс тегов!`,
+        confirmText: "Пополнить баланс",
+        cancelText: "Отмена",
         onConfirm: () => onNavigatePricing(),
       });
       return;
     }
 
     setActionLoading(true);
-    setProjectData({
-      ...projectData,
-      status: "PROCESSING",
-      tagsMatrix: projectData.tagsMatrix.map((t) => ({ ...t, currentRank: null })),
-    });
-
     try {
-      await analyticsService.analyzeProject(
-        selectedProjectId,
-        projectData.tagsMatrix.map((t) => t.tag),
-      );
+      await analyticsService.analyzeProject(selectedProjectId);
       setIsPolling(true);
-      showToast("Анализ позиций запущен", "info");
-    } catch (e) {
-      showToast("Ошибка при запуске анализа", "error");
+      showToast(t("dashboard.toasts.refreshSent"), "info");
+      if (projectData) {
+        setProjectData({ ...projectData, status: "PROCESSING" });
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Ошибка запуска обновления";
+      showToast(msg, "error");
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleImport = async (url: string, customTags?: string[]) => {
-    setActionLoading(true);
-    try {
-      const newProject = await analyticsService.importCase(url);
-      const newId = newProject.id;
-      setSelectedProjectId(newId);
-      setIsAddingNew(false);
-
-      await analyticsService.analyzeProject(newId, customTags);
-      await refreshData(newId, true);
-      fireConfetti();
-      showToast("Проект успешно подключен и отправлен на анализ!", "success");
-    } catch (err) {
-      showToast("Не удалось импортировать кейс. Проверьте ссылку.", "error");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleAddCustomTags = async (tagsString: string) => {
+  // TOGGLE AUTO-UPDATE SCHEDULE
+  const toggleAutoUpdate = async (state: boolean) => {
+    if (!selectedProjectId) return;
     if (isDemoMode) {
-      showToast(t("dashboard.demo.restricted"), "warning");
+      showToast("В демо-режиме робот включен по умолчанию", "info");
       return;
     }
 
-    if (!planLimits.hasCustomTags) {
-      showToast("Добавление кастомных тегов доступно на тарифах Daily Fresh и Pro Stream", "warning");
-      return;
+    try {
+      await analyticsService.toggleAutoUpdate(selectedProjectId, state);
+      setProjects((prev) =>
+        prev.map((p) => (p.id === selectedProjectId ? { ...p, isScheduled: state } : p)),
+      );
+      showToast(
+        state
+          ? t("dashboard.toasts.scheduleEnabled", { hours: planLimits.intervalHours })
+          : t("dashboard.toasts.scheduleDisabled"),
+        "success",
+      );
+    } catch (e) {
+      showToast("Не удалось изменить расписание робота", "error");
+    }
+  };
+
+  // TOGGLE TAG ON CHART
+  const handleToggleTag = async (tagName: string) => {
+    const isCurrentlyVisible = visibleTags.includes(tagName);
+    const newTags = isCurrentlyVisible
+      ? visibleTags.filter((t) => t !== tagName)
+      : [...visibleTags, tagName];
+
+    setVisibleTags(newTags);
+
+    if (projectData) {
+      setProjectData({
+        ...projectData,
+        tagsMatrix: projectData.tagsMatrix.map((t) =>
+          t.tag === tagName ? { ...t, onChart: !isCurrentlyVisible } : t,
+        ),
+      });
     }
 
-    if (!selectedProjectId || !hasEnoughBalance) {
-      showToast("Недостаточно баланса для добавления тегов", "warning");
+    if (!isDemoMode && selectedProjectId) {
+      try {
+        await analyticsService.toggleTagOnChart(selectedProjectId, tagName, !isCurrentlyVisible);
+      } catch (e) {
+        console.error("Failed to sync tag chart visibility", e);
+      }
+    }
+  };
+
+  // TOGGLE ALL TAGS ON CHART
+  const handleToggleAllTags = async (state: boolean) => {
+    if (!projectData) return;
+
+    if (state) {
+      const allTags = projectData.tagsMatrix.map((t) => t.tag);
+      setVisibleTags(allTags);
+      setProjectData({
+        ...projectData,
+        tagsMatrix: projectData.tagsMatrix.map((t) => ({ ...t, onChart: true })),
+      });
+    } else {
+      setVisibleTags([]);
+      setProjectData({
+        ...projectData,
+        tagsMatrix: projectData.tagsMatrix.map((t) => ({ ...t, onChart: false })),
+      });
+    }
+
+    if (!isDemoMode && selectedProjectId) {
+      try {
+        await analyticsService.toggleAllTagsOnChart(selectedProjectId, state);
+      } catch (e) {
+        console.error("Failed to sync all tags on chart", e);
+      }
+    }
+  };
+
+  // ADD CUSTOM TAGS
+  const handleAddCustomTags = async (tagsString: string) => {
+    if (!selectedProjectId || !tagsString.trim()) return;
+
+    if (isDemoMode) {
+      showToast("Кастомные теги добавлены в демо-матрицу!", "success");
       return;
     }
 
     setActionLoading(true);
     try {
-      const tags = tagsString
-        .split(",")
-        .map((t) => t.trim())
+      const tagsList = tagsString
+        .split(/[\n,;]+/)
+        .map((t) => t.replace(/^#/, "").trim())
         .filter((t) => t.length > 0);
 
-      await analyticsService.analyzeProject(selectedProjectId, tags);
+      await analyticsService.analyzeProject(selectedProjectId, tagsList);
       setIsPolling(true);
-      showToast("Теги добавлены и отправлены на сканирование!", "success");
+      showToast(`Добавлено ${tagsList.length} тегов в анализ! 🚀`, "success");
     } catch (e) {
-      showToast("Не удалось добавить теги", "error");
+      showToast("Не удалось добавить кастомные теги", "error");
     } finally {
       setActionLoading(false);
     }
   };
 
-  // ADD SMART SUGGESTED TAG (1-CLICK)
+  // ADD SUGGESTED TAG
   const handleAddSuggestedTag = async (tagName: string) => {
-    if (isDemoMode) {
-      showToast(t("dashboard.demo.restricted"), "warning");
-      return;
-    }
-
     if (!selectedProjectId) return;
 
-    if (!hasEnoughBalance) {
-      showToast("Недостаточно баланса тегов для запуска проверки", "warning");
+    if (isDemoMode) {
+      showToast(`Тег #${tagName} добавлен в демо!`, "success");
       return;
     }
 
@@ -453,6 +504,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // REMOVE TAG FROM PROJECT MONITORING
   const handleRemoveTag = async (tagName: string) => {
     if (!selectedProjectId) return;
+
+    if (isDemoMode) {
+      if (projectData) {
+        setProjectData({
+          ...projectData,
+          tagsMatrix: projectData.tagsMatrix.filter((t) => t.tag !== tagName),
+        });
+      }
+      setVisibleTags((prev) => prev.filter((t) => t !== tagName));
+      showToast(`Тег #${tagName} удален из демо`, "info");
+      return;
+    }
 
     try {
       await analyticsService.removeTagFromProject(selectedProjectId, tagName);
@@ -473,6 +536,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const handleDeleteProject = () => {
     if (!selectedProjectId || !projectData) return;
 
+    if (isDemoMode) {
+      showToast("Демо-проект нельзя удалить", "info");
+      return;
+    }
+
     const isFree = userPlan === "FREE";
     const confirmMsg = isFree
       ? `Вы уверены, что хотите удалить проект "${selectedProjectInSidebar?.title || "кейс"}"? На бесплатном тарифе замена кейса доступна раз в 7 дней.`
@@ -481,31 +549,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
     confirm({
       title: "Удаление кейса",
       message: confirmMsg,
-      confirmText: "Да, удалить кейс",
+      confirmText: "Да, удалить",
       cancelText: "Отмена",
       onConfirm: async () => {
         setActionLoading(true);
         try {
           await analyticsService.deleteProject(selectedProjectId);
-          showToast("Проект успешно удален", "info");
-
-          const updatedList = await analyticsService.getUserProjects();
-          setProjects(updatedList);
-
-          if (updatedList.length > 0) {
-            const nextId = updatedList[0].id;
-            setSelectedProjectId(nextId);
-            await refreshData(nextId, true);
+          showToast("Проект успешно удален", "success");
+          const updatedProjects = projects.filter((p) => p.id !== selectedProjectId);
+          setProjects(updatedProjects);
+          if (updatedProjects.length > 0) {
+            setSelectedProjectId(updatedProjects[0].id);
+            await refreshData(updatedProjects[0].id, true);
           } else {
+            setIsAddingNew(true);
             setSelectedProjectId(null);
             setProjectData(null);
-            setIsAddingNew(true);
           }
-        } catch (err: any) {
-          const errMsg =
-            err.response?.data?.message ||
-            "Не удалось удалить проект. На бесплатном тарифе удаление доступно раз в 7 дней.";
-          showToast(errMsg, "error");
+        } catch (e: any) {
+          const msg = e.response?.data?.message || "Ошибка при удалении проекта";
+          showToast(msg, "error");
         } finally {
           setActionLoading(false);
         }
@@ -513,83 +576,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
     });
   };
 
-  const toggleAllTags = async () => {
-    if (!selectedProjectId || !projectData?.tagsMatrix) return;
-    const allTagNames = projectData.tagsMatrix.map((t) => t.tag);
-    const newState = visibleTags.length !== allTagNames.length;
-    setVisibleTags(newState ? allTagNames : []);
-
-    if (!isDemoMode) {
-      try {
-        await analyticsService.toggleAllTagsOnChart(selectedProjectId, newState);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
-  const toggleTag = async (e: React.MouseEvent, tagName: string) => {
-    e.stopPropagation();
-    if (!selectedProjectId) return;
-
-    const isNowVisible = !visibleTags.includes(tagName);
-    setVisibleTags((prev) => (isNowVisible ? [...prev, tagName] : prev.filter((t) => t !== tagName)));
-
-    if (!isDemoMode) {
-      try {
-        await analyticsService.toggleTagOnChart(selectedProjectId, tagName, isNowVisible);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
-  const toggleAutoUpdate = async () => {
-    if (isDemoMode) {
-      showToast(t("dashboard.demo.restricted"), "warning");
-      return;
-    }
-
-    if (!selectedProjectId || !projectData) return;
-    const newState = !projectData.activeProject.isScheduled;
-
-    setProjectData({
-      ...projectData,
-      activeProject: { ...projectData.activeProject, isScheduled: newState },
-    });
-
-    try {
-      await analyticsService.toggleAutoUpdate(selectedProjectId, newState);
-      showToast(newState ? "Авто-обновление включено" : "Авто-обновление выключено", "info");
-    } catch (err) {
-      showToast("Не удалось изменить настройки расписания", "error");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center font-black uppercase tracking-[0.5em] animate-pulse bg-behance-darkBg text-white">
-        {t("common.loading")}
-      </div>
-    );
-  }
-
   return (
-    <div
-      className={`flex h-screen overflow-hidden transition-colors duration-500 ${
-        isDark ? "bg-behance-darkBg text-white" : "bg-behance-grayBg text-behance-black"
-      }`}
-    >
-      {showWelcome && (
-        <WelcomeModal
-          onClose={() => setShowWelcome(false)}
-          onOpenVideoTutorial={() => setIsVideoTutorialOpen(true)}
-        />
-      )}
+    <div className="flex h-screen overflow-hidden bg-behance-grayBg dark:bg-behance-darkBg">
+      {/* ONBOARDING WELCOME MODAL */}
+      <WelcomeModal
+        isOpen={showWelcome}
+        onClose={() => setShowWelcome(false)}
+        onOpenTutorial={() => setIsVideoTutorialOpen(true)}
+      />
 
+      {/* VIDEO TUTORIAL MODAL */}
       <VideoTutorialModal
         isOpen={isVideoTutorialOpen}
         onClose={() => setIsVideoTutorialOpen(false)}
+      />
+
+      {/* PERSONAL PROFILE MODAL (ЛИЧНЫЙ КАБИНЕТ) */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        email={user?.email}
+        userPlan={userPlan}
+        tagBalance={projectData?.tagBalance || 0}
+        onNavigatePlans={onNavigatePricing}
+        onLogout={logout}
       />
 
       {/* SIDEBAR */}
@@ -601,11 +611,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         userPlan={userPlan}
         maxProjects={planLimits.maxProjects}
         isAdmin={isAdmin}
+        isAuthenticated={isAuthenticated}
         isOpenMobile={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         onSelectProject={handleProjectSelect}
         onAddNewProject={handleAddNewProjectClick}
         onTryDemo={handleTryDemo}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+        onNavigateAuth={() => onNavigateLegal("help")}
         onNavigatePricing={onNavigatePricing}
         onNavigateLegal={onNavigateLegal}
         onNavigateAdmin={onNavigateAdmin}
@@ -614,6 +627,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 overflow-y-auto flex flex-col relative">
+        {/* TOP DEMO NOTIFICATION BANNER FOR GUESTS */}
+        {!isAuthenticated && isDemoMode && (
+          <div className="bg-gradient-to-r from-behance-blue via-indigo-600 to-blue-700 text-white px-4 py-3 text-xs font-bold flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left animate-in fade-in sticky top-0 z-40 shadow-md">
+            <div className="flex items-center gap-2">
+              <span className="text-base">👁️</span>
+              <span>Вы находитесь в интерактивном Демо-режиме (Smart Watch UI/UX Case).</span>
+            </div>
+            <button
+              onClick={() => onNavigateLegal("help")}
+              type="button"
+              className="px-4 py-1.5 rounded-xl bg-white text-behance-blue font-black uppercase text-[11px] shadow-sm hover:scale-105 transition-all cursor-pointer shrink-0"
+            >
+              🚀 {t("landing.nav.startFree")}
+            </button>
+          </div>
+        )}
+
         {detailsLoading && (
           <div className="absolute inset-0 z-50 bg-white/50 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center animate-in fade-in">
             <div className="w-8 h-8 border-4 border-behance-blue border-t-transparent rounded-full animate-spin"></div>
@@ -621,7 +651,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         <div className="flex-1 p-4 md:p-8 lg:p-10 text-zinc-900 dark:text-zinc-100">
-          {isAddingNew ? (
+          {isAddingNew && !isDemoMode ? (
             <AddProjectView
               hasCustomTags={planLimits.hasCustomTags}
               actionLoading={actionLoading}
@@ -677,48 +707,48 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <TagsMatrix
                   tags={sortedAndFilteredTags}
                   visibleTags={visibleTags}
-                  suggestedTags={projectData.suggestedTags}
+                  suggestedTags={["smartwatch", "applewatch", "wearable", "uidesign", "fitnessapp"]}
                   tagColors={tagColors}
                   activeFilter={activeFilter}
                   hasCustomTags={planLimits.hasCustomTags}
                   hasTrends={planLimits.hasTrends}
                   isDemoMode={isDemoMode}
                   isBusy={isSelectedProjectBusy}
-                  getTrend={getTrend}
-                  onFilterChange={setActiveFilter}
-                  onToggleTag={toggleTag}
-                  onToggleAllTags={toggleAllTags}
+                  onToggleTag={handleToggleTag}
+                  onToggleAllTags={handleToggleAllTags}
                   onAddCustomTags={handleAddCustomTags}
                   onAddSuggestedTag={handleAddSuggestedTag}
                   onRemoveTag={handleRemoveTag}
-                  onFocusTag={setFocusedTag}
+                  onFocusTag={(t) => setFocusedTag((prev) => (prev === t ? null : t))}
                 />
 
-                {/* 4. PROGRESSIVE DISCLOSURE: DETAILED CHARTS ACCORDION */}
+                {/* 4. MAIN RANKINGS TIMELINE CHART */}
                 <RankingsChart
-                  hasHistory={planLimits.hasHistory}
                   history={history}
                   visibleTags={visibleTags}
                   focusedTag={focusedTag}
                   tagColors={tagColors}
-                  onNavigatePricing={onNavigatePricing}
+                  isBusy={isSelectedProjectBusy}
                 />
               </div>
             )
           )}
         </div>
 
-        {/* SHARE CARD MODAL */}
-        <ShareCardModal
-          isOpen={isShareCardOpen}
-          onClose={() => setIsShareCardOpen(false)}
-          project={selectedProjectInSidebar}
-          tags={sortedAndFilteredTags}
-          views={projectData?.activeProject?.views}
-          appreciations={projectData?.activeProject?.appreciations}
-        />
+        {/* FOOTER */}
+        <Footer onNavigateLegal={onNavigateLegal} onNavigatePricing={onNavigatePricing} />
 
-        <Footer onNavigate={onNavigateLegal} />
+        {/* SHARE CARD MODAL */}
+        {selectedProjectInSidebar && (
+          <ShareCardModal
+            isOpen={isShareCardOpen}
+            onClose={() => setIsShareCardOpen(false)}
+            projectTitle={selectedProjectInSidebar.title || "Behance Case"}
+            topTags={sortedAndFilteredTags.filter((t) => t.currentRank && t.currentRank <= 10)}
+            totalViews={projectData?.activeProject?.views || 0}
+            totalLikes={projectData?.activeProject?.appreciations || 0}
+          />
+        )}
       </div>
     </div>
   );
