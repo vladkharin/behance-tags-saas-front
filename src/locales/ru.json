@@ -504,7 +504,11 @@
       "clipboardSuccess": "Ссылка вставлена из буфера!",
       "clipboardEmpty": "Буфер обмена пуст",
       "clipboardError": "Не удалось прочитать буфер. Вставьте вручную (Ctrl+V)",
-      "orViewDemo": "Или посмотреть демо-кейс"
+      "orViewDemo": "Или посмотреть демо-кейс",
+      "hybridTagPlaceholder": "Вставьте теги из Excel (столбцом), списком или через запятую (например: figma, mobile app, branding)...",
+      "hybridPasteBtn": "📋 Вставить из Excel / Буфера",
+      "hybridRecognized": "✓ Распознано {{count}} тегов",
+      "hybridClearAll": "Очистить"
     }
   }
 }

@@ -504,7 +504,11 @@
       "clipboardSuccess": "URL pasted from clipboard!",
       "clipboardEmpty": "Clipboard is empty",
       "clipboardError": "Could not read clipboard. Please paste manually (Ctrl+V)",
-      "orViewDemo": "Or view showcase demo project"
+      "orViewDemo": "Or view showcase demo project",
+      "hybridTagPlaceholder": "Paste tags from Excel (column), list, or separated by commas (e.g. figma, mobile app, branding)...",
+      "hybridPasteBtn": "📋 Paste from Excel / Clipboard",
+      "hybridRecognized": "✓ {{count}} tags recognized",
+      "hybridClearAll": "Clear"
     }
   }
 }

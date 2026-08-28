@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContextInstance";
 import { useToast } from "../../context/ToastContext";
+import { HybridTagInput } from "../ui/HybridTagInput";
+import { parseTagsInput } from "../../utils/tagParser";
 
 interface AddProjectViewProps {
   hasCustomTags: boolean;
@@ -55,10 +57,7 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
     e.preventDefault();
     if (!urlInput.trim() || actionLoading) return;
 
-    const customTagsList = tagsInput
-      .split(",")
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
+    const customTagsList = parseTagsInput(tagsInput);
 
     onImport(urlInput.trim(), customTagsList.length > 0 ? customTagsList : undefined);
   };
@@ -154,16 +153,10 @@ export const AddProjectView: React.FC<AddProjectViewProps> = ({
               </button>
 
               {showTagsInput && (
-                <input
-                  type="text"
-                  placeholder={t("modals.addProject.customTagsPlaceholder")}
+                <HybridTagInput
                   value={tagsInput}
-                  onChange={(e) => setTagsInput(e.target.value)}
-                  className={`w-full rounded-xl px-4 py-2.5 text-xs font-medium outline-none border transition-all ${
-                    isDark
-                      ? "bg-black/50 border-white/10 text-white focus:border-behance-blue"
-                      : "bg-zinc-50 border-zinc-200 text-zinc-900 focus:border-behance-blue"
-                  }`}
+                  onChange={setTagsInput}
+                  isDark={isDark}
                 />
               )}
             </div>

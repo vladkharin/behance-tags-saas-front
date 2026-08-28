@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContextInstance";
 import { useToast } from "../../context/ToastContext";
 import type { TagMatrixItem } from "../../types/analytics.types";
+import { HybridTagInput } from "../ui/HybridTagInput";
 
 interface TagsMatrixProps {
   tags: TagMatrixItem[];
@@ -117,10 +118,12 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
     });
   };
 
-  const handleCopyFormattedTags = (format: "comma" | "hashtags" | "top10") => {
+  const handleCopyFormattedTags = (
+    format: "comma" | "excel" | "hashtags" | "quotes" | "top10" | "top10_excel"
+  ) => {
     let tagsToCopy = tags.map((t) => t.tag);
 
-    if (format === "top10") {
+    if (format === "top10" || format === "top10_excel") {
       tagsToCopy = tags
         .filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10)
         .map((t) => t.tag);
@@ -134,7 +137,11 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
 
     let result = "";
     if (format === "hashtags") {
-      result = tagsToCopy.map((t) => `#${t}`).join(" ");
+      result = tagsToCopy.map((t) => `#${t.replace(/^#+/, "")}`).join(" ");
+    } else if (format === "excel" || format === "top10_excel") {
+      result = tagsToCopy.join("\n");
+    } else if (format === "quotes") {
+      result = tagsToCopy.map((t) => `"${t}"`).join(", ");
     } else {
       result = tagsToCopy.join(", ");
     }
@@ -220,30 +227,61 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
             </button>
 
             {showCopyMenu && (
-              <div className="absolute right-0 top-full mt-1.5 w-56 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 shadow-2xl p-2 z-30 animate-in fade-in space-y-1">
+              <div className="absolute right-0 top-full mt-1.5 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 shadow-2xl p-2 z-30 animate-in fade-in space-y-1">
                 <button
                   onClick={() => handleCopyFormattedTags("comma")}
                   type="button"
                   className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
                 >
-                  <span>{t("dashboard.matrix.copyComma")}</span>
-                  <span className="text-[10px] opacity-40">tag1, tag2</span>
+                  <span className="font-bold">📋 {t("dashboard.matrix.copyComma")}</span>
+                  <span className="text-[10px] opacity-40 font-mono">tag1, tag2</span>
                 </button>
+
+                <button
+                  onClick={() => handleCopyFormattedTags("excel")}
+                  type="button"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-blue-500 hover:bg-blue-500/10 transition-colors cursor-pointer flex items-center justify-between"
+                >
+                  <span className="font-bold">📊 {t("dashboard.matrix.copyExcel")}</span>
+                  <span className="text-[10px] opacity-60 font-mono">\n (столбец)</span>
+                </button>
+
                 <button
                   onClick={() => handleCopyFormattedTags("hashtags")}
                   type="button"
                   className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
                 >
-                  <span>{t("dashboard.matrix.copyHashtags")}</span>
-                  <span className="text-[10px] opacity-40">#tag1 #tag2</span>
+                  <span className="font-bold">#️⃣ {t("dashboard.matrix.copyHashtags")}</span>
+                  <span className="text-[10px] opacity-40 font-mono">#tag1 #tag2</span>
                 </button>
+
+                <button
+                  onClick={() => handleCopyFormattedTags("quotes")}
+                  type="button"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
+                >
+                  <span className="font-bold">💬 {t("dashboard.matrix.copyQuotes")}</span>
+                  <span className="text-[10px] opacity-40 font-mono">"tag1", "tag2"</span>
+                </button>
+
+                <div className="pt-1 my-1 border-t border-zinc-200 dark:border-white/10" />
+
                 <button
                   onClick={() => handleCopyFormattedTags("top10")}
                   type="button"
                   className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-500 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
                 >
-                  <span>{t("dashboard.matrix.copyOnlyTop10")}</span>
-                  <span className="text-[10px] opacity-60">({top10Count})</span>
+                  <span className="font-bold">🏆 {t("dashboard.matrix.copyOnlyTop10")}</span>
+                  <span className="text-[10px] opacity-75 font-mono">({top10Count})</span>
+                </button>
+
+                <button
+                  onClick={() => handleCopyFormattedTags("top10_excel")}
+                  type="button"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-500 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
+                >
+                  <span className="font-bold">📊 {t("dashboard.matrix.copyTop10Excel")}</span>
+                  <span className="text-[10px] opacity-75 font-mono">({top10Count})</span>
                 </button>
               </div>
             )}
@@ -347,24 +385,30 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
       {showAddForm && hasCustomTags && (
         <form
           onSubmit={handleAddTagsSubmit}
-          className="p-3 rounded-xl bg-behance-blue/5 border border-behance-blue/20 flex gap-2 animate-in fade-in"
+          className="p-4 rounded-2xl bg-behance-blue/5 border border-behance-blue/20 space-y-3 animate-in fade-in"
         >
-          <input
-            type="text"
-            placeholder={t("dashboard.matrix.inputPlaceholder")}
+          <HybridTagInput
             value={newTagsInput}
-            onChange={(e) => setNewTagsInput(e.target.value)}
-            className={`flex-1 rounded-lg px-3 py-2 text-xs outline-none border ${
-              isDark ? "bg-black/50 border-white/10 text-white" : "bg-white border-zinc-200"
-            }`}
+            onChange={setNewTagsInput}
+            isDark={isDark}
           />
-          <button
-            type="submit"
-            disabled={isSubmittingTags || !newTagsInput.trim()}
-            className="px-4 py-2 rounded-lg bg-behance-blue text-white text-xs font-bold uppercase disabled:opacity-50 cursor-pointer shrink-0"
-          >
-            {isSubmittingTags ? t("dashboard.matrix.checkingBtn") : t("dashboard.matrix.checkBtn")}
-          </button>
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-white/10 text-xs font-bold transition-all cursor-pointer"
+            >
+              {t("dashboard.matrix.deleteCancelBtn")}
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmittingTags || !newTagsInput.trim()}
+              className="px-5 py-2 rounded-xl bg-behance-blue text-white text-xs font-black uppercase tracking-wider disabled:opacity-50 cursor-pointer shadow-sm shadow-blue-500/20"
+            >
+              {isSubmittingTags ? t("dashboard.matrix.checkingBtn") : t("dashboard.matrix.checkBtn")}
+            </button>
+          </div>
         </form>
       )}
 
