@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /plans
+Allow: /help
+Allow: /privacy
+Allow: /terms
+Allow: /refund
+Disallow: /admin
+Disallow: /admin/*
+
+Host: https://beranked.domcraft.digital
+Sitemap: https://beranked.domcraft.digital/sitemap.xml
