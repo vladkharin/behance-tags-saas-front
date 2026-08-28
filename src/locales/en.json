@@ -160,7 +160,11 @@
       "limitCancel": "Got It",
       "lowBalanceTitle": "Low Tag Balance",
       "lowBalanceMessage": "You ran out of tag credits. Top up to scan immediately?",
-      "lowBalanceAction": "Top Up Credits"
+      "lowBalanceAction": "Top Up Credits",
+      "demoAddProjectTitle": "Add Your Own Project",
+      "demoAddProjectMsg": "You are currently viewing an interactive demo showcase. Create a free account to track your real Behance cases and keywords!",
+      "demoAddProjectConfirm": "🚀 Create Free Account",
+      "demoAddProjectCancel": "Stay in Demo"
     }
   },
   "onboarding": {
