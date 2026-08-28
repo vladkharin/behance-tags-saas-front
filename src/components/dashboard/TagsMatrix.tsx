@@ -227,62 +227,97 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
             </button>
 
             {showCopyMenu && (
-              <div className="absolute right-0 top-full mt-1.5 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 shadow-2xl p-2 z-30 animate-in fade-in space-y-1">
+              <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white dark:bg-[#141418] border border-zinc-200 dark:border-white/10 shadow-2xl p-2 z-40 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+                <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                  Все теги ({processedTags.length})
+                </div>
+
                 <button
                   onClick={() => handleCopyFormattedTags("comma")}
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between group"
                 >
-                  <span className="font-bold">📋 {t("dashboard.matrix.copyComma")}</span>
-                  <span className="text-[10px] opacity-40 font-mono">tag1, tag2</span>
+                  <span className="flex items-center gap-2 font-bold text-zinc-800 dark:text-zinc-200 group-hover:text-behance-blue">
+                    <span>📋</span>
+                    <span>{t("dashboard.matrix.copyComma")}</span>
+                  </span>
+                  <span className="text-[10px] opacity-50 font-mono">tag1, tag2</span>
                 </button>
 
                 <button
                   onClick={() => handleCopyFormattedTags("excel")}
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-blue-500 hover:bg-blue-500/10 transition-colors cursor-pointer flex items-center justify-between"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between group"
                 >
-                  <span className="font-bold">📊 {t("dashboard.matrix.copyExcel")}</span>
-                  <span className="text-[10px] opacity-60 font-mono">\n (столбец)</span>
+                  <span className="flex items-center gap-2 font-bold text-blue-500">
+                    <span>📊</span>
+                    <span>{t("dashboard.matrix.copyExcel")}</span>
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-mono">
+                    Excel \n
+                  </span>
                 </button>
 
                 <button
                   onClick={() => handleCopyFormattedTags("hashtags")}
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between group"
                 >
-                  <span className="font-bold">#️⃣ {t("dashboard.matrix.copyHashtags")}</span>
-                  <span className="text-[10px] opacity-40 font-mono">#tag1 #tag2</span>
+                  <span className="flex items-center gap-2 font-bold text-zinc-800 dark:text-zinc-200 group-hover:text-behance-blue">
+                    <span>#️⃣</span>
+                    <span>{t("dashboard.matrix.copyHashtags")}</span>
+                  </span>
+                  <span className="text-[10px] opacity-50 font-mono">#tag1 #tag2</span>
                 </button>
 
                 <button
                   onClick={() => handleCopyFormattedTags("quotes")}
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between"
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between group"
                 >
-                  <span className="font-bold">💬 {t("dashboard.matrix.copyQuotes")}</span>
-                  <span className="text-[10px] opacity-40 font-mono">"tag1", "tag2"</span>
+                  <span className="flex items-center gap-2 font-bold text-zinc-800 dark:text-zinc-200 group-hover:text-behance-blue">
+                    <span>💬</span>
+                    <span>{t("dashboard.matrix.copyQuotes")}</span>
+                  </span>
+                  <span className="text-[10px] opacity-50 font-mono">"tag1"</span>
                 </button>
 
-                <div className="pt-1 my-1 border-t border-zinc-200 dark:border-white/10" />
+                {top10Count > 0 && (
+                  <>
+                    <div className="pt-2 my-1 border-t border-zinc-200 dark:border-white/10 px-3 text-[10px] font-black uppercase tracking-wider text-green-500 flex items-center justify-between">
+                      <span>ТОП-10 ТЕГИ ({top10Count})</span>
+                      <span className="text-[10px]">🔥</span>
+                    </div>
 
-                <button
-                  onClick={() => handleCopyFormattedTags("top10")}
-                  type="button"
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-500 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
-                >
-                  <span className="font-bold">🏆 {t("dashboard.matrix.copyOnlyTop10")}</span>
-                  <span className="text-[10px] opacity-75 font-mono">({top10Count})</span>
-                </button>
+                    <button
+                      onClick={() => handleCopyFormattedTags("top10")}
+                      type="button"
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-600 dark:text-green-400 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2 font-bold">
+                        <span>🏆</span>
+                        <span>{t("dashboard.matrix.copyOnlyTop10")}</span>
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/15 font-mono font-black">
+                        ({top10Count})
+                      </span>
+                    </button>
 
-                <button
-                  onClick={() => handleCopyFormattedTags("top10_excel")}
-                  type="button"
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-500 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
-                >
-                  <span className="font-bold">📊 {t("dashboard.matrix.copyTop10Excel")}</span>
-                  <span className="text-[10px] opacity-75 font-mono">({top10Count})</span>
-                </button>
+                    <button
+                      onClick={() => handleCopyFormattedTags("top10_excel")}
+                      type="button"
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-green-600 dark:text-green-400 hover:bg-green-500/10 transition-colors cursor-pointer flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2 font-bold">
+                        <span>📊</span>
+                        <span>{t("dashboard.matrix.copyTop10Excel")}</span>
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/15 font-mono font-black">
+                        Excel \n
+                      </span>
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
