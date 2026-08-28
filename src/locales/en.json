@@ -508,7 +508,13 @@
       "hybridTagPlaceholder": "Paste tags from Excel (column), list, or separated by commas (e.g. figma, mobile app, branding)...",
       "hybridPasteBtn": "📋 Paste from Excel / Clipboard",
       "hybridRecognized": "✓ {{count}} tags recognized",
-      "hybridClearAll": "Clear"
+      "hybridClearAll": "Clear",
+      "formatsHelpBtn": "💡 How to enter tags?",
+      "formatsHelpTitle": "Supported input formats:",
+      "formatExcel": "📊 Column from Excel / Google Sheets — copy a column and paste directly, each row becomes a separate tag.",
+      "formatComma": "💬 Comma or space separated — figma, mobile app, branding",
+      "formatHashtags": "#️⃣ With hashtags or dashes — #uiux, #3d-render",
+      "formatNumbers": "🔢 Tags with numbers (3d max, 4k render) are preserved correctly."
     }
   },
   "landing": {

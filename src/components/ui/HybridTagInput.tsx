@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { parseTagsInput } from "../../utils/tagParser";
 import { useToast } from "../../context/ToastContext";
@@ -18,6 +18,7 @@ export const HybridTagInput: React.FC<HybridTagInputProps> = ({
 }) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const [showFormatsHelp, setShowFormatsHelp] = useState(false);
 
   const parsedTags = parseTagsInput(value);
 
@@ -63,9 +64,14 @@ export const HybridTagInput: React.FC<HybridTagInputProps> = ({
               {t("modals.addProject.hybridRecognized", { count: parsedTags.length })}
             </span>
           ) : (
-            <span className="text-[11px] opacity-60 font-medium">
-              Excel / CSV / Текст / Запятые
-            </span>
+            <button
+              type="button"
+              onClick={() => setShowFormatsHelp(!showFormatsHelp)}
+              className="text-[11px] text-behance-blue hover:underline font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <span>{t("modals.addProject.formatsHelpBtn")}</span>
+              <span className="text-[10px] opacity-60">{showFormatsHelp ? "▲" : "▼"}</span>
+            </button>
           )}
         </div>
 
@@ -89,6 +95,28 @@ export const HybridTagInput: React.FC<HybridTagInputProps> = ({
           )}
         </div>
       </div>
+
+      {/* EXPANDABLE INFORMATIVE INSTRUCTIONS / FORMATS HELPER */}
+      {showFormatsHelp && (
+        <div className="p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/20 text-left space-y-2 text-xs animate-in fade-in">
+          <div className="font-bold text-[11px] text-behance-blue flex items-center justify-between">
+            <span>{t("modals.addProject.formatsHelpTitle")}</span>
+            <button
+              type="button"
+              onClick={() => setShowFormatsHelp(false)}
+              className="hover:opacity-75 cursor-pointer text-zinc-400 text-sm font-bold"
+            >
+              ✕
+            </button>
+          </div>
+          <ul className="space-y-1 text-[11px] opacity-80 leading-relaxed list-disc list-inside">
+            <li>{t("modals.addProject.formatExcel")}</li>
+            <li>{t("modals.addProject.formatComma")}</li>
+            <li>{t("modals.addProject.formatHashtags")}</li>
+            <li>{t("modals.addProject.formatNumbers")}</li>
+          </ul>
+        </div>
+      )}
 
       {/* MULTI-LINE TEXTAREA FOR EXCEL & COMMA PASTES */}
       <textarea

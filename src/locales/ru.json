@@ -508,7 +508,13 @@
       "hybridTagPlaceholder": "Вставьте теги из Excel (столбцом), списком или через запятую (например: figma, mobile app, branding)...",
       "hybridPasteBtn": "📋 Вставить из Excel / Буфера",
       "hybridRecognized": "✓ Распознано {{count}} тегов",
-      "hybridClearAll": "Очистить"
+      "hybridClearAll": "Очистить",
+      "formatsHelpBtn": "💡 Как вставлять теги?",
+      "formatsHelpTitle": "Поддерживаемые форматы ввода:",
+      "formatExcel": "📊 Столбец из Excel / Google Таблиц — скопируйте столбец и вставьте целиком, каждая строка станет отдельным тегом.",
+      "formatComma": "💬 Через запятую или пробел — figma, mobile app, branding",
+      "formatHashtags": "#️⃣ С хэштегами или дефисами — #uiux, #3d-render",
+      "formatNumbers": "🔢 Теги с цифрами (3d max, 4k render) сохраняются корректно."
     }
   },
   "landing": {

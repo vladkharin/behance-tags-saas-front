@@ -667,13 +667,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   comments={projectData.activeProject?.comments || 0}
                   activeFilter={activeFilter}
                   onFilterChange={setActiveFilter}
-                  onCopyTags={() => {
-                    const allTags = projectData.tagsMatrix.map((t) => t.tag.replace(/^#/, "").trim()).join(", ");
-                    if (allTags) {
-                      navigator.clipboard.writeText(allTags);
-                      showToast("Все теги скопированы для настроек Behance (через запятую)!", "success");
-                    }
-                  }}
+                  tags={projectData.tagsMatrix.map((t) => t.tag)}
+                  top10Tags={projectData.tagsMatrix
+                    .filter((t) => typeof t.currentRank === "number" && t.currentRank >= 1 && t.currentRank <= 10)
+                    .map((t) => t.tag)}
                 />
 
                 {/* 3. CRYSTAL CLEAR TAGS LIST */}
