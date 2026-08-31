@@ -2,28 +2,37 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContextInstance";
-import { GUIDES_ARTICLES, type GuideArticle } from "../data/guidesData";
+import { GUIDES_ARTICLES, getLocalizedArticle } from "../data/guidesData";
 
 export const GuidesListPage: React.FC = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isDark = theme === "dark";
 
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === "ru" ? "en" : "ru";
+    i18n.changeLanguage(nextLang);
+  };
+
   const categories = [
-    { id: "all", label: "Все статьи" },
-    { id: "tags", label: "🏷️ Теги и семантика" },
-    { id: "promotion", label: "🚀 Продвижение" },
-    { id: "algorithms", label: "⚙️ Алгоритмы" },
-    { id: "mistakes", label: "⚠️ Ошибки" },
-    { id: "sales", label: "💼 Продажи и клиенты" },
+    { id: "all", label: t("guides.categories.all") },
+    { id: "tags", label: t("guides.categories.tags") },
+    { id: "promotion", label: t("guides.categories.promotion") },
+    { id: "algorithms", label: t("guides.categories.algorithms") },
+    { id: "mistakes", label: t("guides.categories.mistakes") },
+    { id: "sales", label: t("guides.categories.sales") },
   ];
 
+  const localizedArticles = useMemo(() => {
+    return GUIDES_ARTICLES.map((a) => getLocalizedArticle(a, i18n.language));
+  }, [i18n.language]);
+
   const filteredArticles = useMemo(() => {
-    return GUIDES_ARTICLES.filter((article) => {
+    return localizedArticles.filter((article) => {
       const matchesCategory =
         selectedCategory === "all" || article.category === selectedCategory;
       const matchesSearch =
@@ -35,7 +44,7 @@ export const GuidesListPage: React.FC = () => {
         );
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [localizedArticles, selectedCategory, searchQuery]);
 
   return (
     <div className={`min-h-screen transition-all ${isDark ? "bg-[#0a0a0c] text-white" : "bg-[#f8f9fc] text-zinc-900"}`}>
@@ -63,18 +72,29 @@ export const GuidesListPage: React.FC = () => {
             <button
               onClick={() => navigate("/")}
               type="button"
-              className="text-xs font-bold opacity-70 hover:opacity-100 transition-opacity hidden sm:block"
+              className="text-xs font-bold opacity-70 hover:opacity-100 transition-opacity hidden sm:block cursor-pointer"
             >
-              Главная
+              {t("guides.breadcrumbsHome")}
             </button>
             <button
               onClick={() => navigate("/plans")}
               type="button"
-              className="text-xs font-bold opacity-70 hover:opacity-100 transition-opacity hidden sm:block"
+              className="text-xs font-bold opacity-70 hover:opacity-100 transition-opacity hidden sm:block cursor-pointer"
             >
-              Тарифы
+              {t("landing.nav.pricing")}
             </button>
 
+            {/* LANGUAGE TOGGLE */}
+            <button
+              onClick={toggleLanguage}
+              type="button"
+              className="px-2.5 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs font-black uppercase transition-all cursor-pointer"
+              title="Switch Language"
+            >
+              {i18n.language === "ru" ? "RU" : "EN"}
+            </button>
+
+            {/* THEME TOGGLE */}
             <button
               onClick={toggleTheme}
               type="button"
@@ -88,7 +108,7 @@ export const GuidesListPage: React.FC = () => {
               type="button"
               className="px-4 py-2 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 cursor-pointer"
             >
-              Начать бесплатно
+              {t("landing.nav.startFree")}
             </button>
           </div>
         </div>
@@ -98,15 +118,15 @@ export const GuidesListPage: React.FC = () => {
       <section className="py-12 md:py-16 px-4 text-center max-w-4xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-behance-blue text-xs font-black uppercase tracking-wider">
           <span>📚</span>
-          <span>База знаний и SEO-гайды по Behance</span>
+          <span>{t("guides.badge")}</span>
         </div>
 
         <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-          Как выводить кейсы в ТОП и получать клиентов
+          {t("guides.title")}
         </h1>
 
         <p className="text-sm md:text-base opacity-70 max-w-2xl mx-auto leading-relaxed">
-          Практические статьи, алгоритмы ранжирования, подбор тегов и разборы реальных ошибок дизайнеров без воды и нейрослопа.
+          {t("guides.subtitle")}
         </p>
 
         {/* SEARCH BAR */}
@@ -114,7 +134,7 @@ export const GuidesListPage: React.FC = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Поиск по статьям (например: теги, алгоритмы, ошибки)..."
+              placeholder={t("guides.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={`w-full px-5 py-3.5 pl-11 rounded-2xl text-xs sm:text-sm font-medium outline-none border transition-all shadow-sm ${
@@ -154,7 +174,7 @@ export const GuidesListPage: React.FC = () => {
       <main className="max-w-6xl mx-auto px-4 pb-20">
         {filteredArticles.length === 0 ? (
           <div className="text-center py-16 opacity-60 text-sm">
-            По вашему запросу статей не найдено. Попробуйте изменить ключевые слова.
+            {t("guides.emptySearch")}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -194,7 +214,7 @@ export const GuidesListPage: React.FC = () => {
                   </div>
 
                   <span className="text-xs font-bold text-behance-blue group-hover:translate-x-1 transition-transform">
-                    Читать ➔
+                    {t("guides.readBtn")}
                   </span>
                 </div>
               </article>
@@ -210,10 +230,10 @@ export const GuidesListPage: React.FC = () => {
         }`}>
           <span className="text-3xl">🚀</span>
           <h3 className="text-xl md:text-2xl font-black">
-            Хотите проверить позиции своих тегов прямо сейчас?
+            {t("guides.bottomCtaTitle")}
           </h3>
           <p className="text-xs sm:text-sm opacity-70 max-w-xl mx-auto">
-            Подключите свой кейс Behance за 1 минуту. Сервис покажет реальные места в выдаче и предложит работающие теги.
+            {t("guides.bottomCtaDesc")}
           </p>
           <div className="pt-2">
             <button
@@ -221,7 +241,7 @@ export const GuidesListPage: React.FC = () => {
               type="button"
               className="px-6 py-3.5 rounded-2xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-blue-500/25 cursor-pointer"
             >
-              Попробовать бесплатно ➔
+              {t("guides.bottomCtaBtn")}
             </button>
           </div>
         </div>

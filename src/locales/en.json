@@ -626,5 +626,39 @@
     "securityDesc": "Your account is secured. No Adobe/Behance credentials are ever stored.",
     "closeBtn": "Close",
     "logoutBtn": "Log out"
+  },
+  "guides": {
+    "badge": "Behance SEO Guides & Knowledge Base",
+    "title": "How to Rank Behance Cases in TOP-10 & Win Clients",
+    "subtitle": "Actionable design growth guides, search algorithms, keyword optimization, and real case breakdowns without fluff.",
+    "searchPlaceholder": "Search articles (e.g., tags, algorithms, ranking)...",
+    "categories": {
+      "all": "All Articles",
+      "tags": "🏷️ Tags & Keywords",
+      "promotion": "🚀 Promotion",
+      "algorithms": "⚙️ Algorithms",
+      "mistakes": "⚠️ Mistakes",
+      "sales": "💼 Inbound Sales"
+    },
+    "emptySearch": "No articles found matching your query. Try different keywords.",
+    "readBtn": "Read Guide ➔",
+    "allGuides": "← All Guides",
+    "shareBtn": "🔗 Share",
+    "copiedToast": "Article link copied to clipboard!",
+    "tocTitle": "📑 Table of Contents:",
+    "checkCaseBadge": "⚡ Check Your Case in 30 Seconds",
+    "checkCaseTitle": "Find Your Real Tag Rankings on Behance",
+    "checkCaseDesc": "Paste your project URL — BeRanked reveals your exact search rankings right now and recommends TOP-10 high-growth tags.",
+    "checkCaseBtn": "🚀 Check Case for Free",
+    "tryDemoBtn": "👁️ View Live Demo",
+    "keywordsTitle": "Key Topics:",
+    "readAlso": "Related Guides:",
+    "bottomCtaTitle": "Ready to Check Your Behance Tag Rankings?",
+    "bottomCtaDesc": "Connect your Behance project in 1 minute. Discover exact search rankings and optimize for maximum inbound client views.",
+    "bottomCtaBtn": "Start for Free ➔",
+    "notFoundTitle": "Article Not Found",
+    "notFoundDesc": "The article may have been moved or removed.",
+    "breadcrumbsHome": "Home",
+    "breadcrumbsGuides": "Guides"
   }
 }

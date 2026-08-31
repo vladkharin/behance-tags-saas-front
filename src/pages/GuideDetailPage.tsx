@@ -3,24 +3,37 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContextInstance";
 import { useToast } from "../context/ToastContext";
-import { GUIDES_ARTICLES, type GuideArticle } from "../data/guidesData";
+import { GUIDES_ARTICLES, getLocalizedArticle } from "../data/guidesData";
 
 export const GuideDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { t, i18n } = useTranslation();
   const { showToast } = useToast();
   const isDark = theme === "dark";
 
-  const article = useMemo(() => {
+  const toggleLanguage = () => {
+    const nextLang = i18n.language === "ru" ? "en" : "ru";
+    i18n.changeLanguage(nextLang);
+  };
+
+  const rawArticle = useMemo(() => {
     return GUIDES_ARTICLES.find((a) => a.slug === slug);
   }, [slug]);
+
+  const article = useMemo(() => {
+    if (!rawArticle) return null;
+    return getLocalizedArticle(rawArticle, i18n.language);
+  }, [rawArticle, i18n.language]);
 
   // Related articles
   const relatedArticles = useMemo(() => {
     if (!article) return [];
-    return GUIDES_ARTICLES.filter((a) => a.slug !== article.slug).slice(0, 3);
-  }, [article]);
+    return GUIDES_ARTICLES.filter((a) => a.slug !== article.slug)
+      .slice(0, 3)
+      .map((a) => getLocalizedArticle(a, i18n.language));
+  }, [article, i18n.language]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -31,13 +44,13 @@ export const GuideDetailPage: React.FC = () => {
       <div className={`min-h-screen flex flex-col items-center justify-center p-6 text-center ${
         isDark ? "bg-[#0a0a0c] text-white" : "bg-[#f8f9fc] text-zinc-900"
       }`}>
-        <h1 className="text-3xl font-black mb-2">Статья не найдена</h1>
-        <p className="text-sm opacity-60 mb-6">Возможно, статья была перенесена или удалена.</p>
+        <h1 className="text-3xl font-black mb-2">{t("guides.notFoundTitle")}</h1>
+        <p className="text-sm opacity-60 mb-6">{t("guides.notFoundDesc")}</p>
         <button
           onClick={() => navigate("/guides")}
-          className="px-5 py-2.5 rounded-xl bg-behance-blue text-white text-xs font-bold uppercase"
+          className="px-5 py-2.5 rounded-xl bg-behance-blue text-white text-xs font-bold uppercase cursor-pointer"
         >
-          Все гайды ➔
+          {t("guides.allGuides")}
         </button>
       </div>
     );
@@ -74,7 +87,7 @@ export const GuideDetailPage: React.FC = () => {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    showToast("Ссылка на статью скопирована в буфер!", "success");
+    showToast(t("guides.copiedToast"), "success");
   };
 
   return (
@@ -94,7 +107,7 @@ export const GuideDetailPage: React.FC = () => {
             onClick={() => navigate("/guides")}
             className="flex items-center gap-2 cursor-pointer group text-xs font-bold opacity-75 hover:opacity-100"
           >
-            <span>← Все гайды</span>
+            <span>{t("guides.allGuides")}</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -103,9 +116,20 @@ export const GuideDetailPage: React.FC = () => {
               type="button"
               className="px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs font-bold transition-colors cursor-pointer"
             >
-              🔗 Поделиться
+              {t("guides.shareBtn")}
             </button>
 
+            {/* LANGUAGE SWITCHER */}
+            <button
+              onClick={toggleLanguage}
+              type="button"
+              className="px-2.5 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-xs font-black uppercase transition-all cursor-pointer"
+              title="Switch Language"
+            >
+              {i18n.language === "ru" ? "RU" : "EN"}
+            </button>
+
+            {/* THEME TOGGLE */}
             <button
               onClick={toggleTheme}
               type="button"
@@ -119,7 +143,7 @@ export const GuideDetailPage: React.FC = () => {
               type="button"
               className="px-4 py-2 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm cursor-pointer"
             >
-              Вход
+              {t("landing.nav.login")}
             </button>
           </div>
         </div>
@@ -129,9 +153,9 @@ export const GuideDetailPage: React.FC = () => {
       <div className="max-w-3xl mx-auto px-4 pt-10 pb-6 space-y-4">
         {/* BREADCRUMBS */}
         <nav className="flex items-center gap-2 text-[11px] opacity-50 font-bold uppercase tracking-wider">
-          <span onClick={() => navigate("/")} className="hover:underline cursor-pointer">Главная</span>
+          <span onClick={() => navigate("/")} className="hover:underline cursor-pointer">{t("guides.breadcrumbsHome")}</span>
           <span>/</span>
-          <span onClick={() => navigate("/guides")} className="hover:underline cursor-pointer">Гайды</span>
+          <span onClick={() => navigate("/guides")} className="hover:underline cursor-pointer">{t("guides.breadcrumbsGuides")}</span>
           <span>/</span>
           <span className="text-behance-blue truncate max-w-[200px]">{article.categoryLabel}</span>
         </nav>
@@ -166,13 +190,13 @@ export const GuideDetailPage: React.FC = () => {
       </div>
 
       {/* 3. TABLE OF CONTENTS */}
-      {article.tableOfContents.length > 0 && (
+      {article.tableOfContents && article.tableOfContents.length > 0 && (
         <div className="max-w-3xl mx-auto px-4 mb-8">
           <div className={`p-5 rounded-2xl border ${
             isDark ? "bg-white/5 border-white/10" : "bg-zinc-50 border-zinc-200"
           }`}>
             <span className="text-[11px] font-black uppercase tracking-wider opacity-50 block mb-3">
-              📑 Оглавление гайда:
+              {t("guides.tocTitle")}
             </span>
             <ul className="space-y-2 text-xs font-bold">
               {article.tableOfContents.map((toc, index) => (
@@ -206,15 +230,15 @@ export const GuideDetailPage: React.FC = () => {
         }`}>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-behance-blue/15 text-behance-blue text-xs font-bold uppercase">
             <span>⚡</span>
-            <span>Проверьте свой кейс за 30 секунд</span>
+            <span>{t("guides.checkCaseBadge")}</span>
           </div>
 
           <h3 className="text-lg sm:text-xl font-black">
-            Узнайте реальные позиции ваших тегов на Behance
+            {t("guides.checkCaseTitle")}
           </h3>
 
           <p className="text-xs sm:text-sm opacity-75 max-w-md mx-auto leading-relaxed">
-            Вставьте ссылку на проект — BeRanked покажет, на каких местах вы находитесь прямо сейчас, и подберет ТОП-10 рекомендованных тегов.
+            {t("guides.checkCaseDesc")}
           </p>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -223,21 +247,21 @@ export const GuideDetailPage: React.FC = () => {
               type="button"
               className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-500/25 cursor-pointer"
             >
-              🚀 Проверить кейс бесплатно
+              {t("guides.checkCaseBtn")}
             </button>
             <button
               onClick={() => navigate("/demo")}
               type="button"
               className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-zinc-200 dark:bg-white/10 hover:bg-zinc-300 dark:hover:bg-white/20 text-xs font-bold transition-all cursor-pointer"
             >
-              👁️ Смотреть живое демо
+              {t("guides.tryDemoBtn")}
             </button>
           </div>
         </div>
 
         {/* TAGS KEYWORDS FOOTER */}
         <div className="pt-6 border-t border-zinc-200 dark:border-white/10 space-y-2">
-          <span className="text-[11px] font-black uppercase opacity-40 block">Ключевые темы:</span>
+          <span className="text-[11px] font-black uppercase opacity-40 block">{t("guides.keywordsTitle")}</span>
           <div className="flex flex-wrap gap-1.5">
             {article.keywords.map((kw) => (
               <span
@@ -257,7 +281,7 @@ export const GuideDetailPage: React.FC = () => {
           isDark ? "bg-[#0d0d10] border-white/10" : "bg-white border-zinc-200"
         }`}>
           <div className="max-w-4xl mx-auto px-4 space-y-6">
-            <h3 className="text-xl font-black">Читайте также:</h3>
+            <h3 className="text-xl font-black">{t("guides.readAlso")}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {relatedArticles.map((item) => (
                 <div
@@ -278,7 +302,7 @@ export const GuideDetailPage: React.FC = () => {
                     </h4>
                   </div>
                   <span className="text-[11px] font-bold text-behance-blue mt-4 block">
-                    Читать ➔
+                    {t("guides.readBtn")}
                   </span>
                 </div>
               ))}
