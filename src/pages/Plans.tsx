@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContextInstance";
 import { useTranslation, Trans } from "react-i18next";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../hooks/useAuth";
 import { Footer } from "../components/Footer";
 import { analyticsService } from "../services/analyticsService";
 
@@ -13,6 +15,8 @@ interface PlansProps {
 }
 
 export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
@@ -22,6 +26,18 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
 
   const handlePurchase = async (target: string, type: "PLAN" | "FUEL") => {
     if (target === "FREE" || loadingTarget) return;
+
+    if (!isAuthenticated) {
+      showToast(
+        i18n.language === "ru"
+          ? "Для выбора тарифа создайте бесплатный аккаунт или войдите!"
+          : "Please log in or register to select a plan!",
+        "info"
+      );
+      navigate("/auth");
+      return;
+    }
+
     setLoadingTarget(target);
     try {
       const res = await analyticsService.createPayment({ target, type, currency });
@@ -29,7 +45,12 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
         window.location.href = res.url;
       }
     } catch (err) {
-      showToast("Не удалось инициализировать оплату. Попробуйте позже.", "error");
+      showToast(
+        i18n.language === "ru"
+          ? "Не удалось инициализировать оплату. Попробуйте позже."
+          : "Failed to initialize payment. Please try again later.",
+        "error"
+      );
     } finally {
       setLoadingTarget(null);
     }

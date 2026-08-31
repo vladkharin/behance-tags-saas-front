@@ -80,7 +80,7 @@ export const Footer: React.FC<FooterProps> = ({
           to="/guides"
           className="text-[11px] font-black uppercase tracking-[0.2em] text-behance-blue hover:underline pb-1"
         >
-          📚 Гайды и SEO
+          📚 {t("footer.guides") || "Гайды и SEO"}
         </Link>
         <LegalLink label={t("footer.legal.offer")} view="terms" />
         <LegalLink label={t("footer.legal.privacy")} view="privacy" />

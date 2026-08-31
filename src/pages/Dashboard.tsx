@@ -749,11 +749,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                 {/* 4. MAIN RANKINGS TIMELINE CHART */}
                 <RankingsChart
+                  hasHistory={Boolean(planLimits.hasCharts || isDemoMode)}
                   history={history}
                   visibleTags={visibleTags}
                   focusedTag={focusedTag}
                   tagColors={tagColors}
                   isBusy={isSelectedProjectBusy}
+                  onNavigatePricing={onNavigatePricing}
                 />
               </div>
             )
