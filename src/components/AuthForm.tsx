@@ -242,7 +242,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
                   />
                 </div>
                 <p className="text-[10px] text-center text-zinc-400 mt-1.5">
-                  Проверьте папку «Входящие» и «Спам»
+                  {t("auth.checkSpamNote")}
                 </p>
               </div>
 
@@ -285,7 +285,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigat
                   onClick={handleResendOtp}
                   className="text-xs text-behance-blue hover:underline font-bold transition-colors cursor-pointer"
                 >
-                  {isResending ? "Отправка..." : t("auth.resendBtn")}
+                  {isResending ? t("auth.loading") : t("auth.resendBtn")}
                 </button>
               )}
 

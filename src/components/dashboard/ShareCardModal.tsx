@@ -194,10 +194,10 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
       link.href = dataUrl;
       link.click();
 
-      showToast("Карточка отчета успешно скачана! 📸", "success");
+      showToast(t("dashboard.share.downloadSuccess"), "success");
     } catch (err) {
       console.error(err);
-      showToast("Не удалось сгенерировать PNG файл", "error");
+      showToast(t("dashboard.share.downloadError"), "error");
     } finally {
       setIsExporting(false);
     }

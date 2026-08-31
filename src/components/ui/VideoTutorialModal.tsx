@@ -254,18 +254,18 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
 
                     <div>
                       <h4 className="text-base md:text-lg font-black uppercase text-white tracking-tight">
-                        Робот сканирует поиск Behance...
+                        {t("onboarding.videoModal.stage2Scanning")}
                       </h4>
                       <p className="text-[11px] text-white/60 font-medium mt-1">
-                        Проверка позиций среди 500,000+ конкурирующих проектов
+                        {t("onboarding.videoModal.stage2Searching")}
                       </p>
                     </div>
 
                     <div className="flex flex-wrap justify-center gap-2 max-w-xs mx-auto">
                       {[
-                        { tag: "#branding", status: "Scanning..." },
-                        { tag: "#visual identity", status: "Found!" },
-                        { tag: "#logo design", status: "Scanning..." },
+                        { tag: "#branding", status: t("dashboard.status.checking") || "Scanning..." },
+                        { tag: "#visual identity", status: t("dashboard.matrix.filterTop10") || "TOP-10!" },
+                        { tag: "#logo design", status: t("dashboard.status.checking") || "Scanning..." },
                       ].map((item, idx) => (
                         <span
                           key={item.tag}
@@ -287,10 +287,10 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                   <div className="w-full max-w-lg space-y-3.5 animate-in fade-in zoom-in-95 duration-300">
                     <div className="flex justify-between items-center text-white px-2">
                       <span className="text-xs font-black uppercase tracking-wider text-green-400">
-                        Результаты сканирования:
+                        {t("onboarding.videoModal.stage3Results")}
                       </span>
                       <span className="text-[10px] font-black uppercase bg-green-500/20 text-green-400 px-2.5 py-0.5 rounded-full border border-green-500/30">
-                        Индекс видимости: 85% 🔥
+                        {t("onboarding.videoModal.stage3Visibility")}
                       </span>
                     </div>
 
@@ -335,17 +335,17 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                     <div className="p-4 rounded-3xl bg-gradient-to-tr from-green-500/20 to-blue-500/10 border border-green-500/30 space-y-2">
                       <span className="text-2xl">🎉</span>
                       <h4 className="text-base md:text-lg font-black uppercase text-white">
-                        +350% Охватов на Behance
+                        {t("onboarding.videoModal.stage4Reach")}
                       </h4>
                       <p className="text-[11px] text-white/70 font-medium leading-relaxed">
-                        Теги вышли в ТОП-10 поиска. Копируйте готовый список в кейс!
+                        {t("onboarding.videoModal.stage4Desc")}
                       </p>
                     </div>
 
                     <div className="flex gap-2">
                       <div className="flex-1 py-3 rounded-2xl bg-behance-blue text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 scale-105">
                         <span>🎯</span>
-                        <span>Скопировать для Behance</span>
+                        <span>{t("onboarding.videoModal.stage4CopyBtn")}</span>
                       </div>
                     </div>
                   </div>
@@ -418,7 +418,7 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                 >
                   <span className="text-base block mb-1">{s.icon}</span>
                   <span className="text-[10px] font-black uppercase tracking-wider block truncate">
-                    Шаг 0{idx + 1}
+                    {t("onboarding.videoModal.stepPrefix", { num: idx + 1 })}
                   </span>
                 </button>
               ))}
@@ -440,7 +440,7 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                 {steps[activeStep].desc}
               </p>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-behance-blue/10 text-behance-blue text-[10px] font-black uppercase tracking-wider">
-                <span>💡 Как это работает:</span>
+                <span>{t("onboarding.videoModal.howItWorks")}</span>
                 <span>{steps[activeStep].highlight}</span>
               </div>
             </div>
@@ -454,13 +454,13 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
                 type="button"
                 className="text-[10px] font-black uppercase opacity-40 hover:opacity-100 transition-opacity tracking-widest"
               >
-                + Вставить собственную ссылку на видео (YouTube / Loom)
+                {t("onboarding.videoModal.customVideoBtn")}
               </button>
             ) : (
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Вставьте ссылку на YouTube (например: https://www.youtube.com/embed/...)"
+                  placeholder={t("onboarding.videoModal.customVideoPlaceholder")}
                   value={customVideoUrl}
                   onChange={(e) => setCustomVideoUrl(e.target.value)}
                   className={`flex-1 rounded-xl px-4 py-2 text-xs outline-none border ${
@@ -489,7 +489,7 @@ export const VideoTutorialModal: React.FC<VideoTutorialModalProps> = ({
             onClick={onClose}
             className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-behance-blue text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-500/25 hover:scale-105 active:scale-95 transition-all cursor-pointer text-center"
           >
-            Понятно, хочу попробовать! 🚀
+            {t("onboarding.videoModal.closeBtn")}
           </button>
         </div>
       </div>

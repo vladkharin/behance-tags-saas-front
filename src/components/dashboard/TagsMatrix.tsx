@@ -240,7 +240,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
             {showCopyMenu && (
               <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white dark:bg-[#141418] border border-zinc-200 dark:border-white/10 shadow-2xl p-2 z-40 animate-in fade-in zoom-in-95 duration-150 space-y-1">
                 <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                  Все теги ({processedTags.length})
+                  {t("dashboard.matrix.allTagsHeading", { count: processedTags.length })}
                 </div>
 
                 <button
@@ -296,7 +296,7 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
                 {top10Count > 0 && (
                   <>
                     <div className="pt-2 my-1 border-t border-zinc-200 dark:border-white/10 px-3 text-[10px] font-black uppercase tracking-wider text-green-500 flex items-center justify-between">
-                      <span>ТОП-10 ТЕГИ ({top10Count})</span>
+                      <span>{t("dashboard.matrix.top10Heading", { count: top10Count })}</span>
                       <span className="text-[10px]">🔥</span>
                     </div>
 

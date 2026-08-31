@@ -149,7 +149,7 @@ export const HybridTagInput: React.FC<HybridTagInputProps> = ({
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
                   className="hover:text-red-400 opacity-60 hover:opacity-100 cursor-pointer font-bold ml-0.5 text-[11px]"
-                  title={`Удалить #${tag}`}
+                  title={t("dashboard.matrix.deleteTagTooltip", { tag })}
                 >
                   ✕
                 </button>

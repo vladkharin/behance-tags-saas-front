@@ -110,7 +110,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {t("landing.nav.pricing")}
             </a>
             <Link to="/guides" className="hover:text-behance-blue text-behance-blue transition-colors">
-              📚 Гайды
+              {t("landing.nav.guides") || "📚 Guides"}
             </Link>
             <a href="#faq" className="hover:text-behance-blue transition-colors">
               {t("landing.nav.faq")}
@@ -228,7 +228,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-green-500/15 text-green-500 text-xs font-black font-mono">
-                    ↑ ТОП-10 (8 тегов)
+                    {t("landing.hero.badgeTop10")}
                   </span>
                 </div>
               </div>
@@ -464,13 +464,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div className="space-y-2">
               <span className="px-3 py-1 rounded-full bg-blue-500/15 text-behance-blue text-[10px] font-black uppercase tracking-wider border border-blue-500/30">
-                📚 База знаний
+                {t("landing.guides.badge")}
               </span>
               <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight">
-                Полезные SEO-гайды для дизайнеров
+                {t("landing.guides.title")}
               </h2>
               <p className="text-xs sm:text-sm opacity-70">
-                Практические статьи о продвижении кейсов, подборе тегов и алгоритмах поиска.
+                {t("landing.guides.subtitle")}
               </p>
             </div>
 
@@ -478,46 +478,53 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               to="/guides"
               className="text-xs font-black uppercase tracking-wider text-behance-blue hover:underline shrink-0 flex items-center gap-1"
             >
-              <span>Все статьи (6)</span>
+              <span>{t("landing.guides.allArticles", { count: GUIDES_ARTICLES.length })}</span>
               <span>➔</span>
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {GUIDES_ARTICLES.slice(0, 3).map((article) => (
-              <Link
-                key={article.slug}
-                to={`/guides/${article.slug}`}
-                className={`p-6 rounded-3xl border transition-all flex flex-col justify-between group hover:-translate-y-1 shadow-sm ${
-                  isDark
-                    ? "bg-[#141418] border-white/10 hover:border-behance-blue/40"
-                    : "bg-white border-zinc-200 hover:border-behance-blue/40 hover:shadow-xl"
-                }`}
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-behance-blue text-[10px] font-black uppercase tracking-wider">
-                      {article.categoryLabel}
-                    </span>
-                    <span className="opacity-40 text-[10px] font-mono">
-                      ⏱ {article.readTime}
-                    </span>
+            {GUIDES_ARTICLES.slice(0, 3).map((article) => {
+              const lang = i18n.language === "en" ? "en" : "ru";
+              const title = lang === "en" && article.titleEn ? article.titleEn : article.title;
+              const excerpt = lang === "en" && article.excerptEn ? article.excerptEn : article.excerpt;
+              const categoryLabel = lang === "en" && article.categoryLabelEn ? article.categoryLabelEn : article.categoryLabel;
+
+              return (
+                <Link
+                  key={article.slug}
+                  to={`/guides/${article.slug}`}
+                  className={`p-6 rounded-3xl border transition-all flex flex-col justify-between group hover:-translate-y-1 shadow-sm ${
+                    isDark
+                      ? "bg-[#141418] border-white/10 hover:border-behance-blue/40"
+                      : "bg-white border-zinc-200 hover:border-behance-blue/40 hover:shadow-xl"
+                  }`}
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-behance-blue text-[10px] font-black uppercase tracking-wider">
+                        {categoryLabel}
+                      </span>
+                      <span className="opacity-40 text-[10px] font-mono">
+                        ⏱ {article.readTime}
+                      </span>
+                    </div>
+
+                    <h3 className="text-sm sm:text-base font-black leading-snug group-hover:text-behance-blue transition-colors">
+                      {title}
+                    </h3>
+
+                    <p className="text-xs opacity-70 leading-relaxed line-clamp-3">
+                      {excerpt}
+                    </p>
                   </div>
 
-                  <h3 className="text-sm sm:text-base font-black leading-snug group-hover:text-behance-blue transition-colors">
-                    {article.title}
-                  </h3>
-
-                  <p className="text-xs opacity-70 leading-relaxed line-clamp-3">
-                    {article.excerpt}
-                  </p>
-                </div>
-
-                <span className="text-xs font-bold text-behance-blue mt-6 block group-hover:translate-x-1 transition-transform">
-                  Читать гайд ➔
-                </span>
-              </Link>
-            ))}
+                  <span className="text-xs font-bold text-behance-blue mt-6 block group-hover:translate-x-1 transition-transform">
+                    {t("landing.guides.readGuide")}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

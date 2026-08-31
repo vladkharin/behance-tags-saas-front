@@ -369,16 +369,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (!selectedProjectId) return;
 
     if (isDemoMode) {
-      showToast("В демо-режиме отображаются демонстрационные данные графика", "info");
+      showToast(t("dashboard.toasts.demoChartNotice"), "info");
       return;
     }
 
     if (!hasEnoughBalance) {
       confirm({
-        title: "Недостаточно тегов Fuel",
-        message: `Для сканирования требуется ${projectData?.tagsMatrix.length} тегов. Ваш текущий баланс: ${projectData?.tagBalance}. Пополните баланс тегов!`,
-        confirmText: "Пополнить баланс",
-        cancelText: "Отмена",
+        title: t("dashboard.dialogs.fuelTitle"),
+        message: t("dashboard.dialogs.fuelMessage", {
+          required: projectData?.tagsMatrix.length || 0,
+          balance: projectData?.tagBalance || 0,
+        }),
+        confirmText: t("dashboard.dialogs.fuelConfirm"),
+        cancelText: t("dashboard.dialogs.fuelCancel"),
         onConfirm: () => onNavigatePricing(),
       });
       return;
@@ -393,7 +396,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         setProjectData({ ...projectData, status: "PROCESSING" });
       }
     } catch (err: any) {
-      const msg = err.response?.data?.message || "Ошибка запуска обновления";
+      const msg = err.response?.data?.message || t("dashboard.toasts.importError");
       showToast(msg, "error");
     } finally {
       setActionLoading(false);
@@ -404,7 +407,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const toggleAutoUpdate = async (state: boolean) => {
     if (!selectedProjectId) return;
     if (isDemoMode) {
-      showToast("В демо-режиме робот включен по умолчанию", "info");
+      showToast(t("dashboard.toasts.demoRobotNotice"), "info");
       return;
     }
 
@@ -415,12 +418,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
       );
       showToast(
         state
-          ? t("dashboard.toasts.scheduleEnabled", { hours: planLimits.intervalHours })
+          ? t("dashboard.toasts.scheduleEnabled")
           : t("dashboard.toasts.scheduleDisabled"),
         "success",
       );
-    } catch (e) {
-      showToast("Не удалось изменить расписание робота", "error");
+    } catch {
+      showToast(t("dashboard.toasts.scheduleError"), "error");
     }
   };
 
@@ -484,7 +487,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (!selectedProjectId || !tagsString.trim()) return;
 
     if (isDemoMode) {
-      showToast("Кастомные теги добавлены в демо-матрицу!", "success");
+      showToast(t("dashboard.toasts.demoCustomTagsAdded"), "success");
       return;
     }
 
@@ -497,9 +500,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       await analyticsService.analyzeProject(selectedProjectId, tagsList);
       setIsPolling(true);
-      showToast(`Добавлено ${tagsList.length} тегов в анализ! 🚀`, "success");
-    } catch (e) {
-      showToast("Не удалось добавить кастомные теги", "error");
+      showToast(t("dashboard.toasts.customTagsAdded", { count: tagsList.length }), "success");
+    } catch {
+      showToast(t("dashboard.toasts.customTagsError"), "error");
     } finally {
       setActionLoading(false);
     }
@@ -510,7 +513,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (!selectedProjectId) return;
 
     if (isDemoMode) {
-      showToast(`Тег #${tagName} добавлен в демо!`, "success");
+      showToast(t("dashboard.toasts.demoTagAdded", { tag: tagName }), "success");
       return;
     }
 
@@ -518,9 +521,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
     try {
       await analyticsService.analyzeProject(selectedProjectId, [tagName]);
       setIsPolling(true);
-      showToast(`Рекомендованный тег #${tagName} добавлен в мониторинг! 🚀`, "success");
-    } catch (e) {
-      showToast("Не удалось добавить рекомендованный тег", "error");
+      showToast(t("dashboard.toasts.tagAdded", { tag: tagName }), "success");
+    } catch {
+      showToast(t("dashboard.toasts.tagAddError"), "error");
     } finally {
       setActionLoading(false);
     }
@@ -538,13 +541,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
         });
       }
       setVisibleTags((prev) => prev.filter((t) => t !== tagName));
-      showToast(`Тег #${tagName} удален из демо`, "info");
+      showToast(t("dashboard.toasts.demoTagRemoved", { tag: tagName }), "info");
       return;
     }
 
     try {
       await analyticsService.removeTagFromProject(selectedProjectId, tagName);
-      showToast(`Тег #${tagName} удален из мониторинга кейса`, "info");
+      showToast(t("dashboard.toasts.tagRemoved", { tag: tagName }), "info");
       if (projectData) {
         setProjectData({
           ...projectData,
@@ -552,8 +555,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
         });
       }
       setVisibleTags((prev) => prev.filter((t) => t !== tagName));
-    } catch (e) {
-      showToast("Ошибка при удалении тега", "error");
+    } catch {
+      showToast(t("dashboard.toasts.tagRemoveError"), "error");
     }
   };
 
@@ -562,25 +565,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (!selectedProjectId || !projectData) return;
 
     if (isDemoMode) {
-      showToast("Демо-проект нельзя удалить", "info");
+      showToast(t("dashboard.toasts.demoCannotDelete"), "info");
       return;
     }
 
     const isFree = userPlan === "FREE";
     const confirmMsg = isFree
-      ? `Вы уверены, что хотите удалить проект "${selectedProjectInSidebar?.title || "кейс"}"? На бесплатном тарифе замена кейса доступна раз в 7 дней.`
-      : `Вы уверены, что хотите удалить проект "${selectedProjectInSidebar?.title || "кейс"}"?`;
+      ? t("dashboard.dialogs.deleteMessageFree", {
+          title: selectedProjectInSidebar?.title || "case",
+        })
+      : t("dashboard.dialogs.deleteMessagePro", {
+          title: selectedProjectInSidebar?.title || "case",
+        });
 
     confirm({
-      title: "Удаление кейса",
+      title: t("dashboard.dialogs.deleteTitle"),
       message: confirmMsg,
-      confirmText: "Да, удалить",
-      cancelText: "Отмена",
+      confirmText: t("dashboard.dialogs.deleteConfirm"),
+      cancelText: t("dashboard.dialogs.deleteCancel"),
       onConfirm: async () => {
         setActionLoading(true);
         try {
           await analyticsService.deleteProject(selectedProjectId);
-          showToast("Проект успешно удален", "success");
+          showToast(t("dashboard.toasts.deleteSuccess"), "success");
           const updatedProjects = projects.filter((p) => p.id !== selectedProjectId);
           setProjects(updatedProjects);
           if (updatedProjects.length > 0) {
@@ -592,7 +599,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             setProjectData(null);
           }
         } catch (e: any) {
-          const msg = e.response?.data?.message || "Ошибка при удалении проекта";
+          const msg = e.response?.data?.message || t("dashboard.toasts.deleteError");
           showToast(msg, "error");
         } finally {
           setActionLoading(false);
@@ -657,11 +664,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="bg-gradient-to-r from-behance-blue via-indigo-600 to-blue-700 text-white px-4 py-3 text-xs font-bold flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left animate-in fade-in sticky top-0 z-40 shadow-md">
             <div className="flex items-center gap-2">
               <span className="text-base">👁️</span>
-              <span>
-                {i18n.language === "ru"
-                  ? "Вы находитесь в интерактивном Демо-режиме (Smart Watch UI/UX Case)."
-                  : "You are currently viewing interactive Demo Mode (Smart Watch UI/UX Case)."}
-              </span>
+              <span>{t("dashboard.demo.bannerText")}</span>
             </div>
             <button
               onClick={() => {

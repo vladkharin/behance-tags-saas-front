@@ -119,7 +119,7 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({
             {showCopyMenu && (
               <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white dark:bg-[#141418] border border-zinc-200 dark:border-white/10 shadow-2xl p-2 z-40 animate-in fade-in zoom-in-95 duration-150 space-y-1">
                 <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                  Все теги ({stats.total})
+                  {t("dashboard.matrix.allTagsHeading", { count: stats.total })}
                 </div>
 
                 <button
@@ -175,7 +175,7 @@ export const MetricsGrid: React.FC<MetricsGridProps> = ({
                 {stats.top10 > 0 && (
                   <>
                     <div className="pt-2 my-1 border-t border-zinc-200 dark:border-white/10 px-3 text-[10px] font-black uppercase tracking-wider text-green-500 flex items-center justify-between">
-                      <span>ТОП-10 ТЕГИ ({stats.top10})</span>
+                      <span>{t("dashboard.matrix.top10Heading", { count: stats.top10 })}</span>
                       <span className="text-[10px]">🔥</span>
                     </div>
 
