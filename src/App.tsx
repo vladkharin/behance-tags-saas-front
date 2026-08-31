@@ -13,6 +13,8 @@ import { PrivacyPage } from "./pages/PrivacyPage";
 import { OfferPage } from "./pages/OfferPage";
 import { RefundPage } from "./pages/RefundPage";
 import { HelpPage } from "./pages/HelpPage";
+import { GuidesListPage } from "./pages/GuidesListPage";
+import { GuideDetailPage } from "./pages/GuideDetailPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -84,6 +86,10 @@ const MainApp: React.FC = () => {
             />
           }
         />
+
+        {/* SEO Блог и база знаний */}
+        <Route path="/guides" element={<GuidesListPage />} />
+        <Route path="/guides/:slug" element={<GuideDetailPage />} />
 
         {/* Публичные страницы (доступны всем) */}
         <Route

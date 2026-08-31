@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContextInstance";
+import { GUIDES_ARTICLES } from "../data/guidesData";
 
 interface LandingPageProps {
   onNavigateAuth: (mode?: "login" | "register") => void;
@@ -107,6 +109,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <a href="#pricing" className="hover:text-behance-blue transition-colors">
               {t("landing.nav.pricing")}
             </a>
+            <Link to="/guides" className="hover:text-behance-blue text-behance-blue transition-colors">
+              📚 Гайды
+            </Link>
             <a href="#faq" className="hover:text-behance-blue transition-colors">
               {t("landing.nav.faq")}
             </a>
@@ -449,6 +454,70 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             >
               {t("landing.pricingPreview.viewAllPlansBtn")}
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 6.5. SEO GUIDES SECTION (KNOWLEDGE BASE PREVIEW) */}
+      <section className="py-16 md:py-24 border-t border-zinc-200 dark:border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+            <div className="space-y-2">
+              <span className="px-3 py-1 rounded-full bg-blue-500/15 text-behance-blue text-[10px] font-black uppercase tracking-wider border border-blue-500/30">
+                📚 База знаний
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight">
+                Полезные SEO-гайды для дизайнеров
+              </h2>
+              <p className="text-xs sm:text-sm opacity-70">
+                Практические статьи о продвижении кейсов, подборе тегов и алгоритмах поиска.
+              </p>
+            </div>
+
+            <Link
+              to="/guides"
+              className="text-xs font-black uppercase tracking-wider text-behance-blue hover:underline shrink-0 flex items-center gap-1"
+            >
+              <span>Все статьи (6)</span>
+              <span>➔</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {GUIDES_ARTICLES.slice(0, 3).map((article) => (
+              <Link
+                key={article.slug}
+                to={`/guides/${article.slug}`}
+                className={`p-6 rounded-3xl border transition-all flex flex-col justify-between group hover:-translate-y-1 shadow-sm ${
+                  isDark
+                    ? "bg-[#141418] border-white/10 hover:border-behance-blue/40"
+                    : "bg-white border-zinc-200 hover:border-behance-blue/40 hover:shadow-xl"
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-behance-blue text-[10px] font-black uppercase tracking-wider">
+                      {article.categoryLabel}
+                    </span>
+                    <span className="opacity-40 text-[10px] font-mono">
+                      ⏱ {article.readTime}
+                    </span>
+                  </div>
+
+                  <h3 className="text-sm sm:text-base font-black leading-snug group-hover:text-behance-blue transition-colors">
+                    {article.title}
+                  </h3>
+
+                  <p className="text-xs opacity-70 leading-relaxed line-clamp-3">
+                    {article.excerpt}
+                  </p>
+                </div>
+
+                <span className="text-xs font-bold text-behance-blue mt-6 block group-hover:translate-x-1 transition-transform">
+                  Читать гайд ➔
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

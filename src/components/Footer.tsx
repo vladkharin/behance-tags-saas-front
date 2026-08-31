@@ -1,32 +1,41 @@
 import React from "react";
 import { useTheme } from "../context/ThemeContextInstance";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 interface FooterProps {
   onNavigate?: (view: "help" | "plans" | "terms" | "privacy" | "refund") => void;
+  onNavigateLegal?: (view: "help" | "plans" | "terms" | "privacy" | "refund") => void;
+  onNavigatePricing?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+export const Footer: React.FC<FooterProps> = ({
+  onNavigate,
+  onNavigateLegal,
+  onNavigatePricing,
+}) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const isDark = theme === "dark";
 
-  const LegalLink = ({ label, view }: { label: string; view: "terms" | "privacy" | "refund" }) => {
+  const handleNav = onNavigateLegal || onNavigate;
+
+  const LegalLink = ({ label, view }: { label: string; view: "terms" | "privacy" | "refund" | "help" | "plans" }) => {
     const className =
       "text-[11px] font-black uppercase tracking-[0.2em] text-behance-muted hover:text-behance-blue transition-all border-b-2 border-transparent hover:border-behance-blue/20 pb-1 cursor-pointer bg-transparent border-none";
 
-    if (onNavigate) {
+    if (handleNav) {
       return (
-        <button onClick={() => onNavigate(view)} type="button" className={className}>
+        <button onClick={() => handleNav(view as any)} type="button" className={className}>
           {label}
         </button>
       );
     }
 
     return (
-      <span className={className}>
+      <Link to={`/${view}`} className={className}>
         {label}
-      </span>
+      </Link>
     );
   };
 
@@ -38,7 +47,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     >
       {/* 1. BRANDING */}
       <div className="flex flex-col items-center xl:items-start gap-3 flex-1 text-center xl:text-left">
-        <span className="text-lg font-black uppercase tracking-[0.35em] text-behance-blue">BeRanked</span>
+        <Link to="/" className="text-lg font-black uppercase tracking-[0.35em] text-behance-blue hover:opacity-80">
+          BeRanked
+        </Link>
         <div className="flex flex-col gap-1 opacity-40 items-center xl:items-start">
           <span className="text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">
             © 2026 {t("footer.developed")}
@@ -63,8 +74,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         />
       </div>
 
-      {/* 3. LEGAL DOCUMENTS */}
-      <div className="flex flex-wrap justify-center gap-x-8 md:gap-x-12 gap-y-4 flex-1">
+      {/* 3. NAVIGATION & GUIDES */}
+      <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-8 gap-y-3 flex-1">
+        <Link
+          to="/guides"
+          className="text-[11px] font-black uppercase tracking-[0.2em] text-behance-blue hover:underline pb-1"
+        >
+          📚 Гайды и SEO
+        </Link>
         <LegalLink label={t("footer.legal.offer")} view="terms" />
         <LegalLink label={t("footer.legal.privacy")} view="privacy" />
         <LegalLink label={t("footer.legal.refund")} view="refund" />
