@@ -7,18 +7,17 @@
     "securePayments": "Безопасные платежи"
   },
   "sidebar": {
-    "newProject": "Новый проект",
-    "monitoredCases": "Кейсы на мониторинге ({{current}}/{{max}})",
-    "adminPanel": "Панель владельца",
-    "status": {
-      "pending": "В очереди",
-      "processing": "Анализ...",
-      "active": "Активен"
-    },
-    "plansBtn": "Тарифы",
-    "upgradeBtn": "Upgrade ⚡",
-    "managePlan": "Управление тарифом",
-    "logout": "Выйти из системы"
+    "monitoredCases": "КЕЙСЫ НА МОНИТОРИНГЕ ({{current}}/{{max}})",
+    "newProject": "НОВЫЙ ПРОЕКТ",
+    "newProjectBtn": "＋ Новый проект",
+    "addProjectBtn": "＋ Добавить проект",
+    "adminPanel": "ПАНЕЛЬ УПРАВЛЕНИЯ",
+    "plansBtn": "ТАРИФЫ",
+    "upgradeBtn": "UPGRADE",
+    "profileBtn": "ЛИЧНЫЙ КАБИНЕТ",
+    "adminBtn": "Панель администратора",
+    "logoutBtn": "ВЫЙТИ",
+    "limitBadge": "Лимит исчерпан"
   },
   "dashboard": {
     "demo": {
@@ -36,21 +35,28 @@
       "demoBtn": "Посмотреть на демо-проекте"
     },
     "metrics": {
-      "verdictSubtitle": "Результат проверки тегов в поиске Behance",
-      "verdictTop10": "🔥 {{top10}} из {{total}} тегов работают в ТОП-10",
+      "verdictSubtitle": "РЕЗУЛЬТАТ ПРОВЕРКИ ТЕГОВ В ПОИСКЕ BEHANCE",
+      "verdictTop10": "🔥 {{top10}} из {{total}} тегов в ТОП-10 выдачи!",
       "verdictChecked": "📊 Проверено {{total}} тегов",
       "copyTagsForBehance": "Скопировать теги для Behance",
       "top10CardTitle": "В ТОП-10 (Дают просмотры)",
       "top10CardSubtitle": "Кейс на первых местах в выдаче",
-      "potentialCardTitle": "На подходе (11–30 место)",
+      "potentialCardTitle": "На подходе (11-30 место)",
       "potentialCardSubtitle": "Близко к ТОПу, есть потенциал роста",
       "lostCardTitle": "Вне поиска (Не находит)",
       "lostCardSubtitle": "По этим тегам трафик не идет",
       "behanceStats": "Статистика кейса на Behance:",
-      "viewsCount": "{{count}} просмотров",
-      "likesCount": "{{count}} лайков",
-      "commentsCount": "{{count}} комментариев",
-      "tags": "тегов"
+      "testedTitle": "Проверено {{count}} тегов",
+      "top10Title": "В ТОП-10 (Дают просмотры)",
+      "top10Subtitle": "Кейс на первых местах в выдаче",
+      "potentialTitle": "На подходе (11-30 место)",
+      "potentialSubtitle": "Близко к ТОПу, есть потенциал роста",
+      "lostTitle": "Вне поиска (Не находит)",
+      "lostSubtitle": "По этим тегам трафик не идет",
+      "statsViews": "Просмотры",
+      "statsLikes": "Лайки",
+      "statsComments": "Комменты",
+      "statsPrefix": "Статистика кейса на Behance:"
     },
     "meta": {
       "plan": "Тариф",
@@ -58,21 +64,20 @@
       "balance": "Баланс тегов"
     },
     "header": {
+      "robot": "РОБОТ",
+      "robotOff": "ВЫКЛЮЧЕН",
+      "robotActive24h": "АКТИВЕН (24Ч)",
+      "robotActive3d": "АКТИВЕН (3 ДН)",
+      "robotActive7d": "АКТИВЕН (7 ДН)",
+      "fuel": "ТОПЛИВО: {{count}} ТЕГОВ",
+      "topUp": "ПОПОЛНИТЬ",
       "viewOnBehance": "Посмотреть на Behance",
-      "robot": "Робот",
-      "robotActive": "Активен (24ч)",
-      "robotActive24h": "Активен (24ч)",
-      "robotActive3d": "Активен (3 дня)",
-      "robotActive7d": "Активен (7 дн)",
-      "robotOff": "Выключен",
-      "fuel": "Топливо: {{count}} тегов",
-      "topUp": "(Пополнить ⚡)",
       "shareReport": "Поделиться отчетом",
       "videoGuide": "Видео-гид",
       "deleteProject": "Удалить проект",
-      "updateBtn": "Обновить позиции",
-      "updateBtnPending": "⏳ В очереди",
-      "updateBtnProcessing": "🤖 Сканирование..."
+      "updateBtn": "ОБНОВИТЬ ПОЗИЦИИ",
+      "updateBtnPending": "⏳ В ОЧЕРЕДИ",
+      "updateBtnProcessing": "🤖 СКАНИРОВАНИЕ..."
     },
     "chart": {
       "empty": "Выберите теги в матрице ниже \nдля визуализации истории позиций",
@@ -103,8 +108,8 @@
       "cancelBtn": "✕ Отмена",
       "copyDropdown": "Скопировать теги",
       "copyComma": "Через запятую (для Behance)",
-      "copyHashtags": "С решётками (#branding)",
-      "copyOnlyTop10": "Только ТОП-10 🔥",
+      "copyHashtags": "С хэштегами (#tag)",
+      "copyOnlyTop10": "Только ТОП-10 (через запятую)",
       "filterAll": "Все",
       "filterTop10": "🟢 ТОП 1–10",
       "filterPotential": "🟡 ТОП 11–30",
@@ -126,7 +131,10 @@
       "deleteConfirmBtn": "Удалить",
       "deleteCancelBtn": "Отмена",
       "tagCopiedToast": "Тег #{{tag}} скопирован!",
-      "noTagsToCopy": "Нет тегов для копирования"
+      "noTagsToCopy": "Нет тегов для копирования",
+      "copyExcel": "Столбцом для Excel",
+      "copyQuotes": "В кавычках (\"tag\")",
+      "copyTop10Excel": "Только ТОП-10 (столбцом для Excel)"
     },
     "emptyView": {
       "heroBadge": "Добро пожаловать в BeRanked",

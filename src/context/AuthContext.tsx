@@ -39,6 +39,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const adminStatus = !!res.data.isAdmin;
       setIsAdmin(adminStatus);
       localStorage.setItem("isAdmin", String(adminStatus));
+      if (res.data.plan) {
+        localStorage.setItem("userPlan", res.data.plan);
+      }
+      if (res.data.email) {
+        localStorage.setItem("userEmail", res.data.email);
+      }
     } catch {
       // Игнорируем ошибки фоновой проверки
     }

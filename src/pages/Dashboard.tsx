@@ -107,8 +107,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // Plan limits & normalizations
   const userPlan: PlanType = useMemo(() => {
     if (isDemoMode) return "PRO_STREAM";
+    if (isAdmin) return "PRO_STREAM";
+    const storedPlan = localStorage.getItem("userPlan");
+    if (storedPlan) return normalizePlan(storedPlan);
+    if ((projectData as any)?.userPlan || (projectData as any)?.plan) {
+      return normalizePlan((projectData as any)?.userPlan || (projectData as any)?.plan);
+    }
     return normalizePlan(user?.plan || "FREE");
-  }, [user?.plan, isDemoMode]);
+  }, [isAdmin, isDemoMode, projectData, user?.plan]);
 
   const planLimits = useMemo(() => {
     const maxProjects = isDemoMode ? 10 : PLAN_PROJECT_LIMITS[userPlan] || 1;
