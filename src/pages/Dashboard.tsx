@@ -121,7 +121,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const intervalHours = PLAN_HOURS[userPlan] || 168;
     const hasCustomTags = userPlan !== "FREE" || isDemoMode;
     const hasTrends = userPlan !== "FREE" || isDemoMode;
-    return { maxProjects, intervalHours, hasCustomTags, hasTrends };
+    const hasCharts = userPlan !== "FREE" || isDemoMode;
+    return { maxProjects, intervalHours, hasCustomTags, hasTrends, hasCharts };
   }, [userPlan, isDemoMode]);
 
   const hasEnoughBalance = useMemo(() => {
