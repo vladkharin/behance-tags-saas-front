@@ -336,7 +336,8 @@
       "offer": "Offer & Terms",
       "privacy": "Privacy Policy",
       "refund": "Refund Policy"
-    }
+    },
+    "tagsCatalog": "Tags Catalog"
   },
   "plans": {
     "header": {
@@ -582,7 +583,8 @@
       "faq": "FAQ",
       "login": "Log in",
       "startFree": "Start Free",
-      "guides": "📚 Guides"
+      "guides": "📚 Guides",
+      "tagsCatalog": "Tags Directory"
     },
     "hero": {
       "safetyBadge": "🛡️ 100% Safe: No passwords or ban risk",

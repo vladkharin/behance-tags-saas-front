@@ -77,10 +77,16 @@ export const Footer: React.FC<FooterProps> = ({
       {/* 3. NAVIGATION & GUIDES */}
       <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-8 gap-y-3 flex-1">
         <Link
+          to="/tags"
+          className="text-[11px] font-black uppercase tracking-[0.2em] text-behance-blue hover:underline pb-1"
+        >
+          🏷️ {t("footer.tagsCatalog")}
+        </Link>
+        <Link
           to="/guides"
           className="text-[11px] font-black uppercase tracking-[0.2em] text-behance-blue hover:underline pb-1"
         >
-          📚 {t("footer.guides") || "Гайды и SEO"}
+          📚 {t("footer.guides")}
         </Link>
         <LegalLink label={t("footer.legal.offer")} view="terms" />
         <LegalLink label={t("footer.legal.privacy")} view="privacy" />

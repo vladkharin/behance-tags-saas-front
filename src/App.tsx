@@ -15,6 +15,8 @@ import { RefundPage } from "./pages/RefundPage";
 import { HelpPage } from "./pages/HelpPage";
 import { GuidesListPage } from "./pages/GuidesListPage";
 import { GuideDetailPage } from "./pages/GuideDetailPage";
+import { TagsCatalogPage } from "./pages/TagsCatalogPage";
+import { NicheTagDetailPage } from "./pages/NicheTagDetailPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -90,6 +92,10 @@ const MainApp: React.FC = () => {
         {/* SEO Блог и база знаний */}
         <Route path="/guides" element={<GuidesListPage />} />
         <Route path="/guides/:slug" element={<GuideDetailPage />} />
+
+        {/* Каталог проверенных тегов по нишам (Programmatic SEO) */}
+        <Route path="/tags" element={<TagsCatalogPage />} />
+        <Route path="/tags/:slug" element={<NicheTagDetailPage />} />
 
         {/* Публичные страницы (доступны всем) */}
         <Route

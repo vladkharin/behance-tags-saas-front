@@ -2,79 +2,115 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://beranked.domcraft.digital/</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://beranked.domcraft.digital/tags</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://beranked.domcraft.digital/tags/ui-ux-design</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://beranked.domcraft.digital/tags/branding-identity</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://beranked.domcraft.digital/tags/3d-motion-graphics</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://beranked.domcraft.digital/tags/web-design-landing</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://beranked.domcraft.digital/tags/packaging-label</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://beranked.domcraft.digital/guides</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://beranked.domcraft.digital/guides/kak-pravilno-podbirat-tegi-na-behance</loc>
-    <lastmod>2026-08-31</lastmod>
+    <loc>https://beranked.domcraft.digital/guides/how-behance-search-algorithm-works-2026</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://beranked.domcraft.digital/guides/kak-vyvesti-kejs-v-top-poiska-behance</loc>
-    <lastmod>2026-08-31</lastmod>
+    <loc>https://beranked.domcraft.digital/guides/top-10-behance-tags-strategy</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://beranked.domcraft.digital/guides/5-oshibok-v-tegakh-iz-za-kotorykh-kejs-ne-vidyat</loc>
-    <lastmod>2026-08-31</lastmod>
+    <loc>https://beranked.domcraft.digital/guides/how-to-promote-case-on-behance-without-spam</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://beranked.domcraft.digital/guides/algoritmy-poiska-i-rekomendatsij-behance</loc>
-    <lastmod>2026-08-31</lastmod>
+    <loc>https://beranked.domcraft.digital/guides/how-to-get-behance-badge-curated</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://beranked.domcraft.digital/guides/kak-oformit-kejs-chtoby-ego-zametili-klienty</loc>
-    <lastmod>2026-08-31</lastmod>
+    <loc>https://beranked.domcraft.digital/guides/how-to-fix-zero-views-on-behance</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://beranked.domcraft.digital/guides/analiz-konkurentov-na-behance-cherez-tegi</loc>
-    <lastmod>2026-08-31</lastmod>
+    <loc>https://beranked.domcraft.digital/guides/behance-seo-vs-instagram-dribbble</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://beranked.domcraft.digital/plans</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://beranked.domcraft.digital/help</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://beranked.domcraft.digital/terms</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://beranked.domcraft.digital/privacy</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://beranked.domcraft.digital/refund</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

@@ -109,6 +109,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <a href="#pricing" className="hover:text-behance-blue transition-colors">
               {t("landing.nav.pricing")}
             </a>
+            <Link to="/tags" className="hover:text-behance-blue text-behance-blue transition-colors">
+              🏷️ {t("landing.nav.tagsCatalog")}
+            </Link>
             <Link to="/guides" className="hover:text-behance-blue text-behance-blue transition-colors">
               {t("landing.nav.guides") || "📚 Guides"}
             </Link>
