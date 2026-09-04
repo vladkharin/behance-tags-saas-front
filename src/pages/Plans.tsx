@@ -99,6 +99,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
         { label: t("plans.features.limit6000"), status: true },
         { label: t("plans.features.customTags"), status: true },
         { label: t("plans.features.charts"), status: true },
+        { label: t("plans.features.telegramAlerts"), status: true },
       ],
       buttonText: t("plans.buttons.getPro"),
       highlight: false,

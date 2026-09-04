@@ -99,6 +99,70 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             </div>
           </div>
 
+          {/* TELEGRAM ALERTS SECTION (PRO STREAM) */}
+          <div
+            className={`p-4 rounded-2xl border space-y-3 ${
+              userPlan === "PRO_STREAM"
+                ? isDark
+                  ? "bg-gradient-to-r from-blue-900/20 to-indigo-900/20 border-blue-500/30"
+                  : "bg-blue-50 border-blue-200"
+                : isDark
+                ? "bg-white/5 border-white/5 opacity-80"
+                : "bg-zinc-50 border-zinc-200"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">📲</span>
+                <span className="text-xs font-black uppercase tracking-wider text-behance-blue">
+                  {t("profile.telegram.title")}
+                </span>
+              </div>
+              <span
+                className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                  userPlan === "PRO_STREAM"
+                    ? "bg-green-500/15 text-green-400 border border-green-500/30"
+                    : "bg-amber-500/15 text-amber-500 border border-amber-500/30"
+                }`}
+              >
+                {userPlan === "PRO_STREAM" ? "PRO STREAM" : "PRO ONLY"}
+              </span>
+            </div>
+
+            {userPlan === "PRO_STREAM" ? (
+              <div className="space-y-2.5">
+                <p className="text-[11px] opacity-75 leading-relaxed">
+                  {t("profile.telegram.connectedDesc")}
+                </p>
+                <a
+                  href="https://t.me/BeRankedAlertsBot"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-2.5 rounded-xl bg-[#229ED9] hover:bg-[#1e8bc0] text-white text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span>✈️</span>
+                  <span>{t("profile.telegram.connectBtn")}</span>
+                </a>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                <p className="text-[11px] opacity-70 leading-relaxed">
+                  {t("profile.telegram.proOnlyDesc")}
+                </p>
+                <button
+                  onClick={() => {
+                    onClose();
+                    onNavigatePlans();
+                  }}
+                  type="button"
+                  className="w-full py-2 rounded-xl bg-behance-blue/10 hover:bg-behance-blue hover:text-white text-behance-blue text-xs font-black uppercase tracking-wider transition-all border border-behance-blue/30 cursor-pointer"
+                >
+                  🚀 {t("profile.telegram.upgradeBtn")}
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* SUBSCRIPTION STATUS CARD */}
           <div className={`p-4 rounded-2xl border space-y-2 ${isDark ? "bg-blue-500/5 border-blue-500/20" : "bg-blue-50/50 border-blue-200"}`}>
             <div className="flex items-center justify-between">

@@ -218,6 +218,18 @@
     "share": {
       "downloadSuccess": "Share card downloaded successfully! 📸",
       "downloadError": "Failed to generate PNG image"
+    },
+    "shareModal": {
+      "title": "Social Share & Stories Generator",
+      "subtitle": "Flex your TOP-10 Behance rankings in Instagram Stories, Telegram, or LinkedIn",
+      "formatStories": "📱 Stories (9:16)",
+      "formatPost": "📸 Post (1:1)",
+      "formatBanner": "📊 Banner (16:9)",
+      "downloadBtn": "Download Image (HD)",
+      "copiedToast": "Card copied to clipboard! 📸",
+      "verifiedBadge": "Verified by BeRanked",
+      "topRankedHeading": "TOP BEHANCE SEARCH RANKS",
+      "caseRankedTop": "CASE IN BEHANCE SEARCH TOP-10"
     }
   },
   "onboarding": {
@@ -366,7 +378,8 @@
       "limit6000": "Limit: 6 000 tags/mo",
       "customTags": "Custom tags input",
       "charts": "History charts",
-      "trends": "Trend analytics"
+      "trends": "Trend analytics",
+      "telegramAlerts": "📲 Daily Telegram Rank Alerts Bot"
     },
     "buttons": {
       "current": "Current Plan",
@@ -687,7 +700,19 @@
     "securityTitle": "Security",
     "securityDesc": "Your account is secured. No Adobe/Behance credentials are ever stored.",
     "closeBtn": "Close",
-    "logoutBtn": "Log out"
+    "logoutBtn": "Log out",
+    "telegram": {
+      "title": "Telegram Rank Alerts (Pro Stream)",
+      "connected": "Bot connected",
+      "disconnected": "Bot not connected",
+      "connectBtn": "Connect @BeRankedAlertsBot",
+      "connectedDesc": "Daily position summary delivered every morning at 09:00.",
+      "proOnlyDesc": "Available on Pro Stream plan. Receive alerts on TOP-10 breakthroughs and rank drops directly in Telegram.",
+      "upgradeBtn": "Upgrade to Pro Stream ($8.99)",
+      "morningDigest": "Morning Position Digest (09:00)",
+      "top10Alert": "Instant TOP-10 Breakthrough Alert",
+      "rankDropAlert": "Rank Drop Warning Alert"
+    }
   },
   "guides": {
     "badge": "Behance SEO Guides & Knowledge Base",

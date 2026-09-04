@@ -218,6 +218,18 @@
     "share": {
       "downloadSuccess": "Карточка отчета успешно скачана! 📸",
       "downloadError": "Не удалось сгенерировать PNG файл"
+    },
+    "shareModal": {
+      "title": "Генератор карточек для соцсетей",
+      "subtitle": "Поделитесь результатами и попаданием в ТОП-10 в Instagram Stories, Telegram или LinkedIn",
+      "formatStories": "📱 Stories (9:16)",
+      "formatPost": "📸 Квадрат (1:1)",
+      "formatBanner": "📊 Баннер (16:9)",
+      "downloadBtn": "Скачать изображение (HD)",
+      "copiedToast": "Карточка скопирована в буфер обмена! 📸",
+      "verifiedBadge": "Проверено через BeRanked",
+      "topRankedHeading": "ТОП ПОЗИЦИИ В ПОИСКЕ",
+      "caseRankedTop": "КЕЙС В ТОП-10 ВЫДАЧИ BEHANCE"
     }
   },
   "onboarding": {
@@ -367,7 +379,8 @@
       "limit6000": "Лимит: 6 000 тегов/мес",
       "customTags": "Кастомные теги через инпут",
       "charts": "История позиций на графиках",
-      "trends": "Аналитика трендов"
+      "trends": "Аналитика трендов",
+      "telegramAlerts": "📲 Telegram-бот утренних отчетов 24/7"
     },
     "buttons": {
       "current": "Текущий план",
@@ -707,7 +720,19 @@
     "securityTitle": "Безопасность",
     "securityDesc": "Ваш аккаунт защищен. Доступ к профилю Behance не используется.",
     "closeBtn": "Закрыть",
-    "logoutBtn": "Выйти из аккаунта"
+    "logoutBtn": "Выйти из аккаунта",
+    "telegram": {
+      "title": "Telegram-уведомления (Pro Stream)",
+      "connected": "Бот подключен",
+      "disconnected": "Бот не подключен",
+      "connectBtn": "Подключить @BeRankedAlertsBot",
+      "connectedDesc": "Утренняя сводка позиций отправляется ежедневно в 09:00 МСК.",
+      "proOnlyDesc": "Доступно на тарифе Pro Stream. Получайте уведомления о взлетах в ТОП-10 и падениях прямо в Telegram.",
+      "upgradeBtn": "Перейти на Pro Stream (890 ₽)",
+      "morningDigest": "Утренний дайджест позиций (09:00)",
+      "top10Alert": "Уведомление о выходе в ТОП-10",
+      "rankDropAlert": "Предупреждение о падении позиций"
+    }
   },
   "guides": {
     "badge": "База знаний и SEO-гайды по Behance",
