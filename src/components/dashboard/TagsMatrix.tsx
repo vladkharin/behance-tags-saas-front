@@ -12,7 +12,7 @@ interface TagsMatrixProps {
   tagColors: Record<string, string>;
   activeFilter: "all" | "top10" | "potential" | "lost";
   hasCustomTags: boolean;
-  hasTrends: boolean;
+  hasTrends?: boolean;
   isDemoMode: boolean;
   isBusy: boolean;
   getTrend?: (tag: string, rank: number | null) => number;

@@ -120,9 +120,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const maxProjects = isDemoMode ? 10 : PLAN_PROJECT_LIMITS[userPlan] || 1;
     const intervalHours = PLAN_HOURS[userPlan] || 168;
     const hasCustomTags = userPlan !== "FREE" || isDemoMode;
-    const hasTrends = userPlan !== "FREE" || isDemoMode;
-    const hasCharts = userPlan !== "FREE" || isDemoMode;
-    return { maxProjects, intervalHours, hasCustomTags, hasTrends, hasCharts };
+    const hasCharts = userPlan === "PRO_STREAM" || isDemoMode;
+    return { maxProjects, intervalHours, hasCustomTags, hasCharts };
   }, [userPlan, isDemoMode]);
 
   const hasEnoughBalance = useMemo(() => {
@@ -746,7 +745,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   tagColors={tagColors}
                   activeFilter={activeFilter}
                   hasCustomTags={planLimits.hasCustomTags}
-                  hasTrends={planLimits.hasTrends}
                   isDemoMode={isDemoMode}
                   isBusy={isSelectedProjectBusy}
                   onToggleTag={handleToggleTag}

@@ -74,7 +74,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
     {
       id: "DAILY_FRESH",
       name: t("plans.names.daily"),
-      price: { RUB: "890 ₽", USD: "$9.99" },
+      price: { RUB: "390 ₽", USD: "$3.99" },
       period: t("common.monthShort"),
       description: t("plans.descriptions.daily"),
       features: [
@@ -82,7 +82,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
         { label: t("plans.features.update3"), status: true },
         { label: t("plans.features.limit1500"), status: true },
         { label: t("plans.features.customTags"), status: true },
-        { label: t("plans.features.charts"), status: true },
+        { label: t("plans.features.charts"), status: false },
       ],
       buttonText: t("plans.buttons.selectDaily"),
       highlight: true,
@@ -90,7 +90,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
     {
       id: "PRO_STREAM",
       name: t("plans.names.pro"),
-      price: { RUB: "2 250 ₽", USD: "$24.99" },
+      price: { RUB: "890 ₽", USD: "$8.99" },
       period: t("common.monthShort"),
       description: t("plans.descriptions.pro"),
       features: [
@@ -98,7 +98,7 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
         { label: t("plans.features.updateDaily"), status: true },
         { label: t("plans.features.limit6000"), status: true },
         { label: t("plans.features.customTags"), status: true },
-        { label: t("plans.features.trends"), status: true },
+        { label: t("plans.features.charts"), status: true },
       ],
       buttonText: t("plans.buttons.getPro"),
       highlight: false,
@@ -107,8 +107,8 @@ export const Plans: React.FC<PlansProps> = ({ onBack, onNavigateLegal }) => {
   ];
 
   const FUEL_PACKS = [
-    { id: "500", amount: "500", price: { RUB: "290 ₽", USD: "$2.99" }, icon: "⛽" },
-    { id: "2000", amount: "2000", price: { RUB: "690 ₽", USD: "$6.99" }, icon: "🔥" },
+    { id: "500", amount: "500", price: { RUB: "149 ₽", USD: "$1.49" }, icon: "⛽" },
+    { id: "2000", amount: "2000", price: { RUB: "390 ₽", USD: "$3.99" }, icon: "🔥" },
   ];
 
   return (
