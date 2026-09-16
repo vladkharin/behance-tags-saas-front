@@ -287,14 +287,6 @@
     "title": "How It Works",
     "back": "← Back",
     "updated": "Guide updated for 2026",
-    "steps": {
-      "step1Title": "1. Paste your Behance project link",
-      "step1Desc": "Copy URL from browser address bar (e.g. behance.net/gallery/123456/Project) and paste into BeRanked.",
-      "step2Title": "2. Automatic robot analysis",
-      "step2Desc": "Our scraper retrieves all tags and queries Behance search engine to detect your exact rankings across all keywords.",
-      "step3Title": "3. Track dynamics & optimize",
-      "step3Desc": "Monitor growth on charts, replace underperforming tags, and climb into the TOP-10 search results to attract paying clients."
-    },
     "categories": [
       {
         "title": "1. Core Principles & Rank Tracking",
@@ -436,17 +428,9 @@
     "title": "Privacy Policy",
     "updated": "Effective Date: July 15, 2026",
     "back": "← Back to Home",
-    "intro": "This Privacy Policy defines how BeRanked collects, stores, and protects personal data provided by users of the service.",
-    "section1Title": "1. General Provisions",
-    "section1Text": "We respect user privacy and comply with global data protection standards (GDPR-aligned). We never sell personal data to third parties.",
-    "section2Title": "2. Data We Collect",
-    "section2Text": "We only collect essential data: email address for account authentication and publicly accessible Behance project URLs provided by users.",
-    "section3Title": "3. Data Security",
-    "section3Text": "All network traffic is encrypted using TLS/SSL. Passwords and sensitive authentication tokens are hashed using industry-standard cryptographic algorithms.",
     "requisites": {
       "title": "Operator Information",
       "name": "Vladislav Kharin (Individual Entrepreneur)",
-      "email": "dom.craft.digital@gmail.com",
       "inn": "Tax ID: 563811937786",
       "support": "Support: dom.craft.digital@gmail.com"
     },
@@ -478,13 +462,8 @@
     "updated": "Effective Date: July 15, 2026",
     "back": "← Back",
     "intro": "You may cancel your paid subscription or request a refund at any time in accordance with the terms below.",
-    "section1Title": "1. Eligibility for Refunds",
-    "section1Text": "If you encountered technical malfunctions that prevented you from using the service, or made an unintended duplicate payment, you are eligible for a 100% full refund within 14 days of purchase.",
     "stepsTitle": "2. How to Request a Refund",
     "stepsDesc": "If you made an accidental payment or experienced service issues, follow these steps:",
-    "step1": "1. Email our support team at dom.craft.digital@gmail.com.",
-    "step2": "2. State your registered account email and transaction date.",
-    "step3": "3. Our team will review your request and process the refund within 24 hours.",
     "footer": {
       "timeline": "Processing Time: Funds are returned to your original payment method within 5–10 business days depending on your bank.",
       "warning": "Notice: Refunds are issued for the full amount paid. We do not charge processing cancellation fees."
@@ -510,15 +489,10 @@
     "updated": "Effective Date: July 15, 2026",
     "back": "← Back",
     "warning": "Please read these Terms carefully. Registering an account or purchasing subscription services constitutes your unconditional acceptance of this Agreement.",
-    "section1Title": "1. Subject of the Agreement",
-    "section1Text": "The Contractor provides the Customer with access to the BeRanked cloud software for monitoring search rankings of publicly available creative portfolios.",
-    "section2Title": "2. Service Conditions",
-    "section2Text": "The service is provided on an 'as-is' and 'as-available' basis. The Contractor guarantees 100% account safety and does not require or store client Behance passwords.",
     "requisites": {
       "title": "Contractor Information",
       "name": "Vladislav Kharin",
       "inn": "Tax ID: 563811937786",
-      "email": "dom.craft.digital@gmail.com",
       "support": "Direct Support: dom.craft.digital@gmail.com"
     },
     "sections": [
