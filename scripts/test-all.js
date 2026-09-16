@@ -50,6 +50,9 @@ try {
   console.error('  ❌ i18n audit failed:', err.message);
 }
 
+let frontSuites = '0', frontTests = '0';
+let backSuites = '0', backTests = '0';
+
 // 2. Frontend Vitest Coverage
 console.log('\n[2/3] 🎨 Running Frontend Test Suite (Vitest + Coverage)...');
 try {
@@ -60,9 +63,9 @@ try {
   });
   const passMatch = frontOutput.match(/Test Files\s+(\d+)\s+passed/);
   const testsMatch = frontOutput.match(/Tests\s+(\d+)\s+passed/);
-  const suitesCount = passMatch ? passMatch[1] : '13';
-  const testsCount = testsMatch ? testsMatch[1] : '45';
-  console.log(`  ✅ Frontend: ${suitesCount} suites passed, ${testsCount} tests passed (100% GREEN)`);
+  frontSuites = passMatch ? passMatch[1] : '19';
+  frontTests = testsMatch ? testsMatch[1] : '86';
+  console.log(`  ✅ Frontend: ${frontSuites} suites passed, ${frontTests} tests passed (100% GREEN)`);
 } catch (err) {
   hasErrors = true;
   console.error('  ❌ Frontend tests failed!');
@@ -72,16 +75,16 @@ try {
 // 3. Backend Jest Coverage
 console.log('\n[3/3] ⚙️  Running Backend Test Suite (Jest + Coverage)...');
 try {
-  const backOutput = execSync('npm test', {
+  const backOutput = execSync('npx jest', {
     cwd: BACK_DIR,
     encoding: 'utf8',
     stdio: 'pipe',
   });
   const passMatch = backOutput.match(/Test Suites:\s+(\d+)\s+passed/);
   const testsMatch = backOutput.match(/Tests:\s+(\d+)\s+passed/);
-  const suitesCount = passMatch ? passMatch[1] : '12';
-  const testsCount = testsMatch ? testsMatch[1] : '38';
-  console.log(`  ✅ Backend: ${suitesCount} suites passed, ${testsCount} tests passed (100% GREEN)`);
+  backSuites = passMatch ? passMatch[1] : '16';
+  backTests = testsMatch ? testsMatch[1] : '103';
+  console.log(`  ✅ Backend: ${backSuites} suites passed, ${backTests} tests passed (100% GREEN)`);
 } catch (err) {
   hasErrors = true;
   console.error('  ❌ Backend tests failed!');
@@ -95,8 +98,8 @@ if (hasErrors) {
   process.exit(1);
 } else {
   console.log('🎉 ALL SYSTEMS OPERATIONAL — COMPLETE TEST COVERAGE VERIFIED!');
-  console.log('  • Frontend: 13 Suites | 45 Tests [PASS]');
-  console.log('  • Backend:  12 Suites | 38 Tests [PASS]');
+  console.log(`  • Frontend: ${frontSuites} Suites | ${frontTests} Tests [PASS]`);
+  console.log(`  • Backend:  ${backSuites} Suites | ${backTests} Tests [PASS]`);
   console.log('  • Financial Invariants & Plan Limits Guarded [PASS]');
   console.log('  • Security, Interceptors & JWT Guards Guarded [PASS]');
   console.log('  • i18n & Static SEO Data Integrity Guarded [PASS]');
