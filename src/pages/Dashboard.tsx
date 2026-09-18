@@ -168,10 +168,64 @@ export const Dashboard: React.FC<DashboardProps> = ({
     });
   }, [projectData?.tagsMatrix]);
 
+  // Dynamic smart suggestions based on active project title and niche
+  const suggestedTags = useMemo(() => {
+    if (isDemoMode || selectedProjectId === MOCK_DEMO_PROJECT.id) {
+      return ["smartwatch", "applewatch", "wearable", "uidesign", "fitnessapp"];
+    }
+
+    const title = selectedProjectInSidebar?.title || "";
+    if (!title) return [];
+
+    const words = title
+      .toLowerCase()
+      .replace(/[^a-zа-я0-9\s]/gi, " ")
+      .split(/\s+/)
+      .filter((w) => w.length >= 3 && !["the", "and", "for", "with", "case", "study"].includes(w));
+
+    const existingTags = new Set(
+      (projectData?.tagsMatrix || []).map((t) => t.tag.toLowerCase().replace(/^#/, "").trim())
+    );
+
+    const candidates = new Set<string>();
+
+    for (const word of words) {
+      if (!existingTags.has(word) && candidates.size < 5) {
+        candidates.add(word);
+      }
+    }
+
+    const lowerTitle = title.toLowerCase();
+    const nichePresets: Record<string, string[]> = {
+      perfume: ["packaging", "branding", "identity", "cosmetics", "bottle"],
+      identity: ["branding", "logodesign", "visualidentity", "stationery"],
+      packaging: ["packagingsociety", "boxdesign", "labeldesign", "mockup"],
+      brand: ["branding", "identity", "packaging", "typography"],
+      ui: ["uidesign", "uxdesign", "figma", "appdesign", "webdesign"],
+      ux: ["uxdesign", "uidesign", "wireframe", "userexperience"],
+      web: ["webdesign", "landingpage", "responsive", "website"],
+      "3d": ["3drender", "octane", "blender", "cinema4d", "cgi"],
+      motion: ["motiondesign", "animation", "aftereffects", "motiongraphics"],
+    };
+
+    for (const [key, preset] of Object.entries(nichePresets)) {
+      if (lowerTitle.includes(key)) {
+        for (const tag of preset) {
+          if (!existingTags.has(tag) && candidates.size < 5) {
+            candidates.add(tag);
+          }
+        }
+      }
+    }
+
+    return Array.from(candidates);
+  }, [isDemoMode, selectedProjectId, selectedProjectInSidebar?.title, projectData?.tagsMatrix]);
+
   // Refresh project details
   const refreshData = useCallback(
     async (targetId: string, isInitialLoad = false) => {
-      if (isDemoMode || targetId === MOCK_DEMO_PROJECT.id) {
+      const isTargetDemo = targetId === MOCK_DEMO_PROJECT.id;
+      if (isTargetDemo) {
         setProjectData(MOCK_DEMO_DETAILS);
         setHistory(MOCK_DEMO_HISTORY);
         if (isInitialLoad && MOCK_DEMO_DETAILS.tagsMatrix) {
@@ -195,9 +249,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           if (visibleTags.length === 0) {
             const allTags = detailsRes.tagsMatrix.map((t) => t.tag);
             setVisibleTags(allTags);
-            if (!isDemoMode) {
-              analyticsService.toggleAllTagsOnChart(targetId, true).catch(() => {});
-            }
+            analyticsService.toggleAllTagsOnChart(targetId, true).catch(() => {});
           }
         }
 
@@ -215,7 +267,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         console.error("Failed to refresh dashboard data", e);
       }
     },
-    [projectData?.status, visibleTags.length, isDemoMode, showToast, t],
+    [projectData?.status, visibleTags.length, showToast, t],
   );
 
   const handleTryDemo = useCallback(async () => {
@@ -292,7 +344,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   // --- USER ACTIONS ---
   const handleProjectSelect = async (id: string) => {
-    if (id === selectedProjectId && !isAddingNew) return;
+    if (id === selectedProjectId && !isAddingNew && !isDemoMode) return;
 
     setSelectedProjectId(id);
     setIsDemoMode(false);
@@ -339,6 +391,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       return;
     }
     setIsAddingNew(true);
+    setIsDemoMode(false);
     setSelectedProjectId(null);
   };
 
@@ -741,7 +794,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <TagsMatrix
                   tags={sortedAndFilteredTags}
                   visibleTags={visibleTags}
-                  suggestedTags={["smartwatch", "applewatch", "wearable", "uidesign", "fitnessapp"]}
+                  suggestedTags={suggestedTags}
                   tagColors={tagColors}
                   activeFilter={activeFilter}
                   hasCustomTags={planLimits.hasCustomTags}
