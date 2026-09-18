@@ -29,7 +29,7 @@ const mockAuthContextValue = {
   logout: vi.fn(),
 };
 
-const mockRealProject = {
+const mockProjectA = {
   id: 'arche-perfume-real-id',
   behanceId: '998877',
   title: 'ARCHE PERFUME /BRAND IDENTITY & PACKAGING',
@@ -45,8 +45,8 @@ const mockRealProject = {
   updatedAt: new Date().toISOString(),
 };
 
-const mockRealDetails = {
-  activeProject: mockRealProject,
+const mockDetailsA = {
+  activeProject: mockProjectA,
   plan: 'PRO_STREAM' as const,
   tagBalance: 200,
   lastAnalyzedAt: new Date().toISOString(),
@@ -56,14 +56,45 @@ const mockRealDetails = {
   ],
 };
 
+const mockProjectB = {
+  id: 'fintech-crypto-app-id',
+  behanceId: '112233',
+  title: 'Fintech Crypto Mobile App UI/UX',
+  url: 'https://behance.net/gallery/112233/Fintech',
+  views: 3100,
+  appreciations: 420,
+  comments: 31,
+  userId: 'user-123',
+  lastAnalyzedAt: new Date().toISOString(),
+  isScheduled: false,
+  analysisStatus: 'IDLE' as const,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+const mockDetailsB = {
+  activeProject: mockProjectB,
+  plan: 'PRO_STREAM' as const,
+  tagBalance: 180,
+  lastAnalyzedAt: new Date().toISOString(),
+  tagsMatrix: [
+    { tag: 'crypto app', currentRank: 4, previousRank: 8, onChart: true },
+    { tag: 'fintech ui', currentRank: 2, previousRank: 3, onChart: true },
+  ],
+};
+
 describe('Dashboard Demo to Real Project Switching', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.setItem('onboarding_complete', 'true');
-    (analyticsService.getUserProjects as any).mockResolvedValue([mockRealProject]);
-    (analyticsService.getProjectDetails as any).mockResolvedValue(mockRealDetails);
+    (analyticsService.getUserProjects as any).mockResolvedValue([mockProjectA, mockProjectB]);
+    (analyticsService.getProjectDetails as any).mockImplementation((id: string) => {
+      if (id === mockProjectB.id) return Promise.resolve(mockDetailsB);
+      return Promise.resolve(mockDetailsA);
+    });
     (analyticsService.getProjectHistory as any).mockResolvedValue({
       perfume: [{ date: '2026-03-01', rank: 1 }],
+      'crypto app': [{ date: '2026-03-01', rank: 4 }],
     });
   });
 
@@ -85,7 +116,7 @@ describe('Dashboard Demo to Real Project Switching', () => {
       </MemoryRouter>
     );
 
-    // 1. Initially loaded with Real project
+    // 1. Initially loaded with Real project A
     await waitFor(() => {
       expect(screen.getAllByText(/ARCHE PERFUME/i).length).toBeGreaterThan(0);
     });
@@ -111,6 +142,82 @@ describe('Dashboard Demo to Real Project Switching', () => {
     // 6. Real project tags should be displayed and NOT smartwatch tags
     await waitFor(() => {
       expect(screen.getAllByText(/#perfume/i).length).toBeGreaterThan(0);
+    });
+  });
+
+  it('switches cleanly between two different user projects without leaking stale state', async () => {
+    render(
+      <MemoryRouter>
+        <ThemeContext.Provider value={{ theme: 'dark', toggleTheme: vi.fn() }}>
+          <AuthContext.Provider value={mockAuthContextValue}>
+            <ToastProvider>
+              <Dashboard
+                onNavigatePricing={vi.fn()}
+                onNavigateLegal={vi.fn()}
+                logout={vi.fn()}
+                initialDemo={false}
+              />
+            </ToastProvider>
+          </AuthContext.Provider>
+        </ThemeContext.Provider>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/ARCHE PERFUME/i).length).toBeGreaterThan(0);
+    });
+
+    // Switch to Project B
+    const projectBButtons = screen.getAllByText(/Fintech Crypto Mobile App/i);
+    fireEvent.click(projectBButtons[0]);
+
+    await waitFor(() => {
+      expect(analyticsService.getProjectDetails).toHaveBeenCalledWith('fintech-crypto-app-id');
+    });
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/#crypto app/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/#fintech ui/i).length).toBeGreaterThan(0);
+    });
+  });
+
+  it('exits demo mode properly when clicking + Новый проект', async () => {
+    render(
+      <MemoryRouter>
+        <ThemeContext.Provider value={{ theme: 'dark', toggleTheme: vi.fn() }}>
+          <AuthContext.Provider value={mockAuthContextValue}>
+            <ToastProvider>
+              <Dashboard
+                onNavigatePricing={vi.fn()}
+                onNavigateLegal={vi.fn()}
+                logout={vi.fn()}
+                initialDemo={false}
+              />
+            </ToastProvider>
+          </AuthContext.Provider>
+        </ThemeContext.Provider>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/ARCHE PERFUME/i).length).toBeGreaterThan(0);
+    });
+
+    // Enter demo mode
+    const demoButtons = screen.getAllByText(/демо-проект/i);
+    fireEvent.click(demoButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/Smart Watch UI\/UX Design Case/i).length).toBeGreaterThan(0);
+    });
+
+    // Click + Новый проект
+    const addProjectBtn = screen.getAllByText(/НОВЫЙ ПРОЕКТ/i)[0];
+    fireEvent.click(addProjectBtn);
+
+    // Should display AddProjectView (has Behance case URL input)
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/behance\.net\/gallery/i)).toBeDefined();
     });
   });
 });
