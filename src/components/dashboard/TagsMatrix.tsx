@@ -73,7 +73,13 @@ export const TagsMatrix: React.FC<TagsMatrixProps> = ({
   const getTagTrend = useCallback(
     (item: TagMatrixItem): number => {
       if (getTrend) return getTrend(item.tag, item.currentRank);
-      if (typeof item.currentRank === "number" && typeof item.previousRank === "number") {
+      if (typeof item.rankDelta === "number") return item.rankDelta;
+      if (
+        typeof item.currentRank === "number" &&
+        item.currentRank > 0 &&
+        typeof item.previousRank === "number" &&
+        item.previousRank > 0
+      ) {
         return item.previousRank - item.currentRank;
       }
       return 0;
