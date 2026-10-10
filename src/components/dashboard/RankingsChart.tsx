@@ -19,7 +19,7 @@ interface CustomTooltipProps {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, coordinate, isDark }) => {
   const { t } = useTranslation();
   if (active && payload && payload.length) {
-    const validPayload = payload.filter((item) => item.value !== undefined && item.value !== null);
+    const validPayload = payload.filter((item) => item.value !== undefined);
     const sortedPayload = [...validPayload].sort((a, b) => {
       const valA = Number(a.value) > 0 ? Number(a.value) : 999;
       const valB = Number(b.value) > 0 ? Number(b.value) : 999;
