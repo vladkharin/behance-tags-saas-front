@@ -831,10 +831,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <ShareCardModal
             isOpen={isShareCardOpen}
             onClose={() => setIsShareCardOpen(false)}
-            projectTitle={selectedProjectInSidebar.title || "Behance Case"}
-            topTags={sortedAndFilteredTags.filter((t) => t.currentRank && t.currentRank <= 10)}
-            totalViews={projectData?.activeProject?.views || 0}
-            totalLikes={projectData?.activeProject?.appreciations || 0}
+            project={selectedProjectInSidebar}
+            tags={projectData?.tagsMatrix || sortedAndFilteredTags || []}
+            views={projectData?.activeProject?.views ?? selectedProjectInSidebar.views ?? 0}
+            appreciations={projectData?.activeProject?.appreciations ?? selectedProjectInSidebar.appreciations ?? 0}
           />
         )}
       </div>

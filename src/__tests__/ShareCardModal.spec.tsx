@@ -91,4 +91,34 @@ describe("ShareCardModal Component", () => {
     fireEvent.click(bannerBtn);
     expect(bannerBtn).toBeDefined();
   });
+
+  it("calls onClose when clicking close button", () => {
+    const handleClose = vi.fn();
+    render(
+      <ShareCardModal
+        isOpen={true}
+        onClose={handleClose}
+        project={mockProject}
+        tags={mockTags}
+      />
+    );
+
+    const closeBtn = screen.getByText("✕");
+    fireEvent.click(closeBtn);
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders gracefully with empty tags list and missing ranks", () => {
+    render(
+      <ShareCardModal
+        isOpen={true}
+        onClose={vi.fn()}
+        project={{ ...mockProject, title: "" }}
+        tags={[]}
+      />
+    );
+
+    expect(screen.getAllByText("Behance Case").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/0 in TOP-10/i)).toBeDefined();
+  });
 });

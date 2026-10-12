@@ -18,7 +18,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   isOpen,
   onClose,
   project,
-  tags,
+  tags = [],
   views = 0,
   appreciations = 0,
 }) => {
@@ -31,12 +31,27 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
 
   if (!isOpen || !project) return null;
 
-  const validRankedTags = tags
+  const validRankedTags = (tags || [])
     .filter((t) => typeof t.currentRank === "number" && t.currentRank > 0)
     .sort((a, b) => (a.currentRank || 999) - (b.currentRank || 999));
 
   const bestTag = validRankedTags[0];
   const top10Tags = validRankedTags.filter((t) => (t.currentRank || 999) <= 10);
+
+  const drawRoundRect = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    r: number
+  ) => {
+    if (typeof (ctx as any).roundRect === "function") {
+      (ctx as any).roundRect(x, y, w, h, r);
+    } else {
+      ctx.rect(x, y, w, h);
+    }
+  };
 
   const drawCard = (formatType: CardFormat): HTMLCanvasElement => {
     const canvas = document.createElement("canvas");
@@ -89,7 +104,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
       ctx.strokeStyle = "rgba(0, 87, 255, 0.5)";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(80, 220, width - 160, 100, 30);
+      drawRoundRect(ctx, 80, 220, width - 160, 100, 30);
       ctx.fill();
       ctx.stroke();
 
@@ -100,7 +115,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
       // Project Title
       ctx.fillStyle = "#ffffff";
       ctx.font = "900 54px Inter, system-ui, sans-serif";
-      const displayTitle = project.title.length > 32 ? project.title.substring(0, 29) + "..." : project.title;
+      const pTitle = project.title || "Behance Case";
+      const displayTitle = pTitle.length > 32 ? pTitle.substring(0, 29) + "..." : pTitle;
       ctx.fillText(displayTitle, 80, 420);
 
       // Best rank hero card
@@ -109,7 +125,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         ctx.strokeStyle = "rgba(34, 197, 94, 0.4)";
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.roundRect(80, 480, width - 160, 260, 36);
+        drawRoundRect(ctx, 80, 480, width - 160, 260, 36);
         ctx.fill();
         ctx.stroke();
 
@@ -138,7 +154,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(80, curY, width - 160, 85, 24);
+        drawRoundRect(ctx, 80, curY, width - 160, 85, 24);
         ctx.fill();
         ctx.stroke();
 
@@ -150,7 +166,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         const isTop = rankVal <= 10;
         ctx.fillStyle = isTop ? "rgba(34, 197, 94, 0.2)" : "rgba(0, 87, 255, 0.2)";
         ctx.beginPath();
-        ctx.roundRect(width - 240, curY + 15, 120, 55, 16);
+        drawRoundRect(ctx, width - 240, curY + 15, 120, 55, 16);
         ctx.fill();
 
         ctx.fillStyle = isTop ? "#4ade80" : "#60a5fa";
@@ -163,7 +179,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
       // Bottom Footer CTA
       ctx.fillStyle = "rgba(0, 87, 255, 0.15)";
       ctx.beginPath();
-      ctx.roundRect(80, height - 260, width - 160, 140, 30);
+      drawRoundRect(ctx, 80, height - 260, width - 160, 140, 30);
       ctx.fill();
 
       ctx.fillStyle = "#ffffff";
@@ -186,7 +202,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "900 42px Inter, system-ui, sans-serif";
-      const displayTitle = project.title.length > 40 ? project.title.substring(0, 37) + "..." : project.title;
+      const pTitle = project.title || "Behance Case";
+      const displayTitle = pTitle.length > 40 ? pTitle.substring(0, 37) + "..." : pTitle;
       ctx.fillText(displayTitle, 60, isSquare ? 160 : 150);
 
       if (bestTag && bestTag.currentRank) {
@@ -194,7 +211,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         ctx.strokeStyle = "rgba(0, 87, 255, 0.4)";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(60, isSquare ? 220 : 210, width - 120, isSquare ? 200 : 160, 24);
+        drawRoundRect(ctx, 60, isSquare ? 220 : 210, width - 120, isSquare ? 200 : 160, 24);
         ctx.fill();
         ctx.stroke();
 
@@ -235,7 +252,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         ctx.strokeStyle = (item.currentRank || 999) <= 10 ? "rgba(34, 197, 94, 0.4)" : "rgba(255, 255, 255, 0.1)";
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(tX, tY, textWidth, 48, 14);
+        drawRoundRect(ctx, tX, tY, textWidth, 48, 14);
         ctx.fill();
         ctx.stroke();
 
@@ -261,7 +278,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
       const canvas = drawCard(format);
       const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
-      link.download = `beranked-${format}-${project.title.toLowerCase().replace(/[^a-z0-9]/gi, "-")}.png`;
+      const safeSlug = (project.title || "case").toLowerCase().replace(/[^a-z0-9]/gi, "-");
+      link.download = `beranked-${format}-${safeSlug}.png`;
       link.href = dataUrl;
       link.click();
       showToast(isEn ? "Image downloaded in HD! 📸" : "Карточка отчета успешно скачана! 📸", "success");
@@ -366,7 +384,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
           <div className="flex items-center justify-between text-xs">
             <span className="font-black text-behance-blue flex items-center gap-1.5">
               <span>🔥</span>
-              <span>{bestTag ? `#${bestTag.tag} — ТОП-${bestTag.currentRank}` : project.title}</span>
+              <span>{bestTag ? `#${bestTag.tag} — ТОП-${bestTag.currentRank}` : (project.title || "Behance Case")}</span>
             </span>
             <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 font-mono text-[10px] font-bold">
               {top10Tags.length} in TOP-10
@@ -374,7 +392,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
           </div>
 
           <p className="text-sm font-bold text-white truncate">
-            {project.title}
+            {project.title || "Behance Case"}
           </p>
 
           <div className="flex flex-wrap gap-1.5 pt-1">
