@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useCallback } from "react";
-import type { AuthCredentials, AuthResponse, UserProfile } from "../types/auth.types";
+import type { AuthCredentials, AuthResponse, UserProfile, RegisterResponse, VerifyCodeCredentials } from "../types/auth.types";
 import { authService } from "../api/auth.service";
 import api from "../api/axios";
 import { AuthContext } from "./AuthContextInstance";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return !!localStorage.getItem("token");
+    return typeof localStorage !== "undefined" && !!localStorage.getItem("token");
   });
 
   const [user, setUser] = useState<string | null>(() => {
-    return localStorage.getItem("userId");
+    return typeof localStorage !== "undefined" ? localStorage.getItem("userId") : null;
   });
 
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    return localStorage.getItem("isAdmin") === "true";
+    return typeof localStorage !== "undefined" && localStorage.getItem("isAdmin") === "true";
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);

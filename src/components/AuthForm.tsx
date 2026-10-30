@@ -7,17 +7,18 @@ import { fireConfetti } from "../utils/confetti";
 import type { AuthCredentials } from "../types/auth.types";
 
 interface AuthFormProps {
+  initialMode?: "login" | "register";
   onNavigatePrivacy: () => void;
   onNavigateTerms: () => void;
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigateTerms }) => {
+export const AuthForm: React.FC<AuthFormProps> = ({ onNavigatePrivacy, onNavigateTerms, initialMode = "login" }) => {
   const { login, register, verifyCode, resendCode, isLoading } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
 
-  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [isLoginMode, setIsLoginMode] = useState(initialMode === "login");
   const [isVerificationStep, setIsVerificationStep] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContextInstance";
 import { useToast } from "../context/ToastContext";
@@ -284,9 +284,9 @@ export const GuideDetailPage: React.FC = () => {
             <h3 className="text-xl font-black">{t("guides.readAlso")}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {relatedArticles.map((item) => (
-                <div
+                <Link
                   key={item.slug}
-                  onClick={() => navigate(`/guides/${item.slug}`)}
+                  to={`/guides/${item.slug}`}
                   className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group hover:-translate-y-1 ${
                     isDark
                       ? "bg-[#141418] border-white/5 hover:border-behance-blue/40"
@@ -304,7 +304,7 @@ export const GuideDetailPage: React.FC = () => {
                   <span className="text-[11px] font-bold text-behance-blue mt-4 block">
                     {t("guides.readBtn")}
                   </span>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

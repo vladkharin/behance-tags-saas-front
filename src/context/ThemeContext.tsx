@@ -3,7 +3,7 @@ import { ThemeContext, type Theme } from "./ThemeContextInstance";
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem("theme") as Theme;
+    const saved = typeof localStorage !== "undefined" ? localStorage.getItem("theme") as Theme : null;
     return saved || "light";
   });
 

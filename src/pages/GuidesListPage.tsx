@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContextInstance";
 import { GUIDES_ARTICLES, getLocalizedArticle } from "../data/guidesData";
@@ -179,9 +179,9 @@ export const GuidesListPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredArticles.map((article) => (
-              <article
+              <Link
                 key={article.slug}
-                onClick={() => navigate(`/guides/${article.slug}`)}
+                to={`/guides/${article.slug}`}
                 className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col justify-between group hover:-translate-y-1 shadow-sm ${
                   isDark
                     ? "bg-[#121216] border-white/10 hover:border-behance-blue/50 hover:shadow-blue-500/5"
@@ -217,7 +217,7 @@ export const GuidesListPage: React.FC = () => {
                     {t("guides.readBtn")}
                   </span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}

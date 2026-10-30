@@ -53,11 +53,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           "price": "0",
           "priceCurrency": "RUB",
         },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "reviewCount": "128",
-        },
       },
       {
         "@type": "FAQPage",

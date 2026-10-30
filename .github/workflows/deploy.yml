@@ -24,8 +24,14 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
 
+      - name: 🧪 Run Regression Tests
+        run: npm test -- --reporter=dot
+
       - name: 🏗️ Build Production Bundle
         run: npm run build
+
+      - name: 🔎 Verify Prerendered SEO Pages
+        run: npm run check:seo
 
   deploy-to-server:
     name: 🚀 Deploy Frontend to VPS

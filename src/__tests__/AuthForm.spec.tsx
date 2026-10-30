@@ -65,6 +65,18 @@ describe('AuthForm', () => {
     expect(screen.getByRole('button', { name: 'auth.noAccount' })).toBeInTheDocument();
   });
 
+  it('opens registration immediately when requested by the landing page', () => {
+    render(
+      <AuthForm
+        initialMode="register"
+        onNavigatePrivacy={mockNavigatePrivacy}
+        onNavigateTerms={mockNavigateTerms}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'auth.registerBtn' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox')).toBeInTheDocument();
+  });
+
   it('shows error if submitting empty email or password', () => {
     render(
       <AuthForm

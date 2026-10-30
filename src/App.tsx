@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ToastContainer } from "./components/ui/ToastContainer";
@@ -19,10 +19,13 @@ import { TagsCatalogPage } from "./pages/TagsCatalogPage";
 import { NicheTagDetailPage } from "./pages/NicheTagDetailPage";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { PageMetadata } from "./components/PageMetadata";
+import { NotFoundPage } from "./pages/NotFoundPage";
 
 const AuthRoute: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -30,6 +33,7 @@ const AuthRoute: React.FC = () => {
 
   return (
     <AuthForm
+      initialMode={searchParams.get("mode") === "register" ? "register" : "login"}
       onNavigatePrivacy={() => navigate("/privacy")}
       onNavigateTerms={() => navigate("/terms")}
     />
@@ -54,7 +58,7 @@ const RootRoute: React.FC = () => {
 
   return (
     <LandingPage
-      onNavigateAuth={() => navigate("/auth")}
+      onNavigateAuth={(mode) => navigate(mode === "register" ? "/auth?mode=register" : "/auth")}
       onTryDemo={() => navigate("/demo")}
       onNavigatePlans={() => navigate("/plans")}
       onNavigateLegal={(view) => navigate(`/${view}`)}
@@ -62,12 +66,12 @@ const RootRoute: React.FC = () => {
   );
 };
 
-const MainApp: React.FC = () => {
-  const { logout } = useAuth();
+export const MainApp: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-behance-grayBg dark:bg-behance-darkBg">
+      <PageMetadata />
       <Routes>
         {/* Главный роут: Лендинг для гостей, Dashboard для авторизованных */}
         <Route path="/" element={<RootRoute />} />
@@ -120,8 +124,7 @@ const MainApp: React.FC = () => {
           />
         </Route>
 
-        {/* Дефолтный редирект */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
   );
