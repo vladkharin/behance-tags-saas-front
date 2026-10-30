@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: 🛠️ Build & Type Check
+    name: 🛠️ Build, Test & SEO Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -41,23 +41,17 @@ jobs:
 
     steps:
       - name: 📡 SSH Remote Deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          script: |
-            echo "🚀 Starting deployment of BeRanked Frontend..."
-            cd ~/projects/behance-tags-saas-front || exit 1
-            git fetch --all
-            git reset --hard origin/main
-            echo "📦 Installing dependencies & building frontend..."
-            npm ci
-            npm run build
-            echo "🔄 Reloading web server if needed..."
-            # Если раздача идет через systemd/nginx/caddy:
-            sudo systemctl reload nginx 2>/dev/null || sudo systemctl reload caddy 2>/dev/null || true
-            echo "✅ Frontend deployment finished successfully!"
+        env:
+          DEPLOY_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_KEY"
+          umask 077
+          key="$RUNNER_TEMP/beranked-deploy-key"
+          hosts="$RUNNER_TEMP/beranked-known-hosts"
+          trap 'rm -f "$key" "$hosts"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" > "$key"
+          printf '%s\n' '185.46.11.122 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFfG9qStVh5cX5Zjrt5kpcJM+mzvke1UKOKvkNVzSGpo' > "$hosts"
+          ssh -i "$key" -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+            -o ConnectTimeout=30 vladkharin@185.46.11.122 deploy-beranked-frontend

@@ -40,6 +40,16 @@ representative guide and niche URLs. The project includes both verification
 meta tags already; account verification and indexing status still need to be
 checked in the respective dashboards.
 
+GitHub Actions uses the repository secret `SERVER_SSH_KEY` and a pinned SSH
+host key to invoke only `deploy-beranked-frontend`. On the VPS, install
+`deploy/deploy-frontend.sh` root-owned at
+`/usr/local/bin/deploy-beranked-frontend` and restrict its dedicated public key
+with `restrict,command="/usr/local/bin/deploy-beranked-frontend"` in the deploy
+user's `authorized_keys`. The script checks the original command, serializes
+deployments, builds in a temporary directory, validates SEO output, and swaps
+the public directory atomically. It restores the previous build if the live
+URL check fails. Nginx configuration changes remain a separate server task.
+
 Client-side navigation and language changes update the same metadata. The
 canonical path is language-neutral; the build publishes Russian HTML, while
 English remains available through the existing language switcher. Separate
