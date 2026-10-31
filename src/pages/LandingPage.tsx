@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../styles/landing-polish.css";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContextInstance";
@@ -21,6 +22,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const toggleLanguage = () => {
@@ -69,7 +71,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-behance-grayBg dark:bg-behance-darkBg text-zinc-900 dark:text-white transition-colors duration-200 selection:bg-behance-blue selection:text-white">
+    <div className="br-landing min-h-screen bg-behance-grayBg dark:bg-behance-darkBg text-zinc-900 dark:text-white transition-colors duration-200 selection:bg-behance-blue selection:text-white">
       {/* 0. SEO SCHEMA.ORG JSON-LD */}
       <script
         type="application/ld+json"
@@ -77,7 +79,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       />
 
       {/* 1. STICKY HEADER */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-[#0f0f13]/80 border-b border-zinc-200/80 dark:border-white/10 transition-all">
+      <header className="br-header sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-[#0f0f13]/80 border-b border-zinc-200/80 dark:border-white/10 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* LOGO */}
           <div className="flex items-center gap-3">
@@ -90,7 +92,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           {/* NAV LINKS (DESKTOP) */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-bold opacity-75 hover:opacity-100 transition-opacity">
+          <nav className="br-desktop-nav hidden xl:flex items-center gap-4 text-xs font-bold opacity-75 hover:opacity-100 transition-opacity">
             <a href="#features" className="hover:text-behance-blue transition-colors">
               {t("landing.nav.features")}
             </a>
@@ -116,7 +118,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </nav>
 
           {/* ACTION BUTTONS & CONTROLS */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="br-header-actions flex items-center gap-2 sm:gap-3">
             {/* LANG SWITCHER */}
             <button
               onClick={toggleLanguage}
@@ -150,16 +152,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <button
               onClick={() => onNavigateAuth("register")}
               type="button"
-              className="px-4 py-2 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm shadow-blue-500/25 hover:scale-[1.02] active:scale-95 cursor-pointer"
+              className="br-header-start px-4 py-2 rounded-xl bg-behance-blue hover:bg-behance-darkBlue text-white text-xs font-black uppercase tracking-wider transition-all shadow-sm shadow-blue-500/25 hover:scale-[1.02] active:scale-95 cursor-pointer"
             >
               {t("landing.nav.startFree")}
             </button>
+            <button type="button" className="br-menu-toggle" aria-expanded={menuOpen} aria-controls="br-mobile-nav" aria-label={i18n.language === 'ru' ? 'Меню' : 'Menu'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? '✕' : '☰'}</button>
           </div>
         </div>
+        {menuOpen && <nav id="br-mobile-nav" className="br-mobile-nav" aria-label={i18n.language === 'ru' ? 'Навигация' : 'Navigation'} onClick={() => setMenuOpen(false)}>
+          <a href="#features">{t('landing.nav.features')}</a><a href="#how-it-works">{t('landing.nav.howItWorks')}</a><a href="#pricing">{t('landing.nav.pricing')}</a><Link to="/tags">{t('landing.nav.tagsCatalog')}</Link><Link to="/guides">{t('landing.nav.guides')}</Link><a href="#faq">FAQ</a><button type="button" onClick={() => onNavigateAuth('login')}>{t('landing.nav.login')}</button>
+        </nav>}
       </header>
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden">
+      <section className="br-hero relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           {/* SAFETY BADGE */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-behance-blue text-xs font-black uppercase tracking-wider animate-in fade-in">
@@ -201,7 +207,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           {/* INTERACTIVE MOCK PREVIEW CARD */}
-          <div className="pt-8 max-w-4xl mx-auto">
+          <div className="br-preview pt-8 max-w-4xl mx-auto">
             <div
               className={`p-5 sm:p-7 rounded-3xl border shadow-2xl transition-all ${
                 isDark
@@ -216,10 +222,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
                   <div className="text-left">
                     <div className="text-xs font-black uppercase tracking-wider">
-                      Behance Case Rankings #1
+                      {i18n.language === 'ru' ? 'Пример проверки позиций' : 'Example rank check'}
                     </div>
                     <div className="text-[11px] opacity-60">
-                      Smart Watch UI/UX Design Case • 24 Tags Active
+                      Smart Watch UI/UX · DEMO
                     </div>
                   </div>
                 </div>

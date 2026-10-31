@@ -8,7 +8,7 @@ describe("Public HTML without browser APIs", () => {
     expect(typeof window).toBe("undefined");
     const html = await renderPage("/");
     expect(html).toContain("<h1");
-    expect(html).toContain("Выводите свои кейсы в ТОП поиска Behance");
+    expect(html).toContain("Узнайте, где ваш кейс на Behance.");
     expect(html).not.toContain("aggregateRating");
   });
 

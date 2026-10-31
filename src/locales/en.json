@@ -574,25 +574,25 @@
       "tagsCatalog": "Tags Directory"
     },
     "hero": {
-      "safetyBadge": "🛡️ 100% Safe: No passwords or ban risk",
-      "title": "Rank your Behance cases at the TOP of search with data",
-      "subtitle": "Professional tag rank tracker for Behance creators. Discover your true positions in search results, spot rising trends, and attract high-ticket clients daily.",
-      "startFreeBtn": "🚀 Try Free Now",
-      "viewDemoBtn": "👁️ View Live Demo",
-      "trustNote": "🔒 No Adobe credentials required • Scanning public search results only",
-      "activeUsers": "over 1,500+ projects tracked",
+      "safetyBadge": "No Adobe ID access required",
+      "title": "See where your Behance project stands.",
+      "subtitle": "Track your project by tag, compare position changes and spot opportunities. All in one dashboard.",
+      "startFreeBtn": "Try for free",
+      "viewDemoBtn": "Explore the demo",
+      "trustNote": "All you need is a public project link",
+      "activeUsers": "Tag-based rank tracking",
       "badgeTop10": "↑ TOP-10 (8 tags)"
     },
     "safety": {
-      "tag": "100% Safety Guarantee",
-      "title": "Why is your Behance account completely safe?",
+      "tag": "How access works",
+      "title": "Keep control of your Behance profile",
       "subtitle": "BeRanked is designed as a pure analytics tool. We never touch or interfere with your Adobe profile.",
       "card1Title": "🚫 No Passwords Required",
       "card1Desc": "We never ask for your Adobe ID or Behance credentials. Registration is completely independent.",
       "card2Title": "🌐 Public Search Only",
       "card2Desc": "The system queries public Behance search pages exactly like any human visitor browsing the platform.",
-      "card3Title": "🛡️ Zero Ban Risk",
-      "card3Desc": "No bot networks, spamming, or fake engagement. Your account is never linked to automated background requests."
+      "card3Title": "No actions on your behalf",
+      "card3Desc": "The service does not post comments, like projects or change your profile. Analysis uses public search pages."
     },
     "features": {
       "tag": "Analytics Suite",
@@ -634,7 +634,7 @@
       "tag": "Questions & Answers",
       "title": "Frequently Asked Questions",
       "q1": "Is it safe to use BeRanked for my Behance account?",
-      "a1": "Yes, 100% safe. BeRanked operates strictly as an external scanner of public search results. We never ask for Adobe passwords or perform actions on your behalf, so there is zero risk of bans or penalties.",
+      "a1": "BeRanked analyses public search pages without requesting access to your Adobe ID. It does not change your profile or act on your behalf.",
       "q2": "How do optimized tags help my project reach the Top and get Featured?",
       "a2": "Behance search algorithms prioritize projects with high relevance, search traffic, and user engagement. By tracking accurate ranks, you can replace stagnant tags with high-velocity terms that land on Page 1.",
       "q3": "How often are rankings updated?",
